@@ -13,7 +13,7 @@
 * Grades: Your course grade will be an average of the grades on your weekly assignments. Each assignment will be graded on the traditional 0-100 scale. Letter grades will be assigned according to the following rules:
 
 | Numeric Grade | Letter Grade |
-|--------------:|--------------|
+|:--------------|:-------------|
 | 97-100        | A+           |
 
-#### Course Out
+#### Course Outline
