@@ -149,5 +149,5 @@ abline(v=seq(from=0,to=1,by=0.2),lty=3,lwd=0.5)
 ```
 
 <p align="left">
-<img src="/gfiles/like-plots.png" width="500px">
+<img src="/gfiles/like-plots.png" width="800px">
 </p>
