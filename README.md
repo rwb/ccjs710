@@ -31,4 +31,17 @@
 #### Course Outline
 
 * 9/2: course overview, maximum likelihood
-* 
+* 9/9: differences between proportions, relative risk statistics, odds ratios
+* 9/16: linear probability, logit, and probit
+* 9/23: multinomial logit
+* 9/30: counted outcomes
+* 10/7: zero-inflation and mixtures
+* 10/14: hurdle specifications
+* 10/21: tobit
+* 10/28: sample selection problems 
+* 11/4: instrumental variables
+* 11/11: bounding
+* 11/18: discrete survival time
+* 11/25: no class, Thanksgiving Holiday
+* 12/2: parametric survival time
+* 12/9: split population specifications
