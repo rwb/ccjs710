@@ -5,7 +5,6 @@
 * Instructor: Bobby Brame (rbrame@umd.edu)
 * Office: LeFrak 2139
 * Standing office hours: Thursday 2-3:30 or by appointment.
-* Prerequisite: Must have completed an approved doctoral level statistics course.
 * Course description: Application of advanced data analysis strategies to criminological and criminal justice problems, with specific focus on limited dependent variables.
 * Readings: assigned as we go along.
 * Disability Accommodations: If you have or think you might have a disability, injury, or other condition that could affect your class performance, please contact the [Accessibility and Disability Service](https://www.counseling.umd.edu/ads/). I will abide by accommodations recommended by the ADS in this course.
