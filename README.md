@@ -301,3 +301,462 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 [1] 0.2248646
 > 
 ```
+
+* Next, we turn to the issue of using a ratio of likelihoods to test the hypothesis of equal failure rates between the two groups.
+* We begin by imposing the equality constraint that both groups have the same failure rates. 
+* Then, we calculate the likelihood for each group subject to the constraint that the failure rate is a constant value of 0.182
+
+```r
+# the value of theta = 0.182 maximizes the likelihood function
+# note also that 57/313 = 0.182
+
+# calculate likelihood function for each group
+# holding theta constant at 0.182
+
+theta.c <- 0.182
+
+like.treat.const <- choose(n.treat,n.fail.treat)*
+                     theta.c^n.fail.treat*
+                     (1-theta.c)^(n.treat-n.fail.treat)
+
+like.control.const <- choose(n.control,n.fail.control)*
+                      theta.c^n.fail.control*
+                      (1-theta.c)^(n.control-n.fail.control)
+
+likelihood.constrained <- like.treat.const*like.control.const
+likelihood.constrained
+```
+
+* Here are the results:
+
+```rout
+> # the value of theta = 0.182 maximizes the likelihood function
+> # note also that 57/313 = 0.182
+> 
+> # calculate likelihood function for each group
+> # holding theta constant at 0.182
+> 
+> theta.c <- 0.182
+> 
+> like.treat.const <- choose(n.treat,n.fail.treat)*
++                      theta.c^n.fail.treat*
++                      (1-theta.c)^(n.treat-n.fail.treat)
+> 
+> like.control.const <- choose(n.control,n.fail.control)*
++                       theta.c^n.fail.control*
++                       (1-theta.c)^(n.control-n.fail.control)
+> 
+> likelihood.constrained <- like.treat.const*like.control.const
+> likelihood.constrained
+[1] 0.0006751225
+> 
+```
+
+* Then, we relax the constraint that the failure rate is constant for the two groups.
+* First, we assess the likelihood function for the treatment (arrest) group:
+
+```r
+# maximum likelihood estimate of theta (free) 
+# conditional on treat treatment is 0.109
+
+p1.treat <- choose(n.treat,n.fail.treat)
+p2.treat <- theta^(n.fail.treat)
+p3.treat <- (1-theta)^(n.treat-n.fail.treat)
+treat.likelihood <- p1.treat*p2.treat*p3.treat
+treat.log.likelihood <- log(treat.likelihood)
+df.treat <- data.frame(theta,treat.likelihood)
+subset(df.treat,abs(treat.likelihood-max(treat.likelihood))<0.01)
+maxlike.treat <- max(treat.likelihood)
+maxlike.treat
+
+# use finite difference approximation to calculate derivative
+# of log-likelihood function
+
+10/92
+
+theta1 <- 0.1086958
+thetad <- 0.1086957
+theta0 <- 0.1086956
+
+pi1a <- choose(n.treat,n.fail.treat)
+pi1b <- theta1^n.fail.treat
+pi1c <- (1-theta1)^(n.treat-n.fail.treat)
+pi1 <- pi1a*pi1b*pi1c
+logpi1 <- log(pi1)
+
+pida <- choose(n.treat,n.fail.treat)
+pidb <- thetad^n.fail.treat
+pidc <- (1-thetad)^(n.treat-n.fail.treat)
+pid <- pida*pidb*pidc
+logpid <- log(pid)
+
+pi0a <- choose(n.treat,n.fail.treat)
+pi0b <- theta0^n.fail.treat
+pi0c <- (1-theta0)^(n.treat-n.fail.treat)
+pi0 <- pi0a*pi0b*pi0c
+logpi0 <- log(pi0)
+
+# approximate derivative
+
+(logpi1-logpi0)/(theta1-theta0)
+
+# check the result
+
+d <- deriv(~ log(pida*(thetad^n.fail.treat)*(1-thetad)^(n.treat-n.fail.treat)), "thetad")
+eval(d)
+
+# use finite difference approximation to calculate 
+# second derivative of log-likelihood function
+
+j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+
+# check the result using the normal approximation
+# to the binomial distribution
+
+se.thetad <- 1/j^(1/2)
+se.thetad
+
+sqrt(thetad*(1-thetad)/n.treat)
+
+thetad-1.96*se.thetad
+thetad+1.96*se.thetad
+
+thetad-1.96*sqrt(thetad*(1-thetad)/n.treat)
+thetad+1.96*sqrt(thetad*(1-thetad)/n.treat)
+```
+
+* Here are the results:
+
+```rout
+> # maximum likelihood estimate of theta (free) 
+> # conditional on treat treatment is 0.109
+> 
+> p1.treat <- choose(n.treat,n.fail.treat)
+> p2.treat <- theta^(n.fail.treat)
+> p3.treat <- (1-theta)^(n.treat-n.fail.treat)
+> treat.likelihood <- p1.treat*p2.treat*p3.treat
+> treat.log.likelihood <- log(treat.likelihood)
+> df.treat <- data.frame(theta,treat.likelihood)
+> subset(df.treat,abs(treat.likelihood-max(treat.likelihood))<0.01)
+    theta treat.likelihood
+98  0.097        0.1236199
+99  0.098        0.1250755
+100 0.099        0.1264038
+101 0.100        0.1276031
+102 0.101        0.1286719
+103 0.102        0.1296095
+104 0.103        0.1304151
+105 0.104        0.1310888
+106 0.105        0.1316307
+107 0.106        0.1320415
+108 0.107        0.1323222
+109 0.108        0.1324741
+110 0.109        0.1324988
+111 0.110        0.1323984
+112 0.111        0.1321751
+113 0.112        0.1318314
+114 0.113        0.1313701
+115 0.114        0.1307944
+116 0.115        0.1301074
+117 0.116        0.1293126
+118 0.117        0.1284138
+119 0.118        0.1274147
+120 0.119        0.1263192
+121 0.120        0.1251316
+122 0.121        0.1238559
+> maxlike.treat <- max(treat.likelihood)
+> maxlike.treat
+[1] 0.1324988
+> 
+> # use finite difference approximation to calculate derivative
+> # of log-likelihood function
+> 
+> 10/92
+[1] 0.1086957
+> 
+> theta1 <- 0.1086958
+> thetad <- 0.1086957
+> theta0 <- 0.1086956
+> 
+> pi1a <- choose(n.treat,n.fail.treat)
+> pi1b <- theta1^n.fail.treat
+> pi1c <- (1-theta1)^(n.treat-n.fail.treat)
+> pi1 <- pi1a*pi1b*pi1c
+> logpi1 <- log(pi1)
+> 
+> pida <- choose(n.treat,n.fail.treat)
+> pidb <- thetad^n.fail.treat
+> pidc <- (1-thetad)^(n.treat-n.fail.treat)
+> pid <- pida*pidb*pidc
+> logpid <- log(pid)
+> 
+> pi0a <- choose(n.treat,n.fail.treat)
+> pi0b <- theta0^n.fail.treat
+> pi0c <- (1-theta0)^(n.treat-n.fail.treat)
+> pi0 <- pi0a*pi0b*pi0c
+> logpi0 <- log(pi0)
+> 
+> # approximate derivative
+> 
+> (logpi1-logpi0)/(theta1-theta0)
+[1] -4.542366e-05
+> 
+> # check the result
+> 
+> d <- deriv(~ log(pida*(thetad^n.fail.treat)*(1-thetad)^(n.treat-n.fail.treat)), "thetad")
+> eval(d)
+[1] -2.021137
+attr(,"gradient")
+            thetad
+[1,] -4.541657e-05
+> 
+> # use finite difference approximation to calculate 
+> # second derivative of log-likelihood function
+> 
+> j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+> 
+> # check the result using the normal approximation
+> # to the binomial distribution
+> 
+> se.thetad <- 1/j^(1/2)
+> se.thetad
+[1] 0.03243147
+> 
+> sqrt(thetad*(1-thetad)/n.treat)
+[1] 0.03245079
+> 
+> thetad-1.96*se.thetad
+[1] 0.04513001
+> thetad+1.96*se.thetad
+[1] 0.1722614
+> 
+> thetad-1.96*sqrt(thetad*(1-thetad)/n.treat)
+[1] 0.04509215
+> thetad+1.96*sqrt(thetad*(1-thetad)/n.treat)
+[1] 0.1722992
+> 
+```
+* Next, we generate a plot of the likelihood and log-likelihood function:
+
+```r
+par(mfrow=c(1,2))
+
+plot(x=theta,y=treat.likelihood,type="l",lty=1,lwd=1)
+abline(h=seq(from=0,to=0.12,by=0.01),lty=3,lwd=0.5)
+abline(v=seq(from=0,to=1,by=0.2),lty=3,lwd=0.5)
+
+plot(x=theta,y=treat.log.likelihood,type="l",lty=1,lwd=1)
+abline(h=seq(from=-500,to=0,by=50),lty=3,lwd=0.5)
+abline(v=seq(from=0,to=1,by=0.1),lty=3,lwd=0.5)
+```
+
+* Here is the resulting plotspace:
+
+<p align="left">
+<img src="/gfiles/like-plot2.png" width="800px">
+</p>
+
+* We now turn to the likelihood function for the control group:
+
+```r
+# maximum likelihood estimate of theta (free) 
+# conditional on control treatment is 0.213
+
+p1.control <- choose(n.control,n.fail.control)
+p2.control <- theta^(n.fail.control)
+p3.control <- (1-theta)^(n.control-n.fail.control)
+control.likelihood <- p1.control*p2.control*p3.control
+control.log.likelihood <- log(control.likelihood)
+df.control <- data.frame(theta,control.likelihood)
+subset(df.control,abs(control.likelihood-max(control.likelihood))<0.01)
+maxlike.control <- max(control.likelihood)
+maxlike.control
+
+47/221
+
+theta1 <- 0.2126698
+thetad <- 0.2126697
+theta0 <- 0.2126696
+
+pi1a <- choose(n.control,n.fail.control)
+pi1b <- theta1^n.fail.control
+pi1c <- (1-theta1)^(n.control-n.fail.control)
+pi1 <- pi1a*pi1b*pi1c
+logpi1 <- log(pi1)
+
+pida <- choose(n.control,n.fail.control)
+pidb <- thetad^n.fail.control
+pidc <- (1-thetad)^(n.control-n.fail.control)
+pid <- pida*pidb*pidc
+logpid <- log(pid)
+
+pi0a <- choose(n.control,n.fail.control)
+pi0b <- theta0^n.fail.control
+pi0c <- (1-theta0)^(n.control-n.fail.control)
+pi0 <- pi0a*pi0b*pi0c
+logpi0 <- log(pi0)
+
+# use finite difference approximation to calculate derivative
+# of log-likelihood function
+
+(logpi1-logpi0)/(theta1-theta0)
+
+# check the result
+
+d <- deriv(~ log(pida*(thetad^n.fail.control)*(1-thetad)^(n.control-n.fail.control)), "thetad")
+eval(d)
+
+# use finite difference approximation to calculate 
+# second derivative of log-likelihood function
+
+j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+
+# check the result using the normal approximation
+# to the binomial distribution
+
+se.thetad <- 1/j^(1/2)
+se.thetad
+
+sqrt(thetad*(1-thetad)/n.control)
+
+thetad-1.96*se.thetad
+thetad+1.96*se.thetad
+
+thetad-1.96*sqrt(thetad*(1-thetad)/n.control)
+thetad+1.96*sqrt(thetad*(1-thetad)/n.control)
+```
+
+* Here are the results for the control group:
+
+```rout
+> # maximum likelihood estimate of theta (free) 
+> # conditional on control treatment is 0.213
+> 
+> p1.control <- choose(n.control,n.fail.control)
+> p2.control <- theta^(n.fail.control)
+> p3.control <- (1-theta)^(n.control-n.fail.control)
+> control.likelihood <- p1.control*p2.control*p3.control
+> control.log.likelihood <- log(control.likelihood)
+> df.control <- data.frame(theta,control.likelihood)
+> subset(df.control,abs(control.likelihood-max(control.likelihood))<0.01)
+    theta control.likelihood
+199 0.198         0.05650624
+200 0.199         0.05762949
+201 0.200         0.05868943
+202 0.201         0.05968245
+203 0.202         0.06060519
+204 0.203         0.06145455
+205 0.204         0.06222774
+206 0.205         0.06292225
+207 0.206         0.06353589
+208 0.207         0.06406682
+209 0.208         0.06451351
+210 0.209         0.06487479
+211 0.210         0.06514980
+212 0.211         0.06533807
+213 0.212         0.06543945
+214 0.213         0.06545414
+215 0.214         0.06538268
+216 0.215         0.06522593
+217 0.216         0.06498507
+218 0.217         0.06466160
+219 0.218         0.06425732
+220 0.219         0.06377429
+221 0.220         0.06321487
+222 0.221         0.06258163
+223 0.222         0.06187740
+224 0.223         0.06110520
+225 0.224         0.06026827
+226 0.225         0.05936999
+227 0.226         0.05841389
+228 0.227         0.05740366
+229 0.228         0.05634306
+> maxlike.control <- max(control.likelihood)
+> maxlike.control
+[1] 0.06545414
+> 
+> 47/221
+[1] 0.2126697
+> 
+> theta1 <- 0.2126698
+> thetad <- 0.2126697
+> theta0 <- 0.2126696
+> 
+> pi1a <- choose(n.control,n.fail.control)
+> pi1b <- theta1^n.fail.control
+> pi1c <- (1-theta1)^(n.control-n.fail.control)
+> pi1 <- pi1a*pi1b*pi1c
+> logpi1 <- log(pi1)
+> 
+> pida <- choose(n.control,n.fail.control)
+> pidb <- thetad^n.fail.control
+> pidc <- (1-thetad)^(n.control-n.fail.control)
+> pid <- pida*pidb*pidc
+> logpid <- log(pid)
+> 
+> pi0a <- choose(n.control,n.fail.control)
+> pi0b <- theta0^n.fail.control
+> pi0c <- (1-theta0)^(n.control-n.fail.control)
+> pi0 <- pi0a*pi0b*pi0c
+> logpi0 <- log(pi0)
+> 
+> # use finite difference approximation to calculate derivative
+> # of log-likelihood function
+> 
+> (logpi1-logpi0)/(theta1-theta0)
+[1] -2.209788e-05
+> 
+> # check the result
+> 
+> d <- deriv(~ log(pida*(thetad^n.fail.control)*(1-thetad)^(n.control-n.fail.control)), "thetad")
+> eval(d)
+[1] -2.726334
+attr(,"gradient")
+           thetad
+[1,] -2.20973e-05
+> 
+> # use finite difference approximation to calculate 
+> # second derivative of log-likelihood function
+> 
+> j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+> 
+> # check the result using the normal approximation
+> # to the binomial distribution
+> 
+> se.thetad <- 1/j^(1/2)
+> se.thetad
+[1] 0.02749994
+> 
+> sqrt(thetad*(1-thetad)/n.control)
+[1] 0.0275255
+> 
+> thetad-1.96*se.thetad
+[1] 0.1587698
+> thetad+1.96*se.thetad
+[1] 0.2665696
+> 
+> thetad-1.96*sqrt(thetad*(1-thetad)/n.control)
+[1] 0.1587197
+> thetad+1.96*sqrt(thetad*(1-thetad)/n.control)
+[1] 0.2666197
+> 
+```
+
+* And, the likelihood plots are:
+
+```r
+par(mfrow=c(1,2))
+
+plot(x=theta,y=control.likelihood,type="l",lty=1,lwd=1)
+abline(h=seq(from=0,to=0.06,by=0.01),lty=3,lwd=0.5)
+abline(v=seq(from=0,to=1,by=0.2),lty=3,lwd=0.5)
+
+plot(x=theta,y=control.log.likelihood,type="l",lty=1,lwd=1)
+abline(h=seq(from=-650,to=0,by=50),lty=3,lwd=0.5)
+abline(v=seq(from=0,to=1,by=0.1),lty=3,lwd=0.5)
+```
+
+<p align="left">
+<img src="/gfiles/like-plot3.png" width="800px">
+</p>
+
