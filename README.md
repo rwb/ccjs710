@@ -1114,6 +1114,12 @@ odds.ratio.lm
 * And, the results are:
 
 ```rout
+> # relative risk from logistic regression
+> 
+> relative.risk <- pfailtreat/pfailnotreat
+> relative.risk
+[1] 0.5111133
+> 
 > # odds ratio from logistic regression
 > 
 > odds.ratio.num <- pfailtreat/(1-pfailtreat)
