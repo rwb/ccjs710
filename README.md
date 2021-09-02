@@ -287,7 +287,7 @@ abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 ```
 
 <p align="left">
-<img src="/gfiles/like-plot.png" width="800px">
+<img src="/gfiles/likelihood-plot.png" width="800px">
 </p>
 
 * A key issue that arises in maximum likelihood estimation is studying the curvature of the log-likelihood function to obtain the Fisher information which can, in turn, be used to calculate the variances of the maximum likelihood estimate:
