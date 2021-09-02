@@ -250,12 +250,12 @@ attr(,"gradient")
 slope of the tangent line at the maximum of the function is ~0.
 
 ```r
-# slope for tangent line -- y = a + b*x
+# slope for tangent line -- tangent at max[Log(L)] = a + b*theta
 
 slope.line <- (logpi1-logpi0)/(theta1-theta0)
 slope.line
 
-# intercept for line -- a = y - b*x
+# intercept for line -- a = y - b*theta
 
 int.line <- -2.841473-slope.line*thetad
 int.line
@@ -268,13 +268,13 @@ abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 * Here are the results:
 
 ```r
-> # slope for tangent line -- y = a + b*x
+> # slope for tangent line -- tangent at max[Log(L)] = a + b*theta
 > 
 > slope.line <- (logpi1-logpi0)/(theta1-theta0)
 > slope.line
 [1] 5.505374e-05
 > 
-> # intercept for line -- a = y - b*x
+> # intercept for line -- a = y - b*theta
 > 
 > int.line <- -2.841473-slope.line*thetad
 > int.line
