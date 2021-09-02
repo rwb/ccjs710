@@ -151,3 +151,153 @@ abline(v=seq(from=0,to=1,by=0.2),lty=3,lwd=0.5)
 <p align="left">
 <img src="/gfiles/like-plots.png" width="800px">
 </p>
+
+* Notice that both curves reach their peak at the same location.
+* The log transformation is monotone (implying order preservation).
+* The next issue that arises is verifying that the log likelihood function is flat in the neighborhood of the maximum. We can check this by calculating the first derivative of the log-likelihood function:
+
+```r
+# use finite difference approximation to calculate derivative
+# of log-likelihood function
+
+# begin by dividing the number of failures by the number of people
+
+57/313
+
+theta1 <- 0.1821087
+thetad <- 0.1821086
+theta0 <- 0.1821085
+
+pi1a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pi1b <- theta1^(n.fail.treat+n.fail.control)
+pi1c <- (1-theta1)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pi1 <- pi1a*pi1b*pi1c
+logpi1 <- log(pi1)
+
+pida <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pidb <- thetad^(n.fail.treat+n.fail.control)
+pidc <- (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pid <- pida*pidb*pidc
+logpid <- log(pid)
+
+pi0a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pi0b <- theta0^(n.fail.treat+n.fail.control)
+pi0c <- (1-theta0)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pi0 <- pi0a*pi0b*pi0c
+logpi0 <- log(pi0)
+
+# approximate derivative
+
+(logpi1-logpi0)/(theta1-theta0)
+
+# check the result
+
+d <- deriv(~ log(pida*thetad^(n.fail.treat+n.fail.control)*
+                 (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))), "thetad")
+eval(d)
+```
+
+* Here are the results of these calculations:
+
+```rout
+> # use finite difference approximation to calculate derivative
+> # of log-likelihood function
+> 
+> # begin by dividing the number of failures by the number of people
+> 
+> 57/313
+[1] 0.1821086
+> 
+> theta1 <- 0.1821087
+> thetad <- 0.1821086
+> theta0 <- 0.1821085
+> 
+> pi1a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pi1b <- theta1^(n.fail.treat+n.fail.control)
+> pi1c <- (1-theta1)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pi1 <- pi1a*pi1b*pi1c
+> logpi1 <- log(pi1)
+> 
+> pida <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pidb <- thetad^(n.fail.treat+n.fail.control)
+> pidc <- (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pid <- pida*pidb*pidc
+> logpid <- log(pid)
+> 
+> pi0a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pi0b <- theta0^(n.fail.treat+n.fail.control)
+> pi0c <- (1-theta0)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pi0 <- pi0a*pi0b*pi0c
+> logpi0 <- log(pi0)
+> 
+> # approximate derivative
+> 
+> (logpi1-logpi0)/(theta1-theta0)
+[1] 5.505374e-05
+> 
+> # check the result
+> 
+> d <- deriv(~ log(pida*thetad^(n.fail.treat+n.fail.control)*
++                  (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))), "thetad")
+> eval(d)
+[1] -2.841473
+attr(,"gradient")
+           thetad
+[1,] 5.505386e-05
+> 
+```
+
+* A key issue that arises in maximum likelihood estimation is studying the curvature of the log-likelihood function to obtain the Fisher information which can, in turn, be used to calculate the variances of the maximum likelihood estimate:
+
+```r
+# use finite difference approximation to calculate 
+# second derivative of log-likelihood function
+# this yields the observed Fisher information:
+
+j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+
+# check the result using the normal approximation
+# to the binomial distribution
+
+se.thetad <- 1/j^(1/2)
+se.thetad
+
+sqrt(thetad*(1-thetad)/(n.treat+n.control))
+
+thetad-1.96*se.thetad
+thetad+1.96*se.thetad
+
+thetad-1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
+thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
+```
+
+* Here are the results:
+
+```rout
+> # use finite difference approximation to calculate 
+> # second derivative of log-likelihood function
+> # this yields the observed Fisher information:
+> 
+> j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+> 
+> # check the result using the normal approximation
+> # to the binomial distribution
+> 
+> se.thetad <- 1/j^(1/2)
+> se.thetad
+[1] 0.02183236
+> 
+> sqrt(thetad*(1-thetad)/(n.treat+n.control))
+[1] 0.02181428
+> 
+> thetad-1.96*se.thetad
+[1] 0.1393172
+> thetad+1.96*se.thetad
+[1] 0.2249
+> 
+> thetad-1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
+[1] 0.1393526
+> thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
+[1] 0.2248646
+> 
+```
