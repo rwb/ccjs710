@@ -255,6 +255,8 @@ attr(,"gradient")
 # this yields the observed Fisher information:
 
 j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+j
+(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
 
 # check the result using the normal approximation
 # to the binomial distribution
@@ -279,7 +281,12 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 > # this yields the observed Fisher information:
 > 
 > j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+> j
+[1] 2097.966
+> (logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
+[1] -2097.966
 > 
+>
 > # check the result using the normal approximation
 > # to the binomial distribution
 > 
@@ -302,6 +309,7 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 > 
 ```
 
+* Please note that *j* is a positive number. Since *j* is the opposite sign of the second derivative of the log-likelihood function, this indicates that the log-likelihood function is concave down at its maximum.
 * Next, we turn to the issue of using a ratio of likelihoods to test the hypothesis of equal failure rates between the two groups.
 * We begin by imposing the equality constraint that both groups have the same failure rates. 
 * Then, we calculate the likelihood for each group subject to the constraint that the failure rate is a constant value of 0.182
