@@ -247,6 +247,49 @@ attr(,"gradient")
 > 
 ```
 
+* Note that we can add a tangent line to the log-likelihood plot space to visually see that the
+slope of the tangent line at the maximum of the function is ~0.
+
+```r
+# slope for tangent line -- y = a + b*x
+
+slope.line <- (logpi1-logpi0)/(theta1-theta0)
+slope.line
+
+# intercept for line -- a = y - b*x
+
+int.line <- -2.841473-slope.line*thetad
+int.line
+
+# draw a line connecting the two points through plotspace
+
+abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
+```
+
+* Here are the results:
+
+```r
+> # slope for tangent line -- y = a + b*x
+> 
+> slope.line <- (logpi1-logpi0)/(theta1-theta0)
+> slope.line
+[1] 5.505374e-05
+> 
+> # intercept for line -- a = y - b*x
+> 
+> int.line <- -2.841473-slope.line*thetad
+> int.line
+[1] -2.841483
+> 
+> # draw a line connecting the two points through plotspace
+> 
+> abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
+```
+
+<p align="left">
+<img src="/gfiles/like-plot.png" width="800px">
+</p>
+
 * A key issue that arises in maximum likelihood estimation is studying the curvature of the log-likelihood function to obtain the Fisher information which can, in turn, be used to calculate the variances of the maximum likelihood estimate:
 
 ```r
