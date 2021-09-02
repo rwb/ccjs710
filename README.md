@@ -872,3 +872,275 @@ which yields:
 [1] 0.02384242
 > 
 ```
+
+* Now, we take a more conventional approach to the problem by
+creating a rectangular data set:
+
+```r
+# create individual level dataset
+
+yarr <- c(rep(1,10),rep(0,92-10))
+yctl <- c(rep(1,47),rep(0,221-47))
+y <- c(yarr,yctl)
+arr <- c(rep(1,92),rep(0,221))
+df <- data.frame(arr,y)
+df
+
+# crosstable (outcome on rows; treatment on columns)
+
+ct <- table(df$y,df$arr,exclude=NULL)
+ct
+
+# conditional probabilities
+
+py1arr0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+py1arr0
+py1arr1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+py1arr1
+```
+
+* Here are the results:
+
+```rout
+> # create individual level dataset
+> 
+> yarr <- c(rep(1,10),rep(0,92-10))
+> yctl <- c(rep(1,47),rep(0,221-47))
+> y <- c(yarr,yctl)
+> arr <- c(rep(1,92),rep(0,221))
+> df <- data.frame(arr,y)
+> df
+    arr y
+1     1 1
+2     1 1
+3     1 1
+4     1 1
+5     1 1
+*
+*
+*
+308   0 0
+309   0 0
+310   0 0
+311   0 0
+312   0 0
+313   0 0
+>
+> # crosstable (outcome on rows; treatment on columns)
+> 
+> ct <- table(df$y,df$arr,exclude=NULL)
+> ct
+   
+      0   1
+  0 174  82
+  1  47  10
+> 
+> # conditional probabilities
+> 
+> py1arr0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+> py1arr0
+[1] 0.2126697
+> py1arr1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+> py1arr1
+[1] 0.1086957
+> 
+```
+
+* We can use this information to calculate the relative risk
+and odds ratio for these data:
+
+```r
+# relative risk and odds ratio
+
+ct.rr <- py1arr1/py1arr0
+ct.rr
+ct.or.num <- py1arr1/(1-py1arr1)
+ct.or.den <- py1arr0/(1-py1arr0)
+ct.or <- ct.or.num/ct.or.den
+ct.or
+```
+* And the results are:
+
+```rout
+> # relative risk and odds ratio
+> 
+> ct.rr <- py1arr1/py1arr0
+> ct.rr
+[1] 0.5111008
+> ct.or.num <- py1arr1/(1-py1arr1)
+> ct.or.den <- py1arr0/(1-py1arr0)
+> ct.or <- ct.or.num/ct.or.den
+> ct.or
+[1] 0.451479
+> 
+```
+
+* Next, we estimate the constrained and free logistic regression models:
+
+```r
+# constrained logistic regression model
+
+constmodel <- glm(y~1,data=df,family=binomial(link="logit"))
+summary(constmodel)
+pfailconst <- exp(-1.5021)/(1+exp(-1.5021))
+pfailconst
+logLik(constmodel)
+
+# free logistic regression model
+
+freemodel <- glm(y~1+arr,data=df,family=binomial(link="logit"))
+summary(freemodel)
+pfailtreat <- exp(-1.3089-0.7952)/(1+exp(-1.3089-0.7952))
+pfailnotreat <- exp(-1.3089)/(1+exp(-1.3089))
+pfailtreat
+pfailnotreat
+logLik(freemodel)
+```
+* And the results are:
+
+```rout
+> # constrained logistic regression model
+> 
+> constmodel <- glm(y~1,data=df,family=binomial(link="logit"))
+> summary(constmodel)
+
+Call:
+glm(formula = y ~ 1, family = binomial(link = "logit"), data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6341  -0.6341  -0.6341  -0.6341   1.8456  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.5021     0.1465  -10.26   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 297.08  on 312  degrees of freedom
+Residual deviance: 297.08  on 312  degrees of freedom
+AIC: 299.08
+
+Number of Fisher Scoring iterations: 4
+
+> pfailconst <- exp(-1.5021)/(1+exp(-1.5021))
+> pfailconst
+[1] 0.1821125
+> logLik(constmodel)
+'log Lik.' -148.5423 (df=1)
+> 
+> # free logistic regression model
+> 
+> freemodel <- glm(y~1+arr,data=df,family=binomial(link="logit"))
+> summary(freemodel)
+
+Call:
+glm(formula = y ~ 1 + arr, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6915  -0.6915  -0.6915  -0.4797   2.1067  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.3089     0.1644  -7.962 1.69e-15 ***
+arr          -0.7952     0.3731  -2.131   0.0331 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 297.08  on 312  degrees of freedom
+Residual deviance: 291.98  on 311  degrees of freedom
+AIC: 295.98
+
+Number of Fisher Scoring iterations: 4
+
+> pfailtreat <- exp(-1.3089-0.7952)/(1+exp(-1.3089-0.7952))
+> pfailnotreat <- exp(-1.3089)/(1+exp(-1.3089))
+> pfailtreat
+[1] 0.108699
+> pfailnotreat
+[1] 0.212671
+> logLik(freemodel)
+'log Lik.' -145.9891 (df=2)
+> 
+```
+
+* This sets us up to calculate the likelihood ratio test:
+
+```r
+# likelihood-ratio test
+
+lrtest <- -2*(logLik(constmodel)-logLik(freemodel))
+lrtest
+```
+
+* And, the results confirm that we get the same likelihood ratio test results we had before:
+
+```rout
+> # likelihood-ratio test
+> 
+> lrtest <- -2*(logLik(constmodel)-logLik(freemodel))
+> lrtest
+'log Lik.' 5.106266 (df=1)
+>
+```
+
+* We can use the parameter estimates from the logistic regression model to calculate the
+relative risk and odds ratio statistics:
+
+```r
+# relative risk from logistic regression
+
+relative.risk <- pfailtreat/pfailnotreat
+relative.risk
+
+# odds ratio from logistic regression
+
+odds.ratio.num <- pfailtreat/(1-pfailtreat)
+odds.ratio.num
+odds.ratio.den <- pfailnotreat/(1-pfailnotreat)
+odds.ratio.den
+odds.ratio <- odds.ratio.num/odds.ratio.den
+odds.ratio
+odds.ratio.lm <- exp(-0.7952)
+odds.ratio.lm
+```
+
+* And, the results are:
+
+```rout
+> # odds ratio from logistic regression
+> 
+> odds.ratio.num <- pfailtreat/(1-pfailtreat)
+> odds.ratio.num
+[1] 0.1219554
+> odds.ratio.den <- pfailnotreat/(1-pfailnotreat)
+> odds.ratio.den
+[1] 0.270117
+> odds.ratio <- odds.ratio.num/odds.ratio.den
+> odds.ratio
+[1] 0.4514909
+> odds.ratio.lm <- exp(-0.7952)
+> odds.ratio.lm
+[1] 0.4514909
+> 
+```
+
+* Note that these numbers match what we calculated from the contingency table.
+
+#### Assignment Due Thursday 9/9/21
+
+* Conduct a parallel analysis using the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
