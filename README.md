@@ -31,7 +31,7 @@
 #### Course Outline
 
 * 9/2: course overview, maximum likelihood
-* 9/9: differences between proportions, relative risk statistics, odds ratios
+* 9/9: estimator properties, proportion diffs, relative risk statistics, odds ratios
 * 9/16: linear probability, logit, and probit
 * 9/23: multinomial logit
 * 9/30: counted outcomes
