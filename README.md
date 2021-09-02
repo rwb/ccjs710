@@ -760,3 +760,107 @@ abline(v=seq(from=0,to=1,by=0.1),lty=3,lwd=0.5)
 <img src="/gfiles/like-plot3.png" width="800px">
 </p>
 
+* Now, we are ready to obtain the likelihood (at its maximum)
+for the free (2 parameter model):
+
+```r
+# we get the likelihood for the free (2 parameter) 
+# model by multiplying the likelihoods for the 
+# treatment and control groups.
+
+likelihood.free <- maxlike.treat*maxlike.control
+likelihood.free
+```
+
+which yields:
+
+```rout
+> # we get the likelihood for the free (2 parameter) 
+> # model by multiplying the likelihoods for the 
+> # treatment and control groups.
+> 
+> likelihood.free <- maxlike.treat*maxlike.control
+> likelihood.free
+[1] 0.008672599
+>
+```
+
+* We are now ready to form the likelihood ratio:
+
+```r
+# calculate the likelihood ratio 
+# l.constrained/l.free
+
+likelihood.ratio <- likelihood.constrained/likelihood.free
+likelihood.ratio
+```
+
+* Please note that the constrained model is in the numerator
+and the free model is in the denominator:
+
+```rout
+> # we get the likelihood for the free (2 parameter) 
+> # model by multiplying the likelihoods for the 
+> # treatment and control groups.
+> 
+> likelihood.free <- maxlike.treat*maxlike.control
+> likelihood.free
+[1] 0.008672599
+>
+```
+
+* The sampling distribution of the likelihood ratio is not well defined but
+the sampling distribution of -2 x the log-likelihood ratio is chi-square
+with degrees of freedom equal to the difference between the number of parameters
+in the free and constrained models:
+
+```r
+# log(likelihood ratio) = log(l.constrained)-log(l.free)
+
+log.likelihood.ratio <- log(likelihood.constrained)-log(likelihood.free)
+log.likelihood.ratio
+
+# identify critical region for test statistic
+
+chisq.dist <- rchisq(n=100000000,df=1)
+quantile(chisq.dist,0.95)
+
+# calculated test statistic
+
+test.statistic <- -2*log.likelihood.ratio
+test.statistic
+
+# p-value for test
+
+1-pchisq(test.statistic,df=2-1)
+```
+
+which yields:
+
+```rout
+> # log(likelihood ratio) = log(l.constrained)-log(l.free)
+> 
+> log.likelihood.ratio <- log(likelihood.constrained)-log(likelihood.free)
+> log.likelihood.ratio
+[1] -2.55303
+> 
+> # identify critical region for test statistic
+> 
+> chisq.dist <- rchisq(n=100000000,df=1)
+> quantile(chisq.dist,0.95)
+     95% 
+3.841471 
+
+> 
+> # calculated test statistic
+> 
+> test.statistic <- -2*log.likelihood.ratio
+> test.statistic
+[1] 5.106059
+> 
+> # p-value for test
+> 
+> 1-pchisq(test.statistic,df=2-1)
+[1] 0.02384242
+> 
+```
