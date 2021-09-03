@@ -45,7 +45,7 @@
 * 12/2: survival time
 * 12/9: split population specifications
 
-#### Lesson 1 - Thursday 9/2/21
+### Lesson 1 - Thursday 9/2/21
 
 * Discussion topic: What do we mean by the term "limited dependent variables"?
 * Enter some data.
@@ -79,7 +79,7 @@ p3.all <- (1-theta)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
 all.likelihood <- p1.all*p2.all*p3.all
 all.log.likelihood <- log(all.likelihood)
 df.all <- data.frame(theta,all.likelihood)
-subset(df.all,abs(all.likelihood-max(all.likelihood))<0.01)
+subset(df.all,theta>=0.16 & theta<=0.20)
 ```
 * Here are the results:
 
@@ -99,8 +99,17 @@ subset(df.all,abs(all.likelihood-max(all.likelihood))<0.01)
 > all.likelihood <- p1.all*p2.all*p3.all
 > all.log.likelihood <- log(all.likelihood)
 > df.all <- data.frame(theta,all.likelihood)
-> subset(df.all,abs(all.likelihood-max(all.likelihood))<0.01)
+> subset(df.all,theta>=0.16 & theta<=0.20)
     theta all.likelihood
+161 0.160     0.03368063
+162 0.161     0.03541448
+163 0.162     0.03714228
+164 0.163     0.03885569
+165 0.164     0.04054621
+166 0.165     0.04220525
+167 0.166     0.04382419
+168 0.167     0.04539449
+169 0.168     0.04690774
 170 0.169     0.04835575
 171 0.170     0.04973064
 172 0.171     0.05102488
@@ -128,6 +137,11 @@ subset(df.all,abs(all.likelihood-max(all.likelihood))<0.01)
 194 0.193     0.05169344
 195 0.194     0.05052580
 196 0.195     0.04929038
+197 0.196     0.04799417
+198 0.197     0.04664428
+199 0.198     0.04524786
+200 0.199     0.04381203
+201 0.200     0.04234385
 > 
 ```
 
@@ -250,17 +264,17 @@ attr(,"gradient")
 slope of the tangent line at the maximum of the function is ~0.
 
 ```r
-# slope for tangent line -- tangent at max[Log(L)] = a + b*theta
+# slope for tangent line -- tangent at max[Log(L)] = a + b*thetad
 
 slope.line <- (logpi1-logpi0)/(theta1-theta0)
 slope.line
 
-# intercept for line -- a = y - b*theta
+# intercept for line -- a = log(L) - b*thetad
 
 int.line <- -2.841473-slope.line*thetad
 int.line
 
-# draw a line connecting the two points through plotspace
+# draw the tangent line through the plotspace
 
 abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 ```
@@ -268,19 +282,19 @@ abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 * Here are the results:
 
 ```r
-> # slope for tangent line -- tangent at max[Log(L)] = a + b*theta
+> # slope for tangent line -- tangent at max[Log(L)] = a + b*thetad
 > 
 > slope.line <- (logpi1-logpi0)/(theta1-theta0)
 > slope.line
 [1] 5.505374e-05
 > 
-> # intercept for line -- a = y - b*theta
+> # intercept for line -- a = log(L) - b*thetad
 > 
 > int.line <- -2.841473-slope.line*thetad
 > int.line
 [1] -2.841483
 > 
-> # draw a line connecting the two points through plotspace
+> # draw the tangent line through the plotspace
 > 
 > abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 ```
@@ -288,6 +302,23 @@ abline(a=int.line,b=slope.line,lty=1,lwd=1,col="blue")
 <p align="left">
 <img src="/gfiles/likelihood-plot.png" width="800px">
 </p>
+
+#### Assignment Due Thursday 9/9/21
+
+* Conduct a parallel analysis using the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
+
+* Please keep in mind that for this assignment, you will get the same final answers we got in class because the sum of the number of failures and the sum of the total number of cases are the same (all that changed was the treatment groups to which people belong).
+
+
+### Lesson 2 - Thursday 9/9/21
 
 * A key issue that arises in maximum likelihood estimation is studying the curvature of the log-likelihood function to obtain the Fisher information which can, in turn, be used to calculate the variances of the maximum likelihood estimate:
 
@@ -1181,14 +1212,4 @@ odds.ratio.lm
 
 * Note that these numbers match what we calculated from the contingency table.
 
-#### Assignment Due Thursday 9/9/21
 
-* Conduct a parallel analysis using the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
-
-```r
-n.treat <- 135
-n.fail.treat <- 18
-
-n.control <- 178
-n.fail.control <- 39
-```
