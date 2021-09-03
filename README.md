@@ -329,6 +329,10 @@ n.fail.control <- 39
 
 j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
 j
+
+# second derivative using centered finite difference
+# approximation - negative sign = concave down
+
 (logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
 
 # check the result using the normal approximation
@@ -356,10 +360,13 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 > j <- -(logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
 > j
 [1] 2097.966
+> 
+> # second derivative using centered finite difference
+> # approximation - negative sign = concave down
+> 
 > (logpi1-2*logpid+logpi0)/((theta1-theta0)/2)^2
 [1] -2097.966
 > 
->
 > # check the result using the normal approximation
 > # to the binomial distribution
 > 
@@ -382,7 +389,6 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 > 
 ```
 
-* Please note that *j* is a positive number. Since *j* is the opposite sign of the second derivative of the log-likelihood function, this indicates that the log-likelihood function is concave down at its maximum.
 * Next, we turn to the issue of using a ratio of likelihoods to test the hypothesis of equal failure rates between the two groups.
 * We begin by imposing the equality constraint that both groups have the same failure rates. 
 * Then, we calculate the likelihood for each group subject to the constraint that the failure rate is a constant value of 0.182
@@ -446,7 +452,7 @@ p3.treat <- (1-theta)^(n.treat-n.fail.treat)
 treat.likelihood <- p1.treat*p2.treat*p3.treat
 treat.log.likelihood <- log(treat.likelihood)
 df.treat <- data.frame(theta,treat.likelihood)
-subset(df.treat,abs(treat.likelihood-max(treat.likelihood))<0.01)
+subset(df.treat,theta>=0.08 & theta<=0.12)
 maxlike.treat <- max(treat.likelihood)
 maxlike.treat
 
@@ -518,33 +524,49 @@ thetad+1.96*sqrt(thetad*(1-thetad)/n.treat)
 > treat.likelihood <- p1.treat*p2.treat*p3.treat
 > treat.log.likelihood <- log(treat.likelihood)
 > df.treat <- data.frame(theta,treat.likelihood)
-> subset(df.treat,abs(treat.likelihood-max(treat.likelihood))<0.01)
+> subset(df.treat,theta>=0.08 & theta<=0.12)
     theta treat.likelihood
-98  0.097        0.1236199
-99  0.098        0.1250755
-100 0.099        0.1264038
-101 0.100        0.1276031
-102 0.101        0.1286719
-103 0.102        0.1296095
-104 0.103        0.1304151
-105 0.104        0.1310888
-106 0.105        0.1316307
-107 0.106        0.1320415
-108 0.107        0.1323222
-109 0.108        0.1324741
-110 0.109        0.1324988
-111 0.110        0.1323984
-112 0.111        0.1321751
-113 0.112        0.1318314
-114 0.113        0.1313701
-115 0.114        0.1307944
-116 0.115        0.1301074
-117 0.116        0.1293126
-118 0.117        0.1284138
-119 0.118        0.1274147
-120 0.119        0.1263192
-121 0.120        0.1251316
-122 0.121        0.1238559
+81  0.080       0.08307629
+82  0.081       0.08603943
+83  0.082       0.08896389
+84  0.083       0.09184211
+85  0.084       0.09466667
+86  0.085       0.09743037
+87  0.086       0.10012625
+88  0.087       0.10274760
+89  0.088       0.10528799
+90  0.089       0.10774134
+91  0.090       0.11010186
+92  0.091       0.11236414
+93  0.092       0.11452314
+94  0.093       0.11657419
+95  0.094       0.11851304
+96  0.095       0.12033582
+97  0.096       0.12203910
+98  0.097       0.12361986
+99  0.098       0.12507549
+100 0.099       0.12640382
+101 0.100       0.12760308
+102 0.101       0.12867194
+103 0.102       0.12960946
+104 0.103       0.13041512
+105 0.104       0.13108879
+106 0.105       0.13163072
+107 0.106       0.13204154
+108 0.107       0.13232222
+109 0.108       0.13247411
+110 0.109       0.13249885
+111 0.110       0.13239841
+112 0.111       0.13217508
+113 0.112       0.13183138
+114 0.113       0.13137013
+115 0.114       0.13079438
+116 0.115       0.13010740
+117 0.116       0.12931265
+118 0.117       0.12841380
+119 0.118       0.12741467
+120 0.119       0.12631923
+121 0.120       0.12513159
 > maxlike.treat <- max(treat.likelihood)
 > maxlike.treat
 [1] 0.1324988
@@ -649,7 +671,7 @@ p3.control <- (1-theta)^(n.control-n.fail.control)
 control.likelihood <- p1.control*p2.control*p3.control
 control.log.likelihood <- log(control.likelihood)
 df.control <- data.frame(theta,control.likelihood)
-subset(df.control,abs(control.likelihood-max(control.likelihood))<0.01)
+subset(df.control,theta>=0.18 & theta<=0.22)
 maxlike.control <- max(control.likelihood)
 maxlike.control
 
@@ -719,8 +741,26 @@ thetad+1.96*sqrt(thetad*(1-thetad)/n.control)
 > control.likelihood <- p1.control*p2.control*p3.control
 > control.log.likelihood <- log(control.likelihood)
 > df.control <- data.frame(theta,control.likelihood)
-> subset(df.control,abs(control.likelihood-max(control.likelihood))<0.01)
+> subset(df.control,theta>=0.18 & theta<=0.22)
     theta control.likelihood
+181 0.180         0.03047266
+182 0.181         0.03197307
+183 0.182         0.03349056
+184 0.183         0.03502123
+185 0.184         0.03656097
+186 0.185         0.03810549
+187 0.186         0.03965037
+188 0.187         0.04119104
+189 0.188         0.04272286
+190 0.189         0.04424109
+191 0.190         0.04574092
+192 0.191         0.04721754
+193 0.192         0.04866614
+194 0.193         0.05008191
+195 0.194         0.05146014
+196 0.195         0.05279615
+197 0.196         0.05408542
+198 0.197         0.05532353
 199 0.198         0.05650624
 200 0.199         0.05762949
 201 0.200         0.05868943
@@ -744,14 +784,6 @@ thetad+1.96*sqrt(thetad*(1-thetad)/n.control)
 219 0.218         0.06425732
 220 0.219         0.06377429
 221 0.220         0.06321487
-222 0.221         0.06258163
-223 0.222         0.06187740
-224 0.223         0.06110520
-225 0.224         0.06026827
-226 0.225         0.05936999
-227 0.226         0.05841389
-228 0.227         0.05740366
-229 0.228         0.05634306
 > maxlike.control <- max(control.likelihood)
 > maxlike.control
 [1] 0.06545414
