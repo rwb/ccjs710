@@ -320,6 +320,58 @@ n.fail.control <- 39
 
 ### Lesson 2 - Thursday 9/9/21
 
+* We begin today's lesson by keying in the dataset and recovering the information we need from last week:
+
+```r
+```r
+# key in dataset from Berk and Sherman (1988)
+# JASA, 83:70-76.
+
+n.treat <- 92
+n.fail.treat <- 10
+
+n.control <- 221
+n.fail.control <- 47
+
+# begin by dividing the number of failures by the number of people
+
+57/313
+
+theta1 <- 0.1821087
+thetad <- 0.1821086
+theta0 <- 0.1821085
+
+pi1a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pi1b <- theta1^(n.fail.treat+n.fail.control)
+pi1c <- (1-theta1)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pi1 <- pi1a*pi1b*pi1c
+logpi1 <- log(pi1)
+
+pida <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pidb <- thetad^(n.fail.treat+n.fail.control)
+pidc <- (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pid <- pida*pidb*pidc
+logpid <- log(pid)
+
+pi0a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+pi0b <- theta0^(n.fail.treat+n.fail.control)
+pi0c <- (1-theta0)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+pi0 <- pi0a*pi0b*pi0c
+logpi0 <- log(pi0)
+
+# approximate derivative
+
+(logpi1-logpi0)/(theta1-theta0)
+
+# check the result
+
+d <- deriv(~ log(pida*thetad^(n.fail.treat+n.fail.control)*
+                 (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))), "thetad")
+eval(d)
+```
+
+#### 2.1 Likelihood Curvature
+
 * A key issue that arises in maximum likelihood estimation is studying the curvature of the log-likelihood function to obtain the Fisher information which can, in turn, be used to calculate the variances of the maximum likelihood estimate:
 
 ```r
@@ -353,6 +405,57 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 * Here are the results:
 
 ```rout
+> # key in dataset from Berk and Sherman (1988)
+> # JASA, 83:70-76.
+> 
+> n.treat <- 92
+> n.fail.treat <- 10
+> 
+> n.control <- 221
+> n.fail.control <- 47
+> 
+> # begin by dividing the number of failures by the number of people
+> 
+> 57/313
+[1] 0.1821086
+> 
+> theta1 <- 0.1821087
+> thetad <- 0.1821086
+> theta0 <- 0.1821085
+> 
+> pi1a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pi1b <- theta1^(n.fail.treat+n.fail.control)
+> pi1c <- (1-theta1)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pi1 <- pi1a*pi1b*pi1c
+> logpi1 <- log(pi1)
+> 
+> pida <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pidb <- thetad^(n.fail.treat+n.fail.control)
+> pidc <- (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pid <- pida*pidb*pidc
+> logpid <- log(pid)
+> 
+> pi0a <- choose(n.treat+n.control,n.fail.treat+n.fail.control)
+> pi0b <- theta0^(n.fail.treat+n.fail.control)
+> pi0c <- (1-theta0)^((n.treat+n.control)-(n.fail.treat+n.fail.control))
+> pi0 <- pi0a*pi0b*pi0c
+> logpi0 <- log(pi0)
+> 
+> # approximate derivative
+> 
+> (logpi1-logpi0)/(theta1-theta0)
+[1] 5.505374e-05
+> 
+> # check the result
+> 
+> d <- deriv(~ log(pida*thetad^(n.fail.treat+n.fail.control)*
++                  (1-thetad)^((n.treat+n.control)-(n.fail.treat+n.fail.control))), "thetad")
+> eval(d)
+[1] -2.841473
+attr(,"gradient")
+           thetad
+[1,] 5.505386e-05
+> 
 > # use finite difference approximation to calculate 
 > # second derivative of log-likelihood function
 > # this yields the observed Fisher information:
@@ -389,15 +492,17 @@ thetad+1.96*sqrt(thetad*(1-thetad)/(n.treat+n.control))
 > 
 ```
 
+#### 2.2 Likelihood Ratio Test
+
 * Next, we turn to the issue of using a ratio of likelihoods to test the hypothesis of equal failure rates between the two groups.
 * We begin by imposing the equality constraint that both groups have the same failure rates. 
 * Then, we calculate the likelihood for each group subject to the constraint that the failure rate is a constant value of 0.182
 
 ```r
-# the value of theta = 0.182 maximizes the likelihood function
+# the value of theta = 0.182 maximizes the likelihood function for all 313 cases
 # note also that 57/313 = 0.182
 
-# calculate likelihood function for each group
+# calculate likelihood function for each group (treatment and control)
 # holding theta constant at 0.182
 
 theta.c <- 0.182
@@ -417,11 +522,11 @@ likelihood.constrained
 * Here are the results:
 
 ```rout
-> # the value of theta = 0.182 maximizes the likelihood function
+> # the value of theta = 0.182 maximizes the likelihood function for all 313 cases
 > # note also that 57/313 = 0.182
-> 
-> # calculate likelihood function for each group
-> # holding theta constant at 0.182
+
+> # calculate likelihood function for each group (treatment and control)
+< # holding theta constant at 0.182
 > 
 > theta.c <- 0.182
 > 
@@ -444,8 +549,9 @@ likelihood.constrained
 
 ```r
 # maximum likelihood estimate of theta (free) 
-# conditional on treat treatment is 0.109
+# conditional on treatment is 0.109
 
+theta <- seq(from=0,to=1,by=0.001)
 p1.treat <- choose(n.treat,n.fail.treat)
 p2.treat <- theta^(n.fail.treat)
 p3.treat <- (1-theta)^(n.treat-n.fail.treat)
@@ -516,8 +622,9 @@ thetad+1.96*sqrt(thetad*(1-thetad)/n.treat)
 
 ```rout
 > # maximum likelihood estimate of theta (free) 
-> # conditional on treat treatment is 0.109
+> # conditional on treatment is 0.109
 > 
+> theta <- seq(from=0,to=1,by=0.001)
 > p1.treat <- choose(n.treat,n.fail.treat)
 > p2.treat <- theta^(n.fail.treat)
 > p3.treat <- (1-theta)^(n.treat-n.fail.treat)
@@ -908,19 +1015,21 @@ likelihood.ratio <- likelihood.constrained/likelihood.free
 likelihood.ratio
 ```
 
+* And, the likelihood ratio is:
+
+```rout
+> # calculate the likelihood ratio 
+> # l.constrained/l.free
+> 
+> likelihood.ratio <- likelihood.constrained/likelihood.free
+> likelihood.ratio
+[1] 0.07784547
+> 
+```
+
 * Please note that the constrained model is in the numerator
 and the free model is in the denominator:
 
-```rout
-> # we get the likelihood for the free (2 parameter) 
-> # model by multiplying the likelihoods for the 
-> # treatment and control groups.
-> 
-> likelihood.free <- maxlike.treat*maxlike.control
-> likelihood.free
-[1] 0.008672599
->
-```
 
 * The sampling distribution of the likelihood ratio is not well defined but
 the sampling distribution of -2 x the log-likelihood ratio is chi-square
@@ -984,24 +1093,24 @@ creating a rectangular data set:
 ```r
 # create individual level dataset
 
-yarr <- c(rep(1,10),rep(0,92-10))
-yctl <- c(rep(1,47),rep(0,221-47))
-y <- c(yarr,yctl)
-arr <- c(rep(1,92),rep(0,221))
-df <- data.frame(arr,y)
+y0 <- c(rep(1,47),rep(0,221-47))
+y1 <- c(rep(1,10),rep(0,92-10))
+y <- c(y0,y1)
+x <- c(rep(0,221),rep(1,92))
+df <- data.frame(x,y)
 df
 
 # crosstable (outcome on rows; treatment on columns)
 
-ct <- table(df$y,df$arr,exclude=NULL)
+ct <- table(df$y,df$x,exclude=NULL)
 ct
 
 # conditional probabilities
 
-py1arr0 <- ct[2,1]/(ct[1,1]+ct[2,1])
-py1arr0
-py1arr1 <- ct[2,2]/(ct[1,2]+ct[2,2])
-py1arr1
+py1x0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+py1x0
+py1x1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+py1x1
 ```
 
 * Here are the results:
@@ -1009,31 +1118,30 @@ py1arr1
 ```rout
 > # create individual level dataset
 > 
-> yarr <- c(rep(1,10),rep(0,92-10))
-> yctl <- c(rep(1,47),rep(0,221-47))
-> y <- c(yarr,yctl)
-> arr <- c(rep(1,92),rep(0,221))
-> df <- data.frame(arr,y)
+> y0 <- c(rep(1,47),rep(0,221-47))
+> y1 <- c(rep(1,10),rep(0,92-10))
+> y <- c(y0,y1)
+> x <- c(rep(0,221),rep(1,92))
+> df <- data.frame(x,y)
 > df
-    arr y
-1     1 1
-2     1 1
-3     1 1
-4     1 1
-5     1 1
+    x y
+1   0 1
+2   0 1
+3   0 1
+4   0 1
+5   0 1
 *
 *
 *
-308   0 0
-309   0 0
-310   0 0
-311   0 0
-312   0 0
-313   0 0
->
+309 1 0
+310 1 0
+311 1 0
+312 1 0
+313 1 0
+> 
 > # crosstable (outcome on rows; treatment on columns)
 > 
-> ct <- table(df$y,df$arr,exclude=NULL)
+> ct <- table(df$y,df$x,exclude=NULL)
 > ct
    
       0   1
@@ -1042,38 +1150,49 @@ py1arr1
 > 
 > # conditional probabilities
 > 
-> py1arr0 <- ct[2,1]/(ct[1,1]+ct[2,1])
-> py1arr0
+> py1x0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+> py1x0
 [1] 0.2126697
-> py1arr1 <- ct[2,2]/(ct[1,2]+ct[2,2])
-> py1arr1
+> py1x1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+> py1x1
 [1] 0.1086957
 > 
 ```
 
-* We can use this information to calculate the relative risk
-and odds ratio for these data:
+* We can use this information to calculate the classical
+treatment effect (delta), relative risk, and odds ratio for these data:
 
 ```r
+# delta - CTE
+
+delta <- py1x1-py1x0
+delta
+
 # relative risk and odds ratio
 
-ct.rr <- py1arr1/py1arr0
+ct.rr <- py1x1/py1x0
 ct.rr
-ct.or.num <- py1arr1/(1-py1arr1)
-ct.or.den <- py1arr0/(1-py1arr0)
+ct.or.num <- py1x1/(1-py1x1)
+ct.or.den <- py1x0/(1-py1x0)
 ct.or <- ct.or.num/ct.or.den
 ct.or
 ```
 * And the results are:
 
 ```rout
+> # delta - CTE
+> 
+> delta <- py1x1-py1x0
+> delta
+[1] -0.103974
+> 
 > # relative risk and odds ratio
 > 
-> ct.rr <- py1arr1/py1arr0
+> ct.rr <- py1x1/py1x0
 > ct.rr
 [1] 0.5111008
-> ct.or.num <- py1arr1/(1-py1arr1)
-> ct.or.den <- py1arr0/(1-py1arr0)
+> ct.or.num <- py1x1/(1-py1x1)
+> ct.or.den <- py1x0/(1-py1x0)
 > ct.or <- ct.or.num/ct.or.den
 > ct.or
 [1] 0.451479
@@ -1093,7 +1212,7 @@ logLik(constmodel)
 
 # free logistic regression model
 
-freemodel <- glm(y~1+arr,data=df,family=binomial(link="logit"))
+freemodel <- glm(y~1+x,data=df,family=binomial(link="logit"))
 summary(freemodel)
 pfailtreat <- exp(-1.3089-0.7952)/(1+exp(-1.3089-0.7952))
 pfailnotreat <- exp(-1.3089)/(1+exp(-1.3089))
@@ -1138,12 +1257,11 @@ Number of Fisher Scoring iterations: 4
 > 
 > # free logistic regression model
 > 
-> freemodel <- glm(y~1+arr,data=df,family=binomial(link="logit"))
+> freemodel <- glm(y~1+x,data=df,family=binomial(link="logit"))
 > summary(freemodel)
 
 Call:
-glm(formula = y ~ 1 + arr, family = binomial(link = "logit"), 
-    data = df)
+glm(formula = y ~ 1 + x, family = binomial(link = "logit"), data = df)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
@@ -1152,7 +1270,7 @@ Deviance Residuals:
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)    
 (Intercept)  -1.3089     0.1644  -7.962 1.69e-15 ***
-arr          -0.7952     0.3731  -2.131   0.0331 *  
+x            -0.7952     0.3731  -2.131   0.0331 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
@@ -1196,9 +1314,14 @@ lrtest
 ```
 
 * We can use the parameter estimates from the logistic regression model to calculate the
-relative risk and odds ratio statistics:
+classical treatment effect, relative risk, and odds ratio statistics:
 
 ```r
+# classical treatment effect (delta) 
+
+lm.delta <- pfailtreat-pfailnotreat
+lm.delta
+
 # relative risk from logistic regression
 
 relative.risk <- pfailtreat/pfailnotreat
@@ -1219,6 +1342,12 @@ odds.ratio.lm
 * And, the results are:
 
 ```rout
+> # classical treatment effect (delta) 
+> 
+> lm.delta <- pfailtreat-pfailnotreat
+> lm.delta
+[1] -0.103972
+> 
 > # relative risk from logistic regression
 > 
 > relative.risk <- pfailtreat/pfailnotreat
@@ -1244,7 +1373,10 @@ odds.ratio.lm
 
 * Note that these numbers match what we calculated from the contingency table.
 * Maximum likelihood estimators have the following properties: (1) consistency, (2) asymptotic normality, and (3) asymptotic efficiency (King, 1989:74-80).
-* These are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups. Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/).
+
+#### 2.3 Permutation Test
+
+* The properties of ML estimators are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups without appealing to asymptotics (large samples) or distributional assumptions (i.e., the binomial). Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/)).
 * Here is an illustration of the permutation method using Larry's approach:
 
 ```r
@@ -1342,4 +1474,16 @@ y     0   1
 <img src="/gfiles/perm-hist.png" width="700px">
 </p>
 
+#### Assignment Due Thursday 9/16/21
 
+* Consider the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
+
+* Your task in this assignment is fourfold: (1) verify that the confidence interval for θ using the curvature of the likelihood function matches the confidence interval for θ using the traditional normal-approximation-to-the-binomial method; (2) conduct a likelihood-ratio test using the likelihoods derived from the binomial probability distribution; (3) verify that you can get the same likelihood ratio test (and the same treatment effect estimates) using a logistic regression approach; and (4) check on your results using a permutation test. Summarize your findings.
