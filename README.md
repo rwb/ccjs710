@@ -1087,8 +1087,9 @@ which yields:
 > 
 ```
 
-* Now, we take a more conventional approach to the problem by
-creating a rectangular data set:
+#### 2.3 Likelihood Ratio Test via Logistic Regression
+
+* We begin by creating a rectangular data set:
 
 ```r
 # create individual level dataset
@@ -1374,7 +1375,7 @@ odds.ratio.lm
 * Note that these numbers match what we calculated from the contingency table.
 * Maximum likelihood estimators have the following properties: (1) consistency, (2) asymptotic normality, and (3) asymptotic efficiency (King, 1989:74-80).
 
-#### 2.3 Permutation Test
+#### 2.4 Permutation Test
 
 * The properties of ML estimators are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups without appealing to asymptotics (large samples) or distributional assumptions (i.e., the binomial or the normal approximation to the binomial). Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/)).
 * Here is an illustration of the permutation method using Larry's approach:
