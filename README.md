@@ -1243,5 +1243,103 @@ odds.ratio.lm
 ```
 
 * Note that these numbers match what we calculated from the contingency table.
+* Maximum likelihood estimators have the following properties: (1) consistency, (2) asymptotic normality, and (3) asymptotic efficiency (King, 1989:74-80).
+* These are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups. Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/).
+* Here is an illustration of the permutation method using Larry's approach:
+
+```r
+# key in the dataset
+
+y0 <- c(rep(1,47),rep(0,221-47))
+y1 <- c(rep(1,10),rep(0,92-10))
+y <- c(y0,y1)
+x <- c(rep(0,221),rep(1,92))
+
+# create a contingency table (y on the rows, x on the columns)
+
+stable <- table(y,x)
+stable
+
+# calculate the treatment effect observed in the sample
+
+s.py1x0 <- stable[2,1]/(stable[1,1]+stable[2,1])
+s.py1x1 <- stable[2,2]/(stable[1,2]+stable[2,2])
+s.py1x1-s.py1x0
+
+# permute the dataset 100,000 times
+
+pdelta <- vector()
+
+for(i in 1:100000)
+  {
+    ys <- sample(y,size=313,replace=F)
+    ptable <- table(ys,x)
+    py1x0 <- ptable[2,1]/(ptable[1,1]+ptable[2,1])
+    py1x1 <- ptable[2,2]/(ptable[1,2]+ptable[2,2])
+    pdelta[i] <- py1x1-py1x0
+  }
+
+hist(pdelta)
+
+# identify the boundaries of the central 95% of the permutation distribution
+
+quantile(pdelta,0.025)
+quantile(pdelta,0.975)
+```
+
+* Here are the results:
+
+```rout
+> # key in the dataset
+> 
+> y0 <- c(rep(1,47),rep(0,221-47))
+> y1 <- c(rep(1,10),rep(0,92-10))
+> y <- c(y0,y1)
+> x <- c(rep(0,221),rep(1,92))
+> 
+> # create a contingency table (y on the rows, x on the columns)
+> 
+> stable <- table(y,x)
+> stable
+   x
+y     0   1
+  0 174  82
+  1  47  10
+> 
+> # calculate the treatment effect observed in the sample
+> 
+> s.py1x0 <- stable[2,1]/(stable[1,1]+stable[2,1])
+> s.py1x1 <- stable[2,2]/(stable[1,2]+stable[2,2])
+> s.py1x1-s.py1x0
+[1] -0.103974
+> 
+> # permute the dataset 100,000 times
+> 
+> pdelta <- vector()
+> 
+> for(i in 1:100000)
++   {
++     ys <- sample(y,size=313,replace=F)
++     ptable <- table(ys,x)
++     py1x0 <- ptable[2,1]/(ptable[1,1]+ptable[2,1])
++     py1x1 <- ptable[2,2]/(ptable[1,2]+ptable[2,2])
++     pdelta[i] <- py1x1-py1x0
++   }
+> 
+> hist(pdelta)
+> 
+> # identify the boundaries of the central 95% of the permutation distribution
+> 
+> quantile(pdelta,0.025)
+       2.5% 
+-0.08857958 
+> quantile(pdelta,0.975)
+     97.5% 
+0.09615385 
+```
+
+<p align="left">
+<img src="/gfiles/perm-hist.png" width="700px">
+</p>
 
 
