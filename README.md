@@ -1200,6 +1200,20 @@ ct.or
 > 
 ```
 
+#### Assignment Due Thursday 9/16/21
+
+* Consider the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
+
+* Your task in this assignment is twofold: (1) verify that the confidence interval for θ using the curvature of the likelihood function matches the confidence interval for θ using the traditional normal-approximation-to-the-binomial method; and (2) conduct a likelihood-ratio test using the likelihoods derived from the binomial probability distribution. Summarize your findings.
+
 ### Lesson 3 - Thursday 9/16/21
 
 * We begin today's lesson by keying in the dataset and recovering the information we need from last week:
@@ -1273,20 +1287,6 @@ py1x1
 [1] 0.1086957
 > 
 ```
-
-#### Assignment Due Thursday 9/16/21
-
-* Consider the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
-
-```r
-n.treat <- 135
-n.fail.treat <- 18
-
-n.control <- 178
-n.fail.control <- 39
-```
-
-* Your task in this assignment is twofold: (1) verify that the confidence interval for θ using the curvature of the likelihood function matches the confidence interval for θ using the traditional normal-approximation-to-the-binomial method; and (2) conduct a likelihood-ratio test using the likelihoods derived from the binomial probability distribution. Summarize your findings.
 
 #### 3.1 - Likelihood ratio test using logistic regression
 
