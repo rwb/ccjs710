@@ -1087,7 +1087,7 @@ which yields:
 > 
 ```
 
-#### 2.3 Likelihood Ratio Test via Logistic Regression
+#### 2.3 Rectangular Data Set and Contingency Table
 
 * We begin by creating a rectangular data set:
 
@@ -1199,6 +1199,96 @@ ct.or
 [1] 0.451479
 > 
 ```
+
+### Lesson 3 - Thursday 9/16/21
+
+* We begin today's lesson by keying in the dataset and recovering the information we need from last week:
+
+```r
+# create individual level dataset
+
+y0 <- c(rep(1,47),rep(0,221-47))
+y1 <- c(rep(1,10),rep(0,92-10))
+y <- c(y0,y1)
+x <- c(rep(0,221),rep(1,92))
+df <- data.frame(x,y)
+df
+
+# crosstable (outcome on rows; treatment on columns)
+
+ct <- table(df$y,df$x,exclude=NULL)
+ct
+
+# conditional probabilities
+
+py1x0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+py1x0
+py1x1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+py1x1
+```
+
+* Here are the results:
+
+
+```rout
+> # create individual level dataset
+> 
+> y0 <- c(rep(1,47),rep(0,221-47))
+> y1 <- c(rep(1,10),rep(0,92-10))
+> y <- c(y0,y1)
+> x <- c(rep(0,221),rep(1,92))
+> df <- data.frame(x,y)
+> df
+    x y
+1   0 1
+2   0 1
+3   0 1
+4   0 1
+5   0 1
+*
+*
+*
+309 1 0
+310 1 0
+311 1 0
+312 1 0
+313 1 0
+> 
+> # crosstable (outcome on rows; treatment on columns)
+> 
+> ct <- table(df$y,df$x,exclude=NULL)
+> ct
+   
+      0   1
+  0 174  82
+  1  47  10
+> 
+> # conditional probabilities
+> 
+> py1x0 <- ct[2,1]/(ct[1,1]+ct[2,1])
+> py1x0
+[1] 0.2126697
+> py1x1 <- ct[2,2]/(ct[1,2]+ct[2,2])
+> py1x1
+[1] 0.1086957
+> 
+```
+
+#### Assignment Due Thursday 9/16/21
+
+* Consider the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
+
+* Your task in this assignment is twofold: (1) verify that the confidence interval for θ using the curvature of the likelihood function matches the confidence interval for θ using the traditional normal-approximation-to-the-binomial method; and (2) conduct a likelihood-ratio test using the likelihoods derived from the binomial probability distribution. Summarize your findings.
+
+#### 3.1 - Likelihood ratio test using logistic regression
 
 * Next, we estimate the constrained and free logistic regression models:
 
@@ -1375,7 +1465,7 @@ odds.ratio.lm
 * Note that these numbers match what we calculated from the contingency table.
 * Maximum likelihood estimators have the following properties: (1) consistency, (2) asymptotic normality, and (3) asymptotic efficiency (King, 1989:74-80).
 
-#### 2.4 Permutation Test
+#### 3.2 Permutation Test
 
 * The properties of ML estimators are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups without appealing to asymptotics (large samples) or distributional assumptions (i.e., the binomial or the normal approximation to the binomial). Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/)).
 * Here is an illustration of the permutation method using Larry's approach:
@@ -1474,17 +1564,3 @@ y     0   1
 <p align="left">
 <img src="/gfiles/perm-hist.png" width="700px">
 </p>
-
-#### Assignment Due Thursday 9/16/21
-
-* Consider the treatment-as-delivered data from the Minneapolis study. Here are the data you should use:
-
-```r
-n.treat <- 135
-n.fail.treat <- 18
-
-n.control <- 178
-n.fail.control <- 39
-```
-
-* Your task in this assignment is fourfold: (1) verify that the confidence interval for θ using the curvature of the likelihood function matches the confidence interval for θ using the traditional normal-approximation-to-the-binomial method; (2) conduct a likelihood-ratio test using the likelihoods derived from the binomial probability distribution; (3) verify that you can get the same likelihood ratio test (and the same treatment effect estimates) using a logistic regression approach; and (4) check on your results using a permutation test. Summarize your findings.
