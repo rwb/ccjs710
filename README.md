@@ -1650,7 +1650,113 @@ median(bx)
 <img src="/gfiles/bx3.png" width="800px">
 </p>
 
-#### 3.2 Permutation Test
+#### 3.3 Bias and Efficiency
+
+* We now consider the concepts of bias and efficiency using a simulated example.
+* Which is a better estimator of the population mean? -- the sample mean or the sample median?
+
+```r
+# simulate a random variable, yp, for the
+# population [popsize] which is normally 
+# distributed with a mean of [mu] and a 
+# standard deviation of [sigma]
+
+popsize <- 1000000
+mu <- 100
+sigma <- 10
+
+y.p <- rnorm(n=popsize,mean=mu,sd=sigma)
+
+# calculate the population mean 
+
+popmean <- mean(y.p)
+popmean
+
+# now, let's draw [nsamples] from the population
+
+nsamples <- 100000
+sampsize <- 100
+
+y.s.mean <- vector()
+se.mean <- vector()
+y.s.median <- vector()
+
+for(i in 1:nsamples){
+  y.s <- sample(y.p,size=sampsize,replace=T)
+  y.s.mean[i] <- mean(y.s)
+  se.mean[i] <- sd(y.s)/sqrt(sampsize-1)
+  y.s.median[i] <- median(y.s)
+  }
+  
+mean(y.s.mean)
+median(y.s.mean)
+
+mean(y.s.median)
+median(y.s.median)
+
+mean(se.mean)
+sd(y.s.mean)
+sd(y.s.median)
+```
+
+* Here are the results:
+
+```rout
+> # simulate a random variable, yp, for the
+> # population [popsize] which is normally 
+> # distributed with a mean of [mu] and a 
+> # standard deviation of [sigma]
+> 
+> popsize <- 1000000
+> mu <- 100
+> sigma <- 10
+> 
+> y.p <- rnorm(n=popsize,mean=mu,sd=sigma)
+> 
+> # calculate the population mean 
+> 
+> popmean <- mean(y.p)
+> popmean
+[1] 100.0079
+> 
+> # now, let's draw [nsamples] from the population
+> 
+> nsamples <- 100000
+> sampsize <- 100
+> 
+> y.s.mean <- vector()
+> se.mean <- vector()
+> y.s.median <- vector()
+> 
+> for(i in 1:nsamples){
++   y.s <- sample(y.p,size=sampsize,replace=T)
++   y.s.mean[i] <- mean(y.s)
++   se.mean[i] <- sd(y.s)/sqrt(sampsize-1)
++   y.s.median[i] <- median(y.s)
++   }
+>   
+> mean(y.s.mean)
+[1] 100.0058
+> median(y.s.mean)
+[1] 100.0057
+> 
+> mean(y.s.median)
+[1] 100.0198
+> median(y.s.median)
+[1] 100.0215
+> 
+> mean(se.mean)
+[1] 1.002279
+> sd(y.s.mean)
+[1] 0.9995369
+> sd(y.s.median)
+[1] 1.246504
+> 
+```
+
+* So, the sample mean is a *better* estimator not on bias grounds but on efficiency grounds.
+
+#### 3.4 Permutation Test
 
 * The properties of ML estimators are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups without appealing to asymptotics (large samples) or distributional assumptions (i.e., the binomial or the normal approximation to the binomial). Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/)).
 * Here is an illustration of the permutation method using Larry's approach:
