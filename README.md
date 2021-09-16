@@ -1465,6 +1465,191 @@ odds.ratio.lm
 * Note that these numbers match what we calculated from the contingency table.
 * Maximum likelihood estimators have the following properties: (1) consistency, (2) asymptotic normality, and (3) asymptotic efficiency (King, 1989:74-80).
 
+#### 3.2 Maximum Likelihood Estimators and Sample Size
+
+* Here is a simulation to demonstrate the performance of a ML estimator with different sample sizes.
+* We start by assuming that *x* is a binary variable with 5 values of zero and 5 values of one.
+
+```r
+# simulation to show how ML estimator 
+# performs with varying sample sizes
+
+x <- c(rep(0,5),rep(1,5))
+
+bx <- vector()
+
+for(i in 1:100000)
+  {
+    u <- runif(n=length(x),min=0,max=1)
+    e <- log(u/(1-u))
+    y <- ifelse((0.2*x+e)>0,1,0)
+    m <- glm(y~1+x,family=binomial(link="logit"))
+    bx[i] <- coef(m)[2]
+  }
+
+par(mfrow=c(1,2))
+
+hist(bx)
+boxplot(bx)
+mean(bx)
+median(bx)
+```
+
+* Here are the results:
+
+```rout
+> # simulation to show how ML estimator 
+> # performs with varying sample sizes
+> 
+> x <- c(rep(0,5),rep(1,5))
+> 
+> bx <- vector()
+> 
+> for(i in 1:100000)
++   {
++     u <- runif(n=length(x),min=0,max=1)
++     e <- log(u/(1-u))
++     y <- ifelse((0.2*x+e)>0,1,0)
++     m <- glm(y~1+x,family=binomial(link="logit"))
++     bx[i] <- coef(m)[2]
++   }
+> 
+> par(mfrow=c(1,2))
+> 
+> hist(bx)
+> boxplot(bx)
+> mean(bx)
+[1] 0.7884887
+> median(bx)
+[1] 4.299875e-16
+```
+
+<p align="left">
+<img src="/gfiles/bx1.png" width="800px">
+</p>
+
+* Now, let's see what happens when we increase the sample size to 25 cases at each level of *x*:
+
+```r
+# simulation to show how ML estimator 
+# performs with varying sample sizes
+
+x <- c(rep(0,25),rep(1,25))
+
+bx <- vector()
+
+for(i in 1:100000)
+  {
+    u <- runif(n=length(x),min=0,max=1)
+    e <- log(u/(1-u))
+    y <- ifelse((0.2*x+e)>0,1,0)
+    m <- glm(y~1+x,family=binomial(link="logit"))
+    bx[i] <- coef(m)[2]
+  }
+
+par(mfrow=c(1,2))
+
+hist(bx)
+boxplot(bx)
+mean(bx)
+median(bx)
+```
+
+* Here are the results:
+
+```rout
+> # simulation to show how ML estimator 
+> # performs with varying sample sizes
+> 
+> x <- c(rep(0,25),rep(1,25))
+> 
+> bx <- vector()
+> 
+> for(i in 1:100000)
++   {
++     u <- runif(n=length(x),min=0,max=1)
++     e <- log(u/(1-u))
++     y <- ifelse((0.2*x+e)>0,1,0)
++     m <- glm(y~1+x,family=binomial(link="logit"))
++     bx[i] <- coef(m)[2]
++   }
+> 
+> par(mfrow=c(1,2))
+> 
+> hist(bx)
+> boxplot(bx)
+> mean(bx)
+[1] 0.2086212
+> median(bx)
+[1] 0.1643031
+> 
+```
+
+<p align="left">
+<img src="/gfiles/bx2.png" width="800px">
+</p>
+
+* And, finally, we increase the sample size to 100 cases at each level of *x*:
+
+```r
+# simulation to show how ML estimator 
+# performs with varying sample sizes
+
+x <- c(rep(0,100),rep(1,100))
+
+bx <- vector()
+
+for(i in 1:100000)
+  {
+    u <- runif(n=length(x),min=0,max=1)
+    e <- log(u/(1-u))
+    y <- ifelse((0.2*x+e)>0,1,0)
+    m <- glm(y~1+x,family=binomial(link="logit"))
+    bx[i] <- coef(m)[2]
+  }
+
+par(mfrow=c(1,2))
+
+hist(bx)
+boxplot(bx)
+mean(bx)
+median(bx)
+```
+
+* Here are the results:
+
+```rout
+> # simulation to show how ML estimator 
+> # performs with varying sample sizes
+> 
+> x <- c(rep(0,100),rep(1,100))
+> 
+> bx <- vector()
+> 
+> for(i in 1:100000)
++   {
++     u <- runif(n=length(x),min=0,max=1)
++     e <- log(u/(1-u))
++     y <- ifelse((0.2*x+e)>0,1,0)
++     m <- glm(y~1+x,family=binomial(link="logit"))
++     bx[i] <- coef(m)[2]
++   }
+> 
+> par(mfrow=c(1,2))
+> 
+> hist(bx)
+> boxplot(bx)
+> mean(bx)
+[1] 0.1998563
+> median(bx)
+[1] 0.2006707
+> 
+```
+
+<p align="left">
+<img src="/gfiles/bx3.png" width="800px">
+</p>
+
 #### 3.2 Permutation Test
 
 * The properties of ML estimators are all large sample properties. In some instances, we may wish to test a hypothesis about the similarity of patterns between groups without appealing to asymptotics (large samples) or distributional assumptions (i.e., the binomial or the normal approximation to the binomial). Our example here has been a comparison between 2 groups. We can extend this analysis to a set of highly general results derived from a permutation test. Larry Wasserman has a very interesting blog post (see section 2) about this issue ([linked here](https://normaldeviate.wordpress.com/2012/07/14/modern-two-sample-tests/)).
@@ -1503,6 +1688,7 @@ for(i in 1:100000)
   }
 
 hist(pdelta)
+abline(v=s.py1x1-s.py1x0,lty=2,lwd=1,col="purple")
 
 # identify the boundaries of the central 95% of the permutation distribution
 
@@ -1550,6 +1736,7 @@ y     0   1
 +   }
 > 
 > hist(pdelta)
+> abline(v=s.py1x1-s.py1x0,lty=2,lwd=1,col="purple")
 > 
 > # identify the boundaries of the central 95% of the permutation distribution
 > 
@@ -1559,8 +1746,23 @@ y     0   1
 > quantile(pdelta,0.975)
      97.5% 
 0.09615385 
+> 
 ```
 
 <p align="left">
-<img src="/gfiles/perm-hist.png" width="700px">
+<img src="/gfiles/perm1.png" width="700px">
 </p>
+
+#### Assignment Due Thursday 9/23/21
+
+* Use the treatment-as-delivered data from the Minneapolis study:
+
+```r
+n.treat <- 135
+n.fail.treat <- 18
+
+n.control <- 178
+n.fail.control <- 39
+```
+
+* Your task in this assignment is twofold: (1) calculate and interpret the classical treatment effect, the relative risk, and the odds ratio; and (2) test the significance of the treatment effect using the permutation test. Summarize your findings.
