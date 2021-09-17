@@ -1872,4 +1872,4 @@ n.fail.control <- 39
 ```
 
 * Your task in this assignment is twofold: (1) calculate and interpret the classical treatment effect, the relative risk, and the odds ratio; and (2) test the significance of the treatment effect using the permutation test. Summarize your findings.
-* Reading for next week's class is Section 1.3 and Chapter 2 of Maddala (1983; [here](http://www.microlinkcolleges.net/elib/files/undergraduate/Economics/BOOK%20MADDALA%20limityed%20dependent%20var..pdf).
+* Reading for next week's class is Section 1.3 and Chapter 2 of Maddala (1983; [here](http://www.microlinkcolleges.net/elib/files/undergraduate/Economics/BOOK%20MADDALA%20limityed%20dependent%20var..pdf)).
