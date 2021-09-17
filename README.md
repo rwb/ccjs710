@@ -1872,4 +1872,5 @@ n.fail.control <- 39
 ```
 
 * Your task in this assignment is twofold: (1) calculate and interpret the classical treatment effect, the relative risk, and the odds ratio; and (2) test the significance of the treatment effect using the permutation test. Summarize your findings.
+* Reading assignment - chapter 1 of Agresti (2019; An introduction to categorical data analysis) - available [here](https://media.wiley.com/product_data/excerpt/62/11194052/1119405262-36.pdf).
 
