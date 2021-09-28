@@ -2573,7 +2573,7 @@ bic.lr
 ```
 
 * The formulas for AIC and BIC differ in different textbooks and
-articles. The ones I am using here come from Wasserman (2000; [link](https://d1wqtxts1xzle7.cloudfront.net/46673478/jmps.1999.127820160621-25264-ajghyu-with-cover-page-v2.pdf?Expires=1632430483&Signature=Xot7Rq9QVF5Gbe5NwkFEXpWQJuXcRf3Waeipc4DSbgO-1M7LBlbU2JUOiHuyIPr9hwjOOh1FwZ~rc94DRlrnVJqbG~RHIpxMgvKDwFkZ8gj1kmmWc3y6vx12lPuZnKoLl14P82uMjw6nu-VfOi4jog1FK01dCa8wEn6vwVqoFIa8AEnbS6fMRCL~7VoNOf9LIS6gNY4I~zKYsaEifTVdP7ZYZCSPNo8W4~sjYHb2diPwIscEx-kNHq-YX0rEr~08AYe3z3AJ5T1ZxAZLb1SRtTDyVG-GeurtfnZssoB68gekq9FIewlxjTPg1Ax3rNd3Oqavv7skEgq~2wQdAaGkVg__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA) which you should look at (especially section 6).
+articles. The ones I am using here come from Wasserman (2000; [link](https://www.sciencedirect.com/science/article/abs/pii/S0022249699912786) which you should look at (especially section 6).
 * Next, we consider the interpretation of the results in terms of the classical treatment effect 
 (relative risk and odds ratios could also be calculated.
 
