@@ -2654,3 +2654,4 @@ pnorm(-0.7972-0.4363)-pnorm(-0.7972)
 * Use the simulator to verify the WLS efficiency property (based on a population treatment-as-delivered specification).
 * Use logistic, probit, and linear probability models to calculate classical treatment effects, relative risks, and odds ratios.
 * Based on AIC and BIC which specification is preferred?
+* Reading for this week (9/30/21) and next week (10/7/21) is [here](https://gking.harvard.edu/files/gking/files/ISQ33.pdf).
