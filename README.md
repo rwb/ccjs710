@@ -2655,3 +2655,7 @@ pnorm(-0.7972-0.4363)-pnorm(-0.7972)
 * Use logistic, probit, and linear probability models to calculate classical treatment effects, relative risks, and odds ratios.
 * Based on AIC and BIC which specification is preferred?
 * Reading for this week (9/30/21) and next week (10/7/21) is [here](https://gking.harvard.edu/files/gking/files/ISQ33.pdf).
+
+### Lesson 5 - Thursday 9/30/21
+
+* Tonight's topic: multinomial logit and event count models.
