@@ -2658,4 +2658,63 @@ pnorm(-0.7972-0.4363)-pnorm(-0.7972)
 
 ### Lesson 5 - Thursday 9/30/21
 
-* Tonight's topic: multinomial logit and event count models.
+* Tonight's topic: interpretation of multi-category independent variables in logistic regression models.
+* We begin by reading in the dataset:
+
+```r
+# Minneapolis Data Set [N = 313; See Table 2; B&S (1988)].
+ 
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(ta,td,aggcirc,y)
+table(y,ta)
+```
+
+* Here is the output:
+
+```rout
+> # Minneapolis Data Set [N = 313; See Table 2; B&S (1988)].
+> 
+> ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
++          rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
++          rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+> 
+> td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
++          rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
++          rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+> 
+> aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
++              rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
++              rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+> 
+> y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
++        rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
++        rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
++        rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
++        rep(1,11),rep(0,31))
+> 
+> df <- data.frame(ta,td,aggcirc,y)
+> table(y,ta)
+   ta
+y    1  2  3
+  0 82 87 87
+  1 10 21 26
+>
+```
+
