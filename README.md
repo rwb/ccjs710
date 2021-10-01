@@ -2718,3 +2718,133 @@ y    1  2  3
 >
 ```
 
+* A chi-square test can be used to check on the correspondence between observed frequencies in this table and the frequencies that would be expected if the assigned treatment and outcomes are independent of each other. Step 1 is to identify the observed frequencies:
+
+```r
+f01 <- 82
+f02 <- 87
+f03 <- 87
+f11 <- 10
+f12 <- 21
+f13 <- 26
+```
+
+* Next, we calculate the frequencies we would expect to see in each cell if the assigned treatment and outcomes are independent:
+
+```r
+e01 <- 92*256/313
+e01
+e02 <- 108*256/313
+e02
+e03 <- 113*256/313
+e03
+
+e11 <- 92*57/313
+e11
+e12 <- 108*57/313
+e12
+e13 <- 113*57/313
+e13
+```
+
+* Then, for each cell of the table, we calculate the squared difference between observed and expected frequencies divided by the the expected cell frequency:
+
+```r
+oe01 <- (f01-e01)^2/e01
+oe01
+oe02 <- (f02-e02)^2/e02
+oe02
+oe03 <- (f03-e03)^2/e03
+oe03
+oe11 <- (f11-e11)^2/e11
+oe11
+oe12 <- (f12-e12)^2/e12
+oe12
+oe13 <- (f13-e13)^2/e13
+oe13
+```
+
+* Last, we sum across these quantities to get our test statistic:
+
+```r
+oe01+oe02+oe03+oe11+oe12+oe13
+```
+
+* Here are the results:
+
+```rout
+> f01 <- 82
+> f02 <- 87
+> f03 <- 87
+> f11 <- 10
+> f12 <- 21
+> f13 <- 26
+> 
+> e01 <- 92*256/313
+> e01
+[1] 75.24601
+> e02 <- 108*256/313
+> e02
+[1] 88.33227
+> e03 <- 113*256/313
+> e03
+[1] 92.42173
+> 
+> e11 <- 92*57/313
+> e11
+[1] 16.75399
+> e12 <- 108*57/313
+> e12
+[1] 19.66773
+> e13 <- 113*57/313
+> e13
+[1] 20.57827
+> 
+> oe01 <- (f01-e01)^2/e01
+> oe01
+[1] 0.6062306
+> oe02 <- (f02-e02)^2/e02
+> oe02
+[1] 0.02009389
+> oe03 <- (f03-e03)^2/e03
+> oe03
+[1] 0.3180541
+> oe11 <- (f11-e11)^2/e11
+> oe11
+[1] 2.72272
+> oe12 <- (f12-e12)^2/e12
+> oe12
+[1] 0.09024625
+> oe13 <- (f13-e13)^2/e13
+> oe13
+[1] 1.428453
+> 
+> oe01+oe02+oe03+oe11+oe12+oe13
+[1] 5.185798
+> 
+```
+
+* We can confirm these results:
+
+```r
+table(y,ta)
+chisq.test(table(y,ta))
+```
+
+which yields:
+
+```rout
+> table(y,ta)
+   ta
+y    1  2  3
+  0 82 87 87
+  1 10 21 26
+> chisq.test(table(y,ta))
+
+	Pearson's Chi-squared test
+
+data:  table(y, ta)
+X-squared = 5.1858, df = 2, p-value = 0.0748
+
+> 
+```
