@@ -2848,3 +2848,96 @@ X-squared = 5.1858, df = 2, p-value = 0.0748
 
 > 
 ```
+
+* Next, we check on a logistic regression specification summarizing the information in this table. We start by creating "dummy" or indicator variables for the arrest and advise conditions (the separate condition is the suppressed or reference category):
+
+```r
+arrest <- rep(NA,313)
+arrest[ta==1] <- 1
+arrest[ta!=1] <- 0
+table(ta,arrest)
+advise <- rep(NA,0)
+advise <- rep(0,313)
+advise[ta==2] <- 1
+table(ta,advise)
+cat <- paste(ta,arrest,advise)
+table(cat)
+table(arrest,advise)
+```
+
+* Here are the results of the indicator variable creation process:
+
+```rout
+> arrest <- rep(NA,313)
+> arrest[ta==1] <- 1
+> arrest[ta!=1] <- 0
+> table(ta,arrest)
+   arrest
+ta    0   1
+  1   0  92
+  2 108   0
+  3 113   0
+> advise <- rep(NA,0)
+> advise <- rep(0,313)
+> advise[ta==2] <- 1
+> table(ta,advise)
+   advise
+ta    0   1
+  1  92   0
+  2   0 108
+  3 113   0
+> cat <- paste(ta,arrest,advise)
+> table(cat)
+cat
+1 1 0 2 0 1 3 0 0 
+   92   108   113 
+> table(arrest,advise)
+      advise
+arrest   0   1
+     0 113 108
+     1  92   0
+> 
+```
+
+* Now, here is an intercept-only logistic regression model:
+
+```r
+const <- glm(y~1,family=binomial(link="logit"))
+summary(const)
+table(y)
+```
+
+yielding these results:
+
+
+```rout
+> const <- glm(y~1,family=binomial(link="logit"))
+> summary(const)
+
+Call:
+glm(formula = y ~ 1, family = binomial(link = "logit"))
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.6341  -0.6341  -0.6341  -0.6341   1.8456  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.5021     0.1465  -10.26   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 297.08  on 312  degrees of freedom
+Residual deviance: 297.08  on 312  degrees of freedom
+AIC: 299.08
+
+Number of Fisher Scoring iterations: 4
+
+> table(y)
+y
+  0   1 
+256  57 
+> 
+```
