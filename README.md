@@ -3041,7 +3041,7 @@ y    1  2  3
 > 
 ```
 
-* Notice how ```logit.separated''' is calculated using only the intercept term from the regression model.
+* Notice how `logit.separated' is calculated using only the intercept term from the regression model.
 * Next, we calculate the log-likelihood ratio test comparing the constrained and free models:
 
 ```r
@@ -3217,7 +3217,7 @@ y    1  2  3
 'log Lik.' -162.8328 (df=6)
 ```
 
-* Based on both AIC and BIC, we would choose the ```free.agg''' model over the ```free.agg.int''' model.
+* Based on both AIC and BIC, we would choose the `free.agg model' over the `free.agg.int' model.
 
 ##### Assignment Due Thursday 10/7/21
 
