@@ -4002,9 +4002,163 @@ boxplot(dvf,dvm,
 * Here are the results:
 
 ```rout
-
+> library(boot)
+> 
+> dd <- function(data, indices) 
++   {
++     d <- data[indices,]
++     ms <- glm(recid~1+male+ageyears+male*ageyears,
++       data=d,family=binomial(link="logit"))
++     pyf.int <- coef(ms)[1]
++     pyf.bm <- coef(ms)[2]
++     pyf.ba <- coef(ms)[3]
++     pyf.pr <- coef(ms)[4]
++     logit.f <- pyf.int+pyf.bm*0+pyf.ba*20+pyf.pr*20*0
++     p.f <- exp(logit.f)/(1+exp(logit.f))
++     dvf <- pyf.ba*p.f*(1-p.f)
++     logit.m <- pyf.int+pyf.bm*1+pyf.ba*20+pyf.pr*20*1
++     p.m <- exp(logit.m)/(1+exp(logit.m))
++     dvm <- (pyf.ba+pyf.pr)*p.m*(1-p.m)
++     return(c(dvf,dvm))
++   }
+> 
+> dboot <- boot(data=df,statistic=dd,R=3000)
+> dvf <- dboot$t[,1]
+> dvm <- dboot$t[,2]
+> delta <- dvm-dvf
+> quantile(delta,0.025)
+      2.5% 
+-0.0045852 
+> quantile(delta,0.975)
+      97.5% 
+0.006692414 
+> 
+> # display a summary of the results
+> par(mfrow=c(1,2))
+> hist(delta)
+> boxplot(dvf,dvm,
++   xlab="Sex",
++   ylab="d_p(fail)/d_age at Age 20",
++   names=c("Females","Males"))
+> 
 ```
 
 <p align="left">
 <img src="/gfiles/deriv-plot.png" width="800px">
 </p>
+
+* One last point about the logistic regression model: we can code the likelihood function and use a general hill-climbing algorithm to maximize that function.
+
+```r
+# first we rerun the standard logistic regression analysis
+
+m3 <- glm(recid~1+male+ageyears,data=df,family=binomial(link="logit"))
+summary(m3)
+logLik(m3)
+
+library(maxLik)
+
+ll4 <- function(parms)
+  {
+    a <- parms[1]
+    b <- parms[2]
+    c <- parms[3]
+ 
+    logit <- a+b*df$male+c*df$ageyears
+
+    py0 <- 1/(1+exp(logit))
+    py1 <- exp(logit)/(1+exp(logit))
+
+    pmf <- df$recid*py1+(1-df$recid)*py0
+    lpmf <- log(pmf)
+    return(lpmf)
+  }
+
+m4 <- maxLik(ll4,start=c(-0.32937423,0.40384020,-0.0328402402),
+  method="BHHH",finalHessian="BHHH")
+summary(m4)
+```
+
+* Here are the results:
+
+```rout
+> # first we rerun the standard logistic regression analysis
+> 
+> m3 <- glm(recid~1+male+ageyears,data=df,family=binomial(link="logit"))
+> summary(m3)
+
+Call:
+glm(formula = recid ~ 1 + male + ageyears, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1276  -1.0304  -0.8503   1.2970   2.0321  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.555808   0.126760  -4.385 1.16e-05 ***
+male         0.860076   0.114624   7.503 6.22e-14 ***
+ageyears    -0.026411   0.002188 -12.071  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 12370  on 9326  degrees of freedom
+Residual deviance: 12156  on 9324  degrees of freedom
+AIC: 12162
+
+Number of Fisher Scoring iterations: 4
+
+> logLik(m3)
+'log Lik.' -6078.234 (df=3)
+> 
+> library(maxLik)
+Loading required package: miscTools
+
+Please cite the 'maxLik' package as:
+Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihood estimation in R. Computational Statistics 26(3), 443-458. DOI 10.1007/s00180-010-0217-1.
+
+If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
+https://r-forge.r-project.org/projects/maxlik/
+> 
+> ll4 <- function(parms)
++   {
++     a <- parms[1]
++     b <- parms[2]
++     c <- parms[3]
++  
++     logit <- a+b*df$male+c*df$ageyears
++ 
++     py0 <- 1/(1+exp(logit))
++     py1 <- exp(logit)/(1+exp(logit))
++ 
++     pmf <- df$recid*py1+(1-df$recid)*py0
++     lpmf <- log(pmf)
++     return(lpmf)
++   }
+> 
+> m4 <- maxLik(ll4,start=c(-0.32937423,0.40384020,-0.0328402402),
++   method="BHHH",finalHessian="BHHH")
+> summary(m4)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 4 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -6078.234 
+3  free parameters
+Estimates:
+      Estimate Std. error t value  Pr(> t)    
+[1,] -0.555804   0.126262  -4.402 1.07e-05 ***
+[2,]  0.860075   0.114838   7.489 6.92e-14 ***
+[3,] -0.026411   0.002169 -12.177  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+##### Assignment Due Thursday 10/14/21
+
+Use the 1980 North Carolina dataset to: (1) conduct exploratory data analysis looking at marginal distributions and bivariate relationships; (2) estimate a logistic regression model with main effects for age and sex (interpreting your results); (3) check to see whether the age effects vary between sex groups using plots, a likelihood ratio test, and derivative comparison (including an assessment of the sampling distribution of the difference between the male and female derivatives at age 22); and (4) confirm that you can estimate a model writing down your own likelihood function that is comparable to the model estimated by the glm() function.
