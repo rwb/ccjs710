@@ -3852,3 +3852,159 @@ lines(x=age,y=p.age.female,lty=2,lwd=2,col="red")
 <p align="left">
 <img src="/gfiles/age-plot2.png" width="800px">
 </p>
+
+* We can also check to see whether the derivatives of the response function / age are equal (comparing males and females) at a particular age point say, age 20.
+
+```r
+data.frame(age,p.age.male,p.age.female)
+
+# first, the females
+
+b <- -0.033536
+p <- 0.26172501
+derivative <- b*p*(1-p)
+derivative
+
+# second, the males
+
+b <- -0.033536+0.007317
+p <- 0.4438471
+derivative <- b*p*(1-p)
+derivative
+```
+
+* Here are the results:
+
+```rout
+> data.frame(age,p.age.male,p.age.female)
+   age p.age.male p.age.female
+1   16  0.4698648   0.28845943
+2   17  0.4633394   0.28162527
+3   18  0.4568265   0.27489047
+4   19  0.4503284   0.26825658
+5   20  0.4438471   0.26172501
+6   21  0.4373849   0.25529698
+7   22  0.4309439   0.24897359
+8   23  0.4245262   0.24275576
+9   24  0.4181338   0.23664429
+10  25  0.4117688   0.23063981
+11  26  0.4054332   0.22474284
+12  27  0.3991289   0.21895372
+13  28  0.3928579   0.21327271
+14  29  0.3866220   0.20769990
+15  30  0.3804230   0.20223527
+16  31  0.3742629   0.19687869
+17  32  0.3681432   0.19162991
+18  33  0.3620656   0.18648857
+19  34  0.3560319   0.18145421
+20  35  0.3500435   0.17652626
+21  36  0.3441020   0.17170407
+22  37  0.3382089   0.16698690
+23  38  0.3323656   0.16237392
+24  39  0.3265735   0.15786422
+25  40  0.3208337   0.15345682
+26  41  0.3151477   0.14915068
+27  42  0.3095164   0.14494468
+28  43  0.3039412   0.14083766
+29  44  0.2984229   0.13682839
+30  45  0.2929627   0.13291560
+31  46  0.2875615   0.12909796
+32  47  0.2822200   0.12537412
+33  48  0.2769393   0.12174268
+34  49  0.2717199   0.11820221
+35  50  0.2665626   0.11475124
+36  51  0.2614681   0.11138831
+37  52  0.2564369   0.10811189
+38  53  0.2514695   0.10492046
+39  54  0.2465665   0.10181250
+40  55  0.2417282   0.09878643
+41  56  0.2369550   0.09584071
+42  57  0.2322471   0.09297377
+43  58  0.2276049   0.09018403
+44  59  0.2230285   0.08746993
+45  60  0.2185181   0.08482989
+46  61  0.2140738   0.08226235
+47  62  0.2096956   0.07976575
+48  63  0.2053836   0.07733854
+49  64  0.2011377   0.07497916
+50  65  0.1969578   0.07268610
+51  66  0.1928437   0.07045782
+52  67  0.1887955   0.06829282
+53  68  0.1848127   0.06618960
+54  69  0.1808952   0.06414671
+55  70  0.1770428   0.06216266
+56  71  0.1732550   0.06023603
+57  72  0.1695315   0.05836540
+58  73  0.1658721   0.05654937
+59  74  0.1622761   0.05478655
+60  75  0.1587434   0.05307560
+61  76  0.1552732   0.05141517
+62  77  0.1518652   0.04980395
+63  78  0.1485189   0.04824066
+> 
+> # first, the females
+> 
+> b <- -0.033536
+> p <- 0.26172501
+> derivative <- b*p*(1-p)
+> derivative
+[1] -0.006479995
+> 
+> # second, the males
+> 
+> b <- -0.033536+0.007317
+> p <- 0.4438471
+> derivative <- b*p*(1-p)
+> derivative
+[1] -0.006472078
+> 
+```
+
+* Note: if we want to check on the sampling distribution of the difference between these two derivatives, we can use the bootstrap:
+
+```r
+library(boot)
+
+dd <- function(data, indices) 
+  {
+    d <- data[indices,]
+    ms <- glm(recid~1+male+ageyears+male*ageyears,
+      data=d,family=binomial(link="logit"))
+    pyf.int <- coef(ms)[1]
+    pyf.bm <- coef(ms)[2]
+    pyf.ba <- coef(ms)[3]
+    pyf.pr <- coef(ms)[4]
+    logit.f <- pyf.int+pyf.bm*0+pyf.ba*20+pyf.pr*20*0
+    p.f <- exp(logit.f)/(1+exp(logit.f))
+    dvf <- pyf.ba*p.f*(1-p.f)
+    logit.m <- pyf.int+pyf.bm*1+pyf.ba*20+pyf.pr*20*1
+    p.m <- exp(logit.m)/(1+exp(logit.m))
+    dvm <- (pyf.ba+pyf.pr)*p.m*(1-p.m)
+    return(c(dvf,dvm))
+  }
+
+dboot <- boot(data=df,statistic=dd,R=3000)
+dvf <- dboot$t[,1]
+dvm <- dboot$t[,2]
+delta <- dvm-dvf
+quantile(delta,0.025)
+quantile(delta,0.975)
+
+# display a summary of the results
+par(mfrow=c(1,2))
+hist(delta)
+boxplot(dvf,dvm,
+  xlab="Sex",
+  ylab="d_p(fail)/d_age at Age 20",
+  names=c("Females","Males"))
+```
+
+* Here are the results:
+
+```rout
+
+```
+
+<p align="left">
+<img src="/gfiles/deriv-plot.png" width="800px">
+</p>
