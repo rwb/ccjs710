@@ -3578,8 +3578,180 @@ boxplot(df$ageyears~df$male,
   names=c("Females","Males"))
 ```
 
-* The resulting plot is here:
+* The resulting 1x3 plotspace is here:
 
 <p align="left">
 <img src="/gfiles/age-recid.png" width="800px">
 </p>
+
+* Now, we estimate a logistic regresssion analysis with both sex and age as predictor variables. Here is the R code:
+
+```r
+# now let's estimate a logistic regression model using age and 
+# sex as predictor variables.
+
+m1 <- glm(recid~1+male+ageyears,data=df,family=binomial(link="logit"))
+summary(m1)
+logLik(m1)
+```
+
+and here are the results:
+
+```rout
+> # now let's estimate a logistic regression model using age and 
+> # sex as predictor variables.
+> 
+> m1 <- glm(recid~1+male+ageyears,data=df,family=binomial(link="logit"))
+> summary(m1)
+
+Call:
+glm(formula = recid ~ 1 + male + ageyears, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1276  -1.0304  -0.8503   1.2970   2.0321  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.555808   0.126760  -4.385 1.16e-05 ***
+male         0.860076   0.114624   7.503 6.22e-14 ***
+ageyears    -0.026411   0.002188 -12.071  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 12370  on 9326  degrees of freedom
+Residual deviance: 12156  on 9324  degrees of freedom
+AIC: 12162
+
+Number of Fisher Scoring iterations: 4
+
+> logLik(m1)
+'log Lik.' -6078.234 (df=3)
+> 
+```
+
+* We now ask what this model implies about the risk of failure for males and females.
+* The answer depends on what the value of age is.
+* As an example, let's set the age to the median value of 26.
+
+```r
+logit.male <- -0.555808+1*0.860076-0.026411*26
+pmale <- exp(logit.male)/(1+exp(logit.male))
+
+logit.female <- -0.555808+0*0.860076-0.026411*26
+pfemale <- exp(logit.female)/(1+exp(logit.female))
+
+pmale-pfemale
+```
+
+* Here is what we get:
+
+```rout
+> logit.male <- -0.555808+1*0.860076-0.026411*26
+> pmale <- exp(logit.male)/(1+exp(logit.male))
+> 
+> logit.female <- -0.555808+0*0.860076-0.026411*26
+> pfemale <- exp(logit.female)/(1+exp(logit.female))
+> 
+> pmale-pfemale
+[1] 0.1815417
+> 
+```
+
+* For further insight, we can evaluate the function at the first and third quartiles of the age distribution:
+
+```r
+# first quartile of the age distribution
+
+quantile(df$ageyears,0.25)
+
+logit.male <- -0.555808+1*0.860076-0.026411*21
+pmale <- exp(logit.male)/(1+exp(logit.male))
+
+logit.female <- -0.555808+0*0.860076-0.026411*21
+pfemale <- exp(logit.female)/(1+exp(logit.female))
+
+pmale-pfemale
+
+# third quartile of the age distribution
+
+quantile(df$ageyears,0.75)
+
+logit.male <- -0.555808+1*0.860076-0.026411*34
+pmale <- exp(logit.male)/(1+exp(logit.male))
+
+logit.female <- -0.555808+0*0.860076-0.026411*34
+pfemale <- exp(logit.female)/(1+exp(logit.female))
+
+pmale-pfemale
+```
+
+* Here are the results:
+
+```rout
+> quantile(df$ageyears,0.25)
+25% 
+ 21 
+> 
+> logit.male <- -0.555808+1*0.860076-0.026411*21
+> pmale <- exp(logit.male)/(1+exp(logit.male))
+> 
+> logit.female <- -0.555808+0*0.860076-0.026411*21
+> pfemale <- exp(logit.female)/(1+exp(logit.female))
+> 
+> pmale-pfemale
+[1] 0.1899451
+> 
+> # third quartile of the age distribution
+> 
+> quantile(df$ageyears,0.75)
+75% 
+ 34 
+> 
+> logit.male <- -0.555808+1*0.860076-0.026411*34
+> pmale <- exp(logit.male)/(1+exp(logit.male))
+> 
+> logit.female <- -0.555808+0*0.860076-0.026411*34
+> pfemale <- exp(logit.female)/(1+exp(logit.female))
+> 
+> pmale-pfemale
+[1] 0.1663648
+> 
+```
+
+* Now, we ask what this model implies about the risk of failure as a function of age? Of course, the answer depends partially on what we assume about the 
+value of sex (male/female). Here is the R code (which also generates a plot displayed below):
+
+```r
+# generate the age sequence
+
+age <- seq(from=16,to=78)
+
+# let's start with the females
+
+logit.age.female <- -0.555808+0*0.860076-0.026411*age
+p.age.female <- exp(logit.age.female)/(1+exp(logit.age.female))
+
+# now, the males
+
+logit.age.male <- -0.555808+1*0.860076-0.026411*age
+p.age.male <- exp(logit.age.male)/(1+exp(logit.age.male))
+
+# here is the plot
+
+plot(x=age,y=p.age.male,type="l",lty=1,lwd=2,col="blue",ylim=c(0,1))
+lines(x=age,y=p.age.female,lty=1,lwd=2,col="red")
+abline(h=c(0,0.2,0.4,0.6,0.8,1.0),lty=3,lwd=0.5)
+abline(v=c(20,30,40,50,60,70,80),lty=3,lwd=0.5)
+```
+
+* Here is the plot:
+
+<p align="left">
+<img src="/gfiles/age-plot.png" width="800px">
+</p>
+
+```
