@@ -3227,3 +3227,359 @@ y    1  2  3
 4. Add the aggravating circumstances variable to the logistic regression model. Interpret the results.
 5. Add an interaction term to the logit model you estimated in part 4 to get a saturated model. Test for whether the saturated model or the main-effects-only model is more consistent with the data.
 6. Use AIC and BIC to check on the same question you addressed in part 5. Interpret your results.
+
+### Lesson 6 - Thursday 10/7/21
+
+* I have decided I want to spend some more time on interpreting results from logistic regression models and coefficients.
+* We begin by reading in the nc78.csv dataset I sent you today.
+
+```r
+# read in our dataset
+
+df <- read.csv(file="nc78.csv",sep=",",header=T)
+
+# look at a random sample of cases
+
+df[sample(nrow(df),size=25,replace=F), ]
+```
+
+and here is what we get (your sample will be different from mine):
+
+```rout
+> # read in our dataset
+> 
+> df <- read.csv(file="nc78.csv",sep=",",header=T)
+> 
+> # look at a random sample of cases
+> 
+> df[sample(nrow(df),size=25,replace=F), ]
+        X male ageyears recid
+4870 4870    1       57     1
+7989 7989    1       34     0
+8612 8612    1       21     0
+1835 1835    0       33     1
+5830 5830    1       44     0
+331   331    1       38     0
+4095 4095    1       40     0
+68     68    0       30     0
+1189 1189    1       30     0
+2860 2860    1       30     0
+7106 7106    1       31     1
+6078 6078    1       31     0
+6689 6689    1       19     1
+1616 1616    1       34     0
+3284 3284    1       26     1
+4524 4524    1       34     0
+4080 4080    1       25     0
+6101 6101    1       17     1
+2799 2799    1       25     1
+684   684    1       19     0
+8157 8157    1       18     1
+1481 1481    1       54     1
+1556 1556    1       60     0
+2882 2882    1       24     1
+5535 5535    1       18     0
+> 
+```
+
+* Now, we are going to look at the marginal distributions of our variables.
+* Let's begin with the dependent variable, recidivism (measured over a 70-month follow-up period):
+
+```r
+# recidivism (within 70 months)
+
+table(df$recid,exclude=NULL)
+table(df$recid)/nrow(df)
+```
+
+* Here are the results:
+
+```rout
+> # recidivism (within 70 months)
+> 
+> table(df$recid,exclude=NULL)
+
+   0    1 
+5800 3527 
+> table(df$recid)/nrow(df)
+
+        0         1 
+0.6218505 0.3781495 
+> 
+```
+
+* Next, we turn to the distribution of males/females in the data and the joint distribution of sex and recidivism:
+
+```r
+# sex distribution
+
+table(df$male,exclude=NULL)
+sd <- table(df$recid,df$male,exclude=NULL)
+sd
+
+py1x1 <- sd[2,2]/(sd[1,2]+sd[2,2])
+py1x1
+py1x0 <- sd[2,1]/(sd[1,1]+sd[2,1])
+py1x0
+py1x1-py1x0
+```
+
+* This what we get:
+
+```rout
+> # sex distribution
+> 
+> table(df$male,exclude=NULL)
+
+   0    1 
+ 469 8858 
+> sd <- table(df$recid,df$male,exclude=NULL)
+> sd
+   
+       0    1
+  0  367 5433
+  1  102 3425
+> 
+> py1x1 <- sd[2,2]/(sd[1,2]+sd[2,2])
+> py1x1
+[1] 0.3866561
+> py1x0 <- sd[2,1]/(sd[1,1]+sd[2,1])
+> py1x0
+[1] 0.217484
+> py1x1-py1x0
+[1] 0.1691721
+> 
+```
+
+* Now, we estimate a bivariate logistic regression model to corroborate what we see in the table above:
+
+
+```r
+# estimate bivariate logistic regression model
+
+summary(glm(recid~1+male,data=df,family=binomial(link="logit")))
+
+logit.m <- -1.2804+1*0.8190
+exp(logit.m)/(1+exp(logit.m))
+
+logit.f <- -1.2804+0*0.8190
+exp(logit.f)/(1+exp(logit.f))
+```
+
+* These are the logistic regression results:
+
+```rout
+> # estimate bivariate logistic regression model
+> 
+> summary(glm(recid~1+male,data=df,family=binomial(link="logit")))
+
+Call:
+glm(formula = recid ~ 1 + male, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-0.9888  -0.9888  -0.9888   1.3786   1.7468  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.2804     0.1119 -11.439  < 2e-16 ***
+male          0.8190     0.1140   7.182 6.88e-13 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 12370  on 9326  degrees of freedom
+Residual deviance: 12312  on 9325  degrees of freedom
+AIC: 12316
+
+Number of Fisher Scoring iterations: 4
+
+> 
+> logit.m <- -1.2804+1*0.8190
+> exp(logit.m)/(1+exp(logit.m))
+[1] 0.3866538
+> 
+> logit.f <- -1.2804+0*0.8190
+> exp(logit.f)/(1+exp(logit.f))
+[1] 0.2174821
+> 
+```
+
+* Now, we turn to the age distribution in the dataset. We start by opening a plot window and generating a barplot showing the age distribution of the persons released from North Carolina prisons in 1978:
+
+```r
+# open a 1-row, 3-column plot window
+
+par(mfrow=c(1,3))
+
+# age distribution
+
+table(df$ageyears,exclude=NULL)
+median(df$ageyears)
+mean(df$ageyears)
+barplot(table(df$ageyears),
+  xlab="Age (in years)",
+  ylab="Number of People")
+```
+
+* Here are the results:
+
+```rout
+> # open a 1-row, 3-column plot window
+> 
+> par(mfrow=c(1,3))
+> 
+> # age distribution
+> 
+> table(df$ageyears,exclude=NULL)
+
+ 16  17  18  19  20  21  22  23  24  25  26  27  28  29  30 
+ 19 161 492 480 624 599 580 468 537 443 432 338 415 292 324 
+ 31  32  33  34  35  36  37  38  39  40  41  42  43  44  45 
+254 234 179 187 167 177 132 152 117 119  93 113 102  85  75 
+ 46  47  48  49  50  51  52  53  54  55  56  57  58  59  60 
+ 90  72  86  62  78  61  57  50  44  49  55  34  34  25  21 
+ 61  62  63  64  65  66  67  68  69  70  71  72  73  74  75 
+ 18  19  11  16   7   5  13   5   3   1   3   5   3   4   2 
+ 77  78 
+  2   2 
+> median(df$ageyears)
+[1] 26
+> mean(df$ageyears)
+[1] 29.32787
+> barplot(table(df$ageyears),
++   xlab="Age (in years)",
++   ylab="Number of People")
+> 
+```
+
+* Next, we show how age is related to the fraction of persons who were observed to recidivate within 70 months:
+
+```r
+df$age.factor <- factor(df$ageyears,levels=16:78)
+table(df$recid,df$age.factor,exclude=NULL)
+
+fail.age <- table(df$recid,df$age.factor)[2,]
+n.age <- (table(df$recid,df$age.factor)[1,]+table(df$recid,df$age.factor)[2,])
+
+pfail.age <- fail.age/n.age
+plot(x=16:78,y=pfail.age,
+  type="l",lty=1,lwd=2,
+  xlab="Age at Release (in years)",
+  ylab="Proportion Observed to Fail Within 70 Months")
+abline(h=seq(from=0,to=1,by=0.1),lty=2,lwd=0.5)
+abline(v=seq(from=0,to=80,by=10),lty=2,lwd=0.5)
+```
+
+* And, then we calculate the derivative of the logistic response function (a model that only includes age):
+
+```r
+# calculate the derivative of the logistic response function at the median
+# derivative of the logistic response function is b*p*(1-p) (King, 1989:109)
+
+data.frame(x.age,logit.age,pred.age)
+
+b <- -0.025866
+p <- 0.3960438
+derivative <- b*p*(1-p)
+derivative
+```
+
+* Here are the results:
+
+```rout
+> # calculate the derivative of the logistic response function at the median
+> # derivative of the logistic response function is b*p*(1-p) (King, 1989:109)
+> 
+> data.frame(x.age,logit.age,pred.age)
+   x.age logit.age  pred.age
+1     16 -0.163317 0.4592613
+2     17 -0.189183 0.4528448
+3     18 -0.215049 0.4464440
+4     19 -0.240915 0.4400609
+5     20 -0.266781 0.4336975
+6     21 -0.292647 0.4273560
+7     22 -0.318513 0.4210382
+8     23 -0.344379 0.4147462
+9     24 -0.370245 0.4084818
+10    25 -0.396111 0.4022471
+11    26 -0.421977 0.3960438
+12    27 -0.447843 0.3898737
+13    28 -0.473709 0.3837387
+14    29 -0.499575 0.3776406
+15    30 -0.525441 0.3715808
+16    31 -0.551307 0.3655612
+17    32 -0.577173 0.3595833
+18    33 -0.603039 0.3536487
+19    34 -0.628905 0.3477589
+20    35 -0.654771 0.3419152
+21    36 -0.680637 0.3361191
+22    37 -0.706503 0.3303720
+23    38 -0.732369 0.3246751
+24    39 -0.758235 0.3190296
+25    40 -0.784101 0.3134367
+26    41 -0.809967 0.3078975
+27    42 -0.835833 0.3024131
+28    43 -0.861699 0.2969845
+29    44 -0.887565 0.2916126
+30    45 -0.913431 0.2862983
+31    46 -0.939297 0.2810424
+32    47 -0.965163 0.2758457
+33    48 -0.991029 0.2707089
+34    49 -1.016895 0.2656327
+35    50 -1.042761 0.2606176
+36    51 -1.068627 0.2556643
+37    52 -1.094493 0.2507732
+38    53 -1.120359 0.2459447
+39    54 -1.146225 0.2411793
+40    55 -1.172091 0.2364772
+41    56 -1.197957 0.2318389
+42    57 -1.223823 0.2272644
+43    58 -1.249689 0.2227540
+44    59 -1.275555 0.2183078
+45    60 -1.301421 0.2139260
+46    61 -1.327287 0.2096085
+47    62 -1.353153 0.2053554
+48    63 -1.379019 0.2011666
+49    64 -1.404885 0.1970421
+50    65 -1.430751 0.1929817
+51    66 -1.456617 0.1889853
+52    67 -1.482483 0.1850527
+53    68 -1.508349 0.1811836
+54    69 -1.534215 0.1773778
+55    70 -1.560081 0.1736350
+56    71 -1.585947 0.1699549
+57    72 -1.611813 0.1663371
+58    73 -1.637679 0.1627811
+59    74 -1.663545 0.1592867
+60    75 -1.689411 0.1558533
+61    76 -1.715277 0.1524805
+62    77 -1.741143 0.1491678
+63    78 -1.767009 0.1459147
+> 
+> b <- -0.025866
+> p <- 0.3960438
+> derivative <- b*p*(1-p)
+> derivative
+[1] -0.006186969
+> 
+```
+
+* Finally, we create a boxplot showing the relationship between age at the time of release (in years) and sex (male/female):
+
+```r
+# joint age x gender distribution
+
+boxplot(df$ageyears~df$male,
+  xlab="Sex",
+  ylab="Age (in years)",
+  names=c("Females","Males"))
+```
+
+* The resulting plot is here:
+
+<p align="left">
+<img src="/gfiles/age-recid.png" width="600px">
+</p>
