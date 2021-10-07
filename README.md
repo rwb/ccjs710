@@ -3462,15 +3462,143 @@ df$age.factor <- factor(df$ageyears,levels=16:78)
 table(df$recid,df$age.factor,exclude=NULL)
 
 fail.age <- table(df$recid,df$age.factor)[2,]
+fail.age
 n.age <- (table(df$recid,df$age.factor)[1,]+table(df$recid,df$age.factor)[2,])
+n.age
 
 pfail.age <- fail.age/n.age
+pfail.age
+
 plot(x=16:78,y=pfail.age,
   type="l",lty=1,lwd=2,
   xlab="Age at Release (in years)",
   ylab="Proportion Observed to Fail Within 70 Months")
 abline(h=seq(from=0,to=1,by=0.1),lty=2,lwd=0.5)
 abline(v=seq(from=0,to=80,by=10),lty=2,lwd=0.5)
+```
+
+* Here are the tabled results:
+
+```rout
+> df$age.factor <- factor(df$ageyears,levels=16:78)
+> table(df$recid,df$age.factor,exclude=NULL)
+   
+     16  17  18  19  20  21  22  23  24  25  26  27  28  29
+  0   9  78 242 246 338 362 339 311 313 279 262 235 251 173
+  1  10  83 250 234 286 237 241 157 224 164 170 103 164 119
+   
+     30  31  32  33  34  35  36  37  38  39  40  41  42  43
+  0 208 152 149 123 133 111 118  85 108  81  80  66  84  67
+  1 116 102  85  56  54  56  59  47  44  36  39  27  29  35
+   
+     44  45  46  47  48  49  50  51  52  53  54  55  56  57
+  0  58  52  64  52  60  43  54  42  39  37  35  36  39  27
+  1  27  23  26  20  26  19  24  19  18  13   9  13  16   7
+   
+     58  59  60  61  62  63  64  65  66  67  68  69  70  71
+  0  25  18  18  18  13   7  12   7   5  11   5   0   1   2
+  1   9   7   3   0   6   4   4   0   0   2   0   3   0   1
+   
+     72  73  74  75  76  77  78
+  0   5   2   4   2   0   2   2
+  1   0   1   0   0   0   0   0
+> 
+> fail.age <- table(df$recid,df$age.factor)[2,]
+> fail.age
+ 16  17  18  19  20  21  22  23  24  25  26  27  28  29  30 
+ 10  83 250 234 286 237 241 157 224 164 170 103 164 119 116 
+ 31  32  33  34  35  36  37  38  39  40  41  42  43  44  45 
+102  85  56  54  56  59  47  44  36  39  27  29  35  27  23 
+ 46  47  48  49  50  51  52  53  54  55  56  57  58  59  60 
+ 26  20  26  19  24  19  18  13   9  13  16   7   9   7   3 
+ 61  62  63  64  65  66  67  68  69  70  71  72  73  74  75 
+  0   6   4   4   0   0   2   0   3   0   1   0   1   0   0 
+ 76  77  78 
+  0   0   0 
+> n.age <- (table(df$recid,df$age.factor)[1,]+table(df$recid,df$age.factor)[2,])
+> n.age
+ 16  17  18  19  20  21  22  23  24  25  26  27  28  29  30 
+ 19 161 492 480 624 599 580 468 537 443 432 338 415 292 324 
+ 31  32  33  34  35  36  37  38  39  40  41  42  43  44  45 
+254 234 179 187 167 177 132 152 117 119  93 113 102  85  75 
+ 46  47  48  49  50  51  52  53  54  55  56  57  58  59  60 
+ 90  72  86  62  78  61  57  50  44  49  55  34  34  25  21 
+ 61  62  63  64  65  66  67  68  69  70  71  72  73  74  75 
+ 18  19  11  16   7   5  13   5   3   1   3   5   3   4   2 
+ 76  77  78 
+  0   2   2 
+> 
+> pfail.age <- fail.age/n.age
+> pfail.age
+       16        17        18        19        20        21 
+0.5263158 0.5155280 0.5081301 0.4875000 0.4583333 0.3956594 
+       22        23        24        25        26        27 
+0.4155172 0.3354701 0.4171322 0.3702032 0.3935185 0.3047337 
+       28        29        30        31        32        33 
+0.3951807 0.4075342 0.3580247 0.4015748 0.3632479 0.3128492 
+       34        35        36        37        38        39 
+0.2887701 0.3353293 0.3333333 0.3560606 0.2894737 0.3076923 
+       40        41        42        43        44        45 
+0.3277311 0.2903226 0.2566372 0.3431373 0.3176471 0.3066667 
+       46        47        48        49        50        51 
+0.2888889 0.2777778 0.3023256 0.3064516 0.3076923 0.3114754 
+       52        53        54        55        56        57 
+0.3157895 0.2600000 0.2045455 0.2653061 0.2909091 0.2058824 
+       58        59        60        61        62        63 
+0.2647059 0.2800000 0.1428571 0.0000000 0.3157895 0.3636364 
+       64        65        66        67        68        69 
+0.2500000 0.0000000 0.0000000 0.1538462 0.0000000 1.0000000 
+       70        71        72        73        74        75 
+0.0000000 0.3333333 0.0000000 0.3333333 0.0000000 0.0000000 
+       76        77        78 
+      NaN 0.0000000 0.0000000 
+> 
+```
+
+* Next, we calculate a logistic regression model measuring the relationship between age-at-release and recidivism risk. Note that this code will add a purple smooth curve to the age-recidivism plot below:
+
+```r
+age.model <- glm(recid~1+ageyears,data=df,family=binomial(link="logit"))
+summary(age.model)
+x.age <- seq(from=16,to=78,by=1)
+logit.age <- 0.250539-0.025866*x.age
+pred.age <- exp(logit.age)/(1+exp(logit.age))
+lines(x=x.age,y=pred.age,lty=1,lwd=2,col="purple")
+```
+
+* Here are the logistic regression results:
+
+```rout
+> age.model <- glm(recid~1+ageyears,data=df,family=binomial(link="logit"))
+> summary(age.model)
+
+Call:
+glm(formula = recid ~ 1 + ageyears, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1089  -1.0145  -0.8766   1.3153   1.9054  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.250539   0.065699   3.813 0.000137 ***
+ageyears    -0.025866   0.002181 -11.860  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 12370  on 9326  degrees of freedom
+Residual deviance: 12221  on 9325  degrees of freedom
+AIC: 12225
+
+Number of Fisher Scoring iterations: 4
+
+> x.age <- seq(from=16,to=78,by=1)
+> logit.age <- 0.250539-0.025866*x.age
+> pred.age <- exp(logit.age)/(1+exp(logit.age))
+> lines(x=x.age,y=pred.age,lty=1,lwd=2,col="purple")
 ```
 
 * And, then we calculate the derivative of the logistic response function (a model that only includes age):
