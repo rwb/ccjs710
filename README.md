@@ -3754,4 +3754,101 @@ abline(v=c(20,30,40,50,60,70,80),lty=3,lwd=0.5)
 <img src="/gfiles/age-plot.png" width="800px">
 </p>
 
+* Note that this is different from estimating an interaction effect.
+* If we want to allow the logits to have different age slopes for males and females, then we need to add another parameter to the model 
+
+```r
+m2 <- glm(recid~1+male+ageyears+male*ageyears,data=df,family=binomial(link="logit"))
+summary(m2)
+logLik(m2)
 ```
+
+* Here are the results:
+
+```rout
+> m2 <- glm(recid~1+male+ageyears+male*ageyears,data=df,family=binomial(link="logit"))
+> summary(m2)
+
+Call:
+glm(formula = recid ~ 1 + male + ageyears + male * ageyears, 
+    family = binomial(link = "logit"), data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1266  -1.0302  -0.8512   1.2975   2.1093  
+
+Coefficients:
+               Estimate Std. Error z value Pr(>|z|)  
+(Intercept)   -0.366302   0.383101  -0.956   0.3390  
+male           0.665119   0.388916   1.710   0.0872 .
+ageyears      -0.033536   0.013853  -2.421   0.0155 *
+male:ageyears  0.007317   0.014030   0.522   0.6020  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 12370  on 9326  degrees of freedom
+Residual deviance: 12156  on 9323  degrees of freedom
+AIC: 12164
+
+Number of Fisher Scoring iterations: 4
+
+> logLik(m2)
+'log Lik.' -6078.094 (df=4)
+> 
+```
+
+* Note that this is a 4-parameter model (compared to the three parameter model we considered earlier. Here is the log-likelihood ratio test:
+
+```r
+logLik(m1)
+logLik(m2)
+
+ts <- -2*(-6078.234-(-6078.094))
+ts
+1-pchisq(q=ts,df=1)
+```
+
+and the results are:
+
+```rout
+> logLik(m1)
+'log Lik.' -6078.234 (df=3)
+> logLik(m2)
+'log Lik.' -6078.094 (df=4)
+> 
+> ts <- -2*(-6078.234-(-6078.094))
+> ts
+[1] 0.28
+> 1-pchisq(q=ts,df=1)
+[1] 0.5967012
+> 
+```
+
+* Based on this evidence, we conclude that the constrained model (m1) is more consistent with the data. However, we can still interpret the 
+interaction effect (between sex and age). Here is some R code:
+
+```r
+# let's start with the females
+
+logit.age.female <- -0.366302+0*0.665119-0.033536*age+0.007317*0*age
+p.age.female <- exp(logit.age.female)/(1+exp(logit.age.female))
+
+# now, the males
+
+logit.age.male <- -0.366302+1*0.665119-0.033536*age+0.007317*1*age
+p.age.male <- exp(logit.age.male)/(1+exp(logit.age.male))
+
+# let's add the expected failure rates from the interaction model to 
+# the plot - the lines from model 2 are dashed.
+
+lines(x=age,y=p.age.male,type="l",lty=2,lwd=2,col="blue",ylim=c(0,1))
+lines(x=age,y=p.age.female,lty=2,lwd=2,col="red")
+```
+
+* The code above generates some additional information to add to the plotspace:
+
+<p align="left">
+<img src="/gfiles/age-plot2.png" width="800px">
+</p>
