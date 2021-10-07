@@ -3581,5 +3581,5 @@ boxplot(df$ageyears~df$male,
 * The resulting plot is here:
 
 <p align="left">
-<img src="/gfiles/age-recid.png" width="600px">
+<img src="/gfiles/age-recid.png" width="800px">
 </p>
