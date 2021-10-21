@@ -6301,7 +6301,7 @@ logLik(m3)
 # Akaike Information Criterion (AIC)
 # choose model that maximizes AIC
 
--26023.69-8
+-26013.69-8
 -26023.99-5
 
 # Bayesian Information Criterion (BIC)
@@ -6332,8 +6332,8 @@ attr(,"df")
 > # Akaike Information Criterion (AIC)
 > # choose model that maximizes AIC
 > 
-> -26023.69-8
-[1] -26031.69
+> -26013.69-8
+[1] -26021.69
 > -26023.99-5
 [1] -26028.99
 > 
@@ -6344,7 +6344,7 @@ attr(,"df")
 [1] -26058.24
 > -26023.99-(5/2)*log(68694)
 [1] -26051.83
->
+> 
 ```
 
 * Based on these results, the log-likelihood ratio test indicates that the multinomial model is preferred while both AIC and BIC point us toward the constrained ordinal logistic regression model. What do you think is going on here?
