@@ -6387,6 +6387,6 @@ write.csv(urban.df,file="urbandf.csv")
 ```
 
 * Use a multinomial logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret what you see in these two analyses.
-* Use an ordinal logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret your results.
+* Use an ordinal logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret your results. How (if at all) do these results differ from those you obtained from the multinomial analysis?
 * Calculate the observed and expected frequencies for the two models. Comment on your findings.
 * Using the various model selection criteria discussed in class (log-likelihood ratio test, AIC, and BIC) what conclusions do you reach about using the multinomial or ordinal statistical model within each group (urban/rural)?
