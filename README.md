@@ -6375,3 +6375,18 @@ H0: Parallel Regression Assumption holds
 * Note the similarity of this test and the log-likelihood ratio test conducted above.
 * As we can see, there is little practical difference in the conclusions we have drawn between the two models.
 
+#### Assignment Due Thursday 10/28/21
+
+* Divide the data frame up into separate urban and rural datasets. Here is how you can do that in R:
+
+```r
+rural.df <- subset(df,ur=="r")
+urban.df <- subset(df,ur=="u")
+write.csv(rural.df,file="ruraldf.csv")
+write.csv(urban.df,file="urbandf.csv")
+```
+
+* Use a multinomial logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret what you see in these two analyses.
+* Use an ordinal logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret your results.
+* Calculate the observed and expected frequencies for the two models. Comment on your findings.
+* Using the various model selection criteria discussed in class (log-likelihood ratio test, AIC, and BIC) what conclusions do you reach about using the multinomial or ordinal statistical model within each group (urban/rural)?
