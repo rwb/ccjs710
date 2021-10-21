@@ -5976,7 +5976,7 @@ sample estimates:
 * This process also generates the following chart which can be useful for visualizing the placement of the starting values:
 
 <p align="left">
-<img src="/gfiles/logistic.png" width="700px">
+<img src="/gfiles/logistic.png" width="600px">
 </p>
 
 * Next, we use the information above to initiate the log-likelihood maximization process:
