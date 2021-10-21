@@ -5470,3 +5470,908 @@ which is exactly the number we see in the interaction model. So, the simpler mod
 ##### Assignment Due Thursday 10/21/21
 
 For this week's assignment, you are asked to consider estimating a multinomial logit model for urban/rural geography (by itself) compared to an intercept-only model. You should interpret the results of the urban/rural geography coefficients. Next, you should estimate and interpret a main-effects model adjusting for both sex and urban/rural geography. Does this model significantly improve on the urban/rural geography model? Finally, you are asked to estimate and interpret an interaction model adjusting for both sex and urban/rural geography. Consider whether this interactive model or the main-effects only model is more consistent with the data. Construct and interpret the estimates within the context of the predicted probability distribution of *y* from both the main-effects only model and the 2-way interaction model. Comment on the similarities/differences between the two distributions. Write a 1-2 paragraph essay where you summarize and narratively interpret your results. 
+
+
+### Lesson 8 - Thursday 10/21/21
+
+* We continue our analysis of the Agresti (1997) auto accident dataset based on a sample of nearly 70,000 auto accidents. As a reminder from last week, the measures included in the data are: 
+
+* *y* - 1=level of injury (1=not injured, 2=injured but not transported by EMS, 3=injured and transported by EMS, 4=injured and hospitalized but survived, and 5=fatal injury
+* *sb* - no = person not wearing a seatbelt at time of accident, yes = person was wearing a seatbelt at the time of the accident
+* *ur* - u = accident occurred in an urban area, r = accident occurred in a rural area
+* *sx* - m = male, f = female
+
+* The outcome variable *y* could be construed as either a categorical or an ordinal variable. Multinomial logistic regression models can be estimated with either type of variable. There are some restrictions on the use of specialized ordinal level variables which we will discuss today. 
+
+* We begin today's work by reconsidering the multinomial logit model from last week. Then, we transition to the ordinal logistic regression model.
+
+* Here is a recently published reading for regression analysis based on nominal/ordinal level data similar to what we have been studying ([article link](https://onlinelibrary.wiley.com/doi/pdf/10.1002/pmrj.12622)). An older paper covering the issue of proportional odds testing is [here](https://www.jstor.org/stable/2532457?seq=1#metadata_info_tab_contents).
+
+* Recall from last week that we estimated a multinomial logistic regression model with *y* as the outcome and the numeric version of *sb* as a predictor variable:
+
+```r
+df <- data.frame(y,sb,ur,sx)
+# we can select a simple random sample of 25 cases
+# to look at the dataset
+
+df[sample(nrow(df),size=25,replace=F), ]
+
+# multinomial logit 
+# outcome variable: response (y)
+# reference category is y=1
+# independent variable: seatbelt use (sb)
+
+table(df$y,df$sb,exclude=NULL)
+prop.table(table(df$y,df$sb),margin=2)
+
+df$sbn <- rep(NA,nrow(df))
+df$sbn[df$sb=="yes"] <- 1
+df$sbn[df$sb=="no"] <- 0
+
+# recode outcome variable into a set of dummy variables
+
+df$y1 <- rep(NA,nrow(df))
+df$y1[df$y==1] <- 1
+df$y1[df$y==2 | df$y==3 | df$y==4 | df$y==5] <- 0
+table(df$y1,df$y,exclude=NULL)
+
+df$y2 <- rep(NA,nrow(df))
+df$y2[df$y==2] <- 1
+df$y2[df$y==1 | df$y==3 | df$y==4 | df$y==5] <- 0
+table(df$y2,df$y,exclude=NULL)
+
+df$y3 <- rep(NA,nrow(df))
+df$y3[df$y==3] <- 1
+df$y3[df$y==1 | df$y==2 | df$y==4 | df$y==5] <- 0
+table(df$y3,df$y,exclude=NULL)
+
+df$y4 <- rep(NA,nrow(df))
+df$y4[df$y==4] <- 1
+df$y4[df$y==1 | df$y==2 | df$y==3 | df$y==5] <- 0
+table(df$y4,df$y,exclude=NULL)
+
+df$y5 <- rep(NA,nrow(df))
+df$y5[df$y==5] <- 1
+df$y5[df$y==1 | df$y==2 | df$y==3 | df$y==4] <- 0
+table(df$y5,df$y,exclude=NULL)
+
+library(maxLik)
+
+ll1 <- function(parms)
+  {
+    a2 <- parms[1]
+    b2 <- parms[2]
+    a3 <- parms[3]
+    b3 <- parms[4]
+    a4 <- parms[5]
+    b4 <- parms[6]
+    a5 <- parms[7]
+    b5 <- parms[8]
+
+    l2 <- a2+b2*df$sbn
+    l3 <- a3+b3*df$sbn
+    l4 <- a4+b4*df$sbn
+    l5 <- a5+b5*df$sbn
+
+    py1 <- 1/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
+    py2 <- exp(l2)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
+    py3 <- exp(l3)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
+    py4 <- exp(l4)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
+    py5 <- exp(l5)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
+
+    pmf <- df$y1*py1+df$y2*py2+df$y3*py3+df$y4*py4+df$y5*py5
+    lpmf <- log(pmf)
+    return(lpmf)
+  }
+
+m1 <- maxLik(ll1,start=c(-3.57239423,-0.13240324,
+                         -3.57239423,-0.13240324,
+                         -3.57239423,-0.13240324,
+                         -3.57239423,-0.13240324),
+  method="BHHH",finalHessian="BHHH")
+summary(m1)
+```
+
+* Here are the results of that analysis:
+
+```rout
+> df <- data.frame(y,sb,ur,sx)
+> # we can select a simple random sample of 25 cases
+> # to look at the dataset
+> 
+> df[sample(nrow(df),size=25,replace=F), ]
+      y  sb ur sx
+42933 1 yes  u  m
+35423 1  no  u  m
+20367 3 yes  u  f
+16622 1 yes  u  f
+19836 1 yes  u  f
+35125 1  no  u  m
+5726  1  no  u  f
+5871  1  no  u  f
+2266  1  no  u  f
+25249 1 yes  r  f
+37051 1  no  u  m
+22655 1  no  r  f
+52262 1 yes  u  m
+5171  1  no  u  f
+28874 1 yes  r  f
+12909 1 yes  u  f
+11530 1 yes  u  f
+1920  1  no  u  f
+22752 1  no  r  f
+22051 1  no  r  f
+10723 1 yes  u  f
+48402 1 yes  u  m
+23905 2  no  r  f
+45077 1 yes  u  m
+23845 1  no  r  f
+> 
+> # multinomial logit 
+> # outcome variable: response (y)
+> # reference category is y=1
+> # independent variable: seatbelt use (sb)
+> 
+> table(df$y,df$sb,exclude=NULL)
+   
+       no   yes
+  1 27037 35383
+  2   525   377
+  3  2706  1753
+  4   534   241
+  5   100    38
+> prop.table(table(df$y,df$sb),margin=2)
+   
+             no         yes
+  1 0.874927189 0.936256351
+  2 0.016989192 0.009975656
+  3 0.087567148 0.046385478
+  4 0.017280435 0.006377011
+  5 0.003236037 0.001005504
+> 
+> df$sbn <- rep(NA,nrow(df))
+> df$sbn[df$sb=="yes"] <- 1
+> df$sbn[df$sb=="no"] <- 0
+> 
+> # recode outcome variable into a set of dummy variables
+> 
+> df$y1 <- rep(NA,nrow(df))
+> df$y1[df$y==1] <- 1
+> df$y1[df$y==2 | df$y==3 | df$y==4 | df$y==5] <- 0
+> table(df$y1,df$y,exclude=NULL)
+   
+        1     2     3     4     5
+  0     0   902  4459   775   138
+  1 62420     0     0     0     0
+> 
+> df$y2 <- rep(NA,nrow(df))
+> df$y2[df$y==2] <- 1
+> df$y2[df$y==1 | df$y==3 | df$y==4 | df$y==5] <- 0
+> table(df$y2,df$y,exclude=NULL)
+   
+        1     2     3     4     5
+  0 62420     0  4459   775   138
+  1     0   902     0     0     0
+> 
+> df$y3 <- rep(NA,nrow(df))
+> df$y3[df$y==3] <- 1
+> df$y3[df$y==1 | df$y==2 | df$y==4 | df$y==5] <- 0
+> table(df$y3,df$y,exclude=NULL)
+   
+        1     2     3     4     5
+  0 62420   902     0   775   138
+  1     0     0  4459     0     0
+> 
+> df$y4 <- rep(NA,nrow(df))
+> df$y4[df$y==4] <- 1
+> df$y4[df$y==1 | df$y==2 | df$y==3 | df$y==5] <- 0
+> table(df$y4,df$y,exclude=NULL)
+   
+        1     2     3     4     5
+  0 62420   902  4459     0   138
+  1     0     0     0   775     0
+> 
+> df$y5 <- rep(NA,nrow(df))
+> df$y5[df$y==5] <- 1
+> df$y5[df$y==1 | df$y==2 | df$y==3 | df$y==4] <- 0
+> table(df$y5,df$y,exclude=NULL)
+   
+        1     2     3     4     5
+  0 62420   902  4459   775     0
+  1     0     0     0     0   138
+> 
+> library(maxLik)
+Loading required package: miscTools
+
+Please cite the 'maxLik' package as:
+Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihood estimation in R. Computational Statistics 26(3), 443-458. DOI 10.1007/s00180-010-0217-1.
+
+If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
+https://r-forge.r-project.org/projects/maxlik/
+> 
+> ll1 <- function(parms)
++   {
++     a2 <- parms[1]
++     b2 <- parms[2]
++     a3 <- parms[3]
++     b3 <- parms[4]
++     a4 <- parms[5]
++     b4 <- parms[6]
++     a5 <- parms[7]
++     b5 <- parms[8]
++ 
++     l2 <- a2+b2*df$sbn
++     l3 <- a3+b3*df$sbn
++     l4 <- a4+b4*df$sbn
++     l5 <- a5+b5*df$sbn
++ 
++     py1 <- 1/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
++     py2 <- exp(l2)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
++     py3 <- exp(l3)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
++     py4 <- exp(l4)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
++     py5 <- exp(l5)/(1+exp(l2)+exp(l3)+exp(l4)+exp(l5))
++ 
++     pmf <- df$y1*py1+df$y2*py2+df$y3*py3+df$y4*py4+df$y5*py5
++     lpmf <- log(pmf)
++     return(lpmf)
++   }
+> 
+> m1 <- maxLik(ll1,start=c(-3.57239423,-0.13240324,
++                          -3.57239423,-0.13240324,
++                          -3.57239423,-0.13240324,
++                          -3.57239423,-0.13240324),
++   method="BHHH",finalHessian="BHHH")
+> summary(m1)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 15 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -26013.69 
+8  free parameters
+Estimates:
+     Estimate Std. error  t value  Pr(> t)    
+[1,] -3.94156    0.04407  -89.448  < 2e-16 ***
+[2,] -0.60018    0.06799   -8.828  < 2e-16 ***
+[3,] -2.30173    0.02016 -114.158  < 2e-16 ***
+[4,] -0.70317    0.03171  -22.178  < 2e-16 ***
+[5,] -3.92457    0.04370  -89.808  < 2e-16 ***
+[6,] -1.06462    0.07802  -13.645  < 2e-16 ***
+[7,] -5.59979    0.10018  -55.895  < 2e-16 ***
+[8,] -1.23661    0.19074   -6.483 8.97e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Next, we use a canned procedure in R to verify that we can get the same results:
+
+```r
+library(nnet)
+mlogit <- multinom(y~1+sbn,data=df)
+summary(mlogit)
+logLik(mlogit)
+```
+
+which gives us the following output (please compare to output above):
+
+```rout
+> library(nnet)
+> 
+> mlogit <- multinom(y~1+sbn,data=df)
+# weights:  15 (8 variable)
+initial  value 110558.727957 
+iter  10 value 26273.408126
+iter  20 value 26016.606470
+final  value 26013.686582 
+converged
+> summary(mlogit)
+Call:
+multinom(formula = y ~ 1 + sbn, data = df)
+
+Coefficients:
+  (Intercept)        sbn
+2   -3.941561 -0.6001812
+3   -2.301734 -0.7031680
+4   -3.924569 -1.0646196
+5   -5.599792 -1.2366376
+
+Std. Errors:
+  (Intercept)        sbn
+2  0.04406523 0.06798918
+3  0.02016272 0.03170564
+4  0.04369955 0.07802104
+5  0.10018477 0.19074012
+
+Residual Deviance: 52027.37 
+AIC: 52043.37 
+> logLik(mlogit)
+'log Lik.' -26013.69 (df=8)
+> 
+```
+
+* Now, let's post-process the results of this analysis and verify that we get the same predicted distribution of *y* that we obtained last week:
+
+```r
+a2 <- coef(mlogit)[1,1]
+b2 <- coef(mlogit)[1,2]
+a3 <- coef(mlogit)[2,1]
+b3 <- coef(mlogit)[2,2]
+a4 <- coef(mlogit)[3,1]
+b4 <- coef(mlogit)[3,2]
+a5 <- coef(mlogit)[4,1]
+b5 <- coef(mlogit)[4,2]
+
+l2n <- a2+b2*0
+l2y <- a2+b2*1
+
+l3n <- a3+b3*0
+l3y <- a3+b3*1
+
+l4n <- a4+b4*0
+l4y <- a4+b4*1
+
+l5n <- a5+b5*0
+l5y <- a5+b5*1
+
+py1n <- 1/(1+exp(l2n)+exp(l3n)+exp(l4n)+exp(l5n))
+py1y <- 1/(1+exp(l2y)+exp(l3y)+exp(l4y)+exp(l5y))
+
+py2n <- exp(l2n)/(1+exp(l2n)+exp(l3n)+exp(l4n)+exp(l5n))
+py2y <- exp(l2y)/(1+exp(l2y)+exp(l3y)+exp(l4y)+exp(l5y))
+
+py3n <- exp(l3n)/(1+exp(l2n)+exp(l3n)+exp(l4n)+exp(l5n))
+py3y <- exp(l3y)/(1+exp(l2y)+exp(l3y)+exp(l4y)+exp(l5y))
+
+py4n <- exp(l4n)/(1+exp(l2n)+exp(l3n)+exp(l4n)+exp(l5n))
+py4y <- exp(l4y)/(1+exp(l2y)+exp(l3y)+exp(l4y)+exp(l5y))
+
+py5n <- exp(l5n)/(1+exp(l2n)+exp(l3n)+exp(l4n)+exp(l5n))
+py5y <- exp(l5y)/(1+exp(l2y)+exp(l3y)+exp(l4y)+exp(l5y))
+
+# display the results
+
+no.vector <- c(py1n,py2n,py3n,py4n,py5n)
+no.vector
+yes.vector <- c(py1y,py2y,py3y,py4y,py5y)
+yes.vector
+yes.vector-no.vector
+```
+
+* Here are the results:
+
+```rout
+> # display the results
+> 
+> no.vector <- c(py1n,py2n,py3n,py4n,py5n)
+> no.vector
+[1] 0.874927140 0.016989227 0.087567212 0.017280386 0.003236036
+> yes.vector <- c(py1y,py2y,py3y,py4y,py5y)
+> yes.vector
+[1] 0.936256334 0.009975648 0.046385520 0.006377022 0.001005475
+> yes.vector-no.vector
+[1]  0.061329195 -0.007013578 -0.041181692 -0.010903364 -0.002230561
+> 
+```
+
+which tell us that wearing a seat belt is indeed associated with better outcomes throughout the range of the distribution of *y*.
+
+* Now, we turn to the ordinal logistic regression analysis. We begin this analysis by estimating the statistical model using the standard R implementation of ordered logit:
+
+```r
+# ordered logit 
+# outcome variable: response (y)
+# independent variable: seatbelt use (sb)
+
+library(MASS)
+ol <- polr(as.factor(y)~1+sbn,data=df,Hess=T)
+summary(ol)
+logLik(ol)
+```
+
+which yields the following results:
+
+```rout
+> ol <- polr(as.factor(y)~1+sbn,data=df,Hess=T)
+> summary(ol)
+Call:
+polr(formula = as.factor(y) ~ 1 + sbn, data = df, Hess = T)
+
+Coefficients:
+     Value Std. Error t value
+sbn -0.746    0.02716  -27.47
+
+Intercepts:
+    Value    Std. Error t value 
+1|2   1.9426   0.0172   113.0388
+2|3   2.1138   0.0179   118.0737
+3|4   3.9633   0.0349   113.4066
+4|5   5.8666   0.0859    68.3261
+
+Residual Deviance: 52047.97 
+AIC: 52057.97 
+> logLik(ol)
+'log Lik.' -26023.99 (df=5)
+> 
+```
+
+* As we have come to expect with these models, straightforward interpretation of the coefficients is difficult. Nonetheless, we can see that there is now a single coefficient for seat belt use, it has a negative sign (indicating that wearing a seatbelt is associated with lower values of the dependent variable, *y*), and it is statistically significant.
+
+* Notice also that the log-likelihood value for this model (-26023.99 with 5 parameter estimates) is lower than the log-likelihood value for the multinomial logistic regression model we estimated earlier (-26013.69 with 8 parameter estimates). We will need to determine whether the additional complexity of the multinomial logistic regression model is justified given the observed data.
+
+* To see how this model works, we now write our own log-likelihood function. Since this is a fairly complex log-likelihood function, we should adopt a more principled method for finding the start values:
+
+```r
+# first, we identify the starting values
+
+table(df$y)
+cumsum(table(df$y))
+cumsum(table(df$y))/nrow(df)
+z <- runif(n=1000000,min=0,max=1)
+logistic <- log(z/(1-z))
+par(mfrow=c(1,2))
+hist(logistic,prob=T,ylim=c(0,0.28),
+  xlab="Standard Logistic Distribution Support")
+lines(density(logistic),lty=1,lwd=2)
+plot(ecdf(logistic),xlab="Standard Logistic Distribution Support",
+                    ylab="Cumulative Distribution")
+quantile(logistic,0.909)
+quantile(logistic,0.922)
+quantile(logistic,0.987)
+quantile(logistic,0.998)
+
+cor.test(df$sbn,df$y)
+```
+
+* Here are the results:
+
+```rout
+> # first, we identify the starting values
+> 
+> table(df$y)
+
+    1     2     3     4     5 
+62420   902  4459   775   138 
+> cumsum(table(df$y))
+    1     2     3     4     5 
+62420 63322 67781 68556 68694 
+> cumsum(table(df$y))/nrow(df)
+        1         2         3         4         5 
+0.9086674 0.9217981 0.9867092 0.9979911 1.0000000 
+> z <- runif(n=1000000,min=0,max=1)
+> logistic <- log(z/(1-z))
+> par(mfrow=c(1,2))
+> hist(logistic,prob=T,ylim=c(0,0.28),
++   xlab="Standard Logistic Distribution Support")
+> lines(density(logistic),lty=1,lwd=2)
+> plot(ecdf(logistic),xlab="Standard Logistic Distribution Support",
++                     ylab="Cumulative Distribution")
+> quantile(logistic,0.909)
+   90.9% 
+2.295095 
+> quantile(logistic,0.922)
+   92.2% 
+2.462995 
+> quantile(logistic,0.987)
+   98.7% 
+4.315628 
+> quantile(logistic,0.998)
+   99.8% 
+6.159764 
+> 
+> cor.test(df$sbn,df$y)
+
+	Pearson's product-moment correlation
+
+data:  df$sbn and df$y
+t = -28.157, df = 68692, p-value < 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.11420258 -0.09941706
+sample estimates:
+       cor 
+-0.1068157 
+```
+
+* This process also generates the following chart which can be useful for visualizing the placement of the starting values:
+
+<p align="left">
+<img src="/gfiles/logistic.png" width="700px">
+</p>
+
+* Next, we use the information above to initiate the log-likelihood maximization process:
+
+```r
+library(maxLik)
+
+ll2 <- function(parms)
+  {
+    a1 <- parms[1]
+    a2 <- parms[2]
+    a3 <- parms[3]
+    a4 <- parms[4]
+    b  <- parms[5]
+
+    l1 <- a1-b*df$sbn
+    l2 <- a2-b*df$sbn
+    l3 <- a3-b*df$sbn
+    l4 <- a4-b*df$sbn
+
+    py.le1 <- exp(l1)/(1+exp(l1))
+    py.le2 <- exp(l2)/(1+exp(l2))
+    py.le3 <- exp(l3)/(1+exp(l3))
+    py.le4 <- exp(l4)/(1+exp(l4))
+
+    py1 <- py.le1
+    py2 <- py.le2-py.le1
+    py3 <- py.le3-py.le2
+    py4 <- py.le4-py.le3
+    py5 <- 1-py.le4
+
+    pmf <- df$y1*py1+df$y2*py2+df$y3*py3+df$y4*py4+df$y5*py5
+    lpmf <- log(pmf)
+    return(lpmf)
+  }
+
+m2 <- maxLik(ll2,start=c(2.304902,
+                         2.469170,
+                         4.330374,
+                         6.184924,
+                        -0.106816),
+  method="BHHH",finalHessian="BHHH")
+summary(m2)
+```
+
+which yields:
+
+```rout
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 4 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -26023.99 
+5  free parameters
+Estimates:
+     Estimate Std. error t value Pr(> t)    
+[1,]  1.94278    0.01718  113.08  <2e-16 ***
+[2,]  2.11406    0.01785  118.46  <2e-16 ***
+[3,]  3.96337    0.03449  114.93  <2e-16 ***
+[4,]  5.86630    0.08560   68.53  <2e-16 ***
+[5,] -0.74611    0.02723  -27.40  <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Notice that these results are virtually identical to those we obtained from the polr() function.
+* Now that we have established the equality of the two procedures, we check the model fit:
+
+```r
+# check the model fit
+
+a1 <- coef(m2)[1]
+a2 <- coef(m2)[2]
+a3 <- coef(m2)[3]
+a4 <- coef(m2)[4]
+b  <- coef(m2)[5]
+
+l1.no <- a1
+l2.no <- a2
+l3.no <- a3
+l4.no <- a4
+
+l1.yes <- a1-b*1
+l2.yes <- a2-b*1
+l3.yes <- a3-b*1
+l4.yes <- a4-b*1
+
+py.le1.no <- exp(l1.no)/(1+exp(l1.no))
+py.le2.no <- exp(l2.no)/(1+exp(l2.no))
+py.le3.no <- exp(l3.no)/(1+exp(l3.no))
+py.le4.no <- exp(l4.no)/(1+exp(l4.no))
+
+py.le1.yes <- exp(l1.yes)/(1+exp(l1.yes))
+py.le2.yes <- exp(l2.yes)/(1+exp(l2.yes))
+py.le3.yes <- exp(l3.yes)/(1+exp(l3.yes))
+py.le4.yes <- exp(l4.yes)/(1+exp(l4.yes))
+
+py1.no <- py.le1.no
+py2.no <- py.le2.no-py.le1.no
+py3.no <- py.le3.no-py.le2.no
+py4.no <- py.le4.no-py.le3.no
+py5.no <- 1-py.le4.no
+
+py1.yes <- py.le1.yes
+py2.yes <- py.le2.yes-py.le1.yes
+py3.yes <- py.le3.yes-py.le2.yes
+py4.yes <- py.le4.yes-py.le3.yes
+py5.yes <- 1-py.le4.yes
+
+no.vector <- c(py1.no,py2.no,py3.no,py4.no,py5.no)
+no.vector 
+yes.vector <- c(py1.yes,py2.yes,py3.yes,py4.yes,py5.yes)
+yes.vector 
+yes.vector-no.vector
+
+rdata <- prop.table(table(df$y,df$sb),margin=2)
+rdata
+rdata[,2]-rdata[,1]
+```
+
+which yields:
+
+```rout
+> no.vector <- c(py1.no,py2.no,py3.no,py4.no,py5.no)
+> no.vector 
+[1] 0.874657564 0.017604807 0.089092905 0.015819392 0.002825332
+> yes.vector <- c(py1.yes,py2.yes,py3.yes,py4.yes,py5.yes)
+> yes.vector 
+[1] 0.936368150 0.009474008 0.045228852 0.007587204 0.001341785
+> yes.vector-no.vector
+[1]  0.061710587 -0.008130798 -0.043864053 -0.008232188 -0.001483547
+> 
+> rdata <- prop.table(table(df$y,df$sb),margin=2)
+> rdata
+   
+             no         yes
+  1 0.874927189 0.936256351
+  2 0.016989192 0.009975656
+  3 0.087567148 0.046385478
+  4 0.017280435 0.006377011
+  5 0.003236037 0.001005504
+> rdata[,2]-rdata[,1]
+           1            2            3            4            5 
+ 0.061329161 -0.007013535 -0.041181669 -0.010903424 -0.002230533 
+> 
+```
+
+* Comparing the expected distribution of y|sb=yes and y|sb=no to the values in the observed data, we see some minor differences but nothing of any particular consequence.
+* Overall, this model looks like it fits the data reasonably well. 
+* Still, there is a systematic way to check on this that goes beyond merely a visual comparison of the two distributions.
+* The next step is to calculate a model that allows the logistic regression slopes for seat belt use to vary depending on where we are along the support of the standard logistic probability distribution:
+
+```r
+ll3 <- function(parms)
+  {
+    a1 <- parms[1]
+    a2 <- parms[2]
+    a3 <- parms[3]
+    a4 <- parms[4]
+    b1 <- parms[5]
+    b2 <- parms[6]
+    b3 <- parms[7]
+    b4 <- parms[8]
+
+    l1 <- a1-b1*df$sbn
+    l2 <- a2-b2*df$sbn
+    l3 <- a3-b3*df$sbn
+    l4 <- a4-b4*df$sbn
+
+    py.le1 <- exp(l1)/(1+exp(l1))
+    py.le2 <- exp(l2)/(1+exp(l2))
+    py.le3 <- exp(l3)/(1+exp(l3))
+    py.le4 <- exp(l4)/(1+exp(l4))
+
+    py1 <- py.le1
+    py2 <- py.le2-py.le1
+    py3 <- py.le3-py.le2
+    py4 <- py.le4-py.le3
+    py5 <- 1-py.le4
+
+    pmf <- df$y1*py1+df$y2*py2+df$y3*py3+df$y4*py4+df$y5*py5
+    lpmf <- log(pmf)
+    return(lpmf)
+  }
+
+m3 <- maxLik(ll3,start=c(1.94278,
+                         2.11406,
+                         3.96337,
+                         5.86630,
+                        -0.74611,
+                        -0.74611,
+                        -0.74611,
+                        -0.74611),
+  method="BHHH",finalHessian="BHHH")
+summary(m3)
+```
+
+which yields the following results:
+
+```rout
+> summary(m3)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 3 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -26013.69 
+8  free parameters
+Estimates:
+     Estimate Std. error t value  Pr(> t)    
+[1,]  1.94524    0.01720  113.12  < 2e-16 ***
+[2,]  2.11047    0.01832  115.19  < 2e-16 ***
+[3,]  3.86580    0.04013   96.33  < 2e-16 ***
+[4,]  5.73016    0.10016   57.21  < 2e-16 ***
+[5,] -0.74178    0.02719  -27.29  < 2e-16 ***
+[6,] -0.75734    0.02925  -25.89  < 2e-16 ***
+[7,] -1.03543    0.07226  -14.33  < 2e-16 ***
+[8,] -1.17110    0.19072   -6.14 8.23e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* As it turns out, this model is saturated (meaning it fits the data exactly; note that the log-likelihood value for this model is exactly the same log-likelihood from the multinomial logistic regression model. In fact, this model is just a different (but mathematically equivalent) parameterization of the multinomial model. To see this, let's formally check the fit:
+
+```r
+# check the model fit
+
+a1 <- coef(m3)[1]
+a2 <- coef(m3)[2]
+a3 <- coef(m3)[3]
+a4 <- coef(m3)[4]
+b1 <- coef(m3)[5]
+b2 <- coef(m3)[6]
+b3 <- coef(m3)[7]
+b4 <- coef(m3)[8]
+
+l1.no <- a1
+l2.no <- a2
+l3.no <- a3
+l4.no <- a4
+
+l1.yes <- a1-b1*1
+l2.yes <- a2-b2*1
+l3.yes <- a3-b3*1
+l4.yes <- a4-b4*1
+
+py.le1.no <- exp(l1.no)/(1+exp(l1.no))
+py.le2.no <- exp(l2.no)/(1+exp(l2.no))
+py.le3.no <- exp(l3.no)/(1+exp(l3.no))
+py.le4.no <- exp(l4.no)/(1+exp(l4.no))
+
+py.le1.yes <- exp(l1.yes)/(1+exp(l1.yes))
+py.le2.yes <- exp(l2.yes)/(1+exp(l2.yes))
+py.le3.yes <- exp(l3.yes)/(1+exp(l3.yes))
+py.le4.yes <- exp(l4.yes)/(1+exp(l4.yes))
+
+py1.no <- py.le1.no
+py2.no <- py.le2.no-py.le1.no
+py3.no <- py.le3.no-py.le2.no
+py4.no <- py.le4.no-py.le3.no
+py5.no <- 1-py.le4.no
+
+py1.yes <- py.le1.yes
+py2.yes <- py.le2.yes-py.le1.yes
+py3.yes <- py.le3.yes-py.le2.yes
+py4.yes <- py.le4.yes-py.le3.yes
+py5.yes <- 1-py.le4.yes
+
+no.vector <- c(py1.no,py2.no,py3.no,py4.no,py5.no)
+no.vector 
+yes.vector <- c(py1.yes,py2.yes,py3.yes,py4.yes,py5.yes)
+yes.vector 
+yes.vector-no.vector
+
+rdata <- prop.table(table(df$y,df$sb),margin=2)
+rdata
+rdata[,2]-rdata[,1]
+```
+
+* Here are the results:
+
+```rout
+> no.vector <- c(py1.no,py2.no,py3.no,py4.no,py5.no)
+> no.vector 
+[1] 0.874927189 0.016989192 0.087567148 0.017280435 0.003236036
+> yes.vector <- c(py1.yes,py2.yes,py3.yes,py4.yes,py5.yes)
+> yes.vector 
+[1] 0.936256352 0.009975656 0.046385478 0.006377011 0.001005503
+> yes.vector-no.vector
+[1]  0.061329162 -0.007013535 -0.041181670 -0.010903424 -0.002230533
+> 
+> rdata <- prop.table(table(df$y,df$sb),margin=2)
+> rdata
+   
+             no         yes
+  1 0.874927189 0.936256351
+  2 0.016989192 0.009975656
+  3 0.087567148 0.046385478
+  4 0.017280435 0.006377011
+  5 0.003236037 0.001005504
+> rdata[,2]-rdata[,1]
+           1            2            3            4            5 
+ 0.061329161 -0.007013535 -0.041181669 -0.010903424 -0.002230533 
+> 
+```
+
+* So, we have now verified that this ordinal logistic regression model with different slopes is: (1) a saturated model meaning it fits the data exactly; and (2) it can be used as the basis for a comparison to the ordinal logistic regression model with a constrained slope.
+
+* Since this unconstrained model fits the data exactly, we can conduct log-likelihood ratio, AIC, and BIC model selection exercises to see which model is preferred. Here is the code:
+
+```r
+# log-likelihood ratio test
+
+logLik(m2)
+logLik(m3)
+-2*(-26023.99-(-26013.69))
+1-pchisq(q=20.6,df=3)
+
+# Akaike Information Criterion (AIC)
+# choose model that maximizes AIC
+
+-26023.69-8
+-26023.99-5
+
+# Bayesian Information Criterion (BIC)
+# choose model that maximizes BIC
+
+-26013.69-(8/2)*log(68694)
+-26023.99-(5/2)*log(68694)
+```
+
+which yields the following results:
+
+```r
+> # log-likelihood ratio test
+> 
+> logLik(m2)
+[1] -26023.99
+attr(,"df")
+[1] 5
+> logLik(m3)
+[1] -26013.69
+attr(,"df")
+[1] 8
+> -2*(-26023.99-(-26013.69))
+[1] 20.6
+> 1-pchisq(q=20.6,df=3)
+[1] 0.0001274577
+> 
+> # Akaike Information Criterion (AIC)
+> # choose model that maximizes AIC
+> 
+> -26023.69-8
+[1] -26031.69
+> -26023.99-5
+[1] -26028.99
+> 
+> # Bayesian Information Criterion (BIC)
+> # choose model that maximizes BIC
+> 
+> -26013.69-(8/2)*log(68694)
+[1] -26058.24
+> -26023.99-(5/2)*log(68694)
+[1] -26051.83
+>
+```
+
+* Based on these results, the log-likelihood ratio test indicates that the multinomial model is preferred while both AIC and BIC point us toward the constrained ordinal logistic regression model. What do you think is going on here?
+
+* A commonly used approach for checking on the proportional slopes/odds assumption we have just investigated is the Brant test. Here is the "canned implementation" of that test in R:
+ 
+```r
+library(brant)
+brant(ol)
+```
+
+which yields the following output:
+
+```rout
+> library(brant)
+> brant(ol)
+-------------------------------------------- 
+Test for	X2	df	probability 
+-------------------------------------------- 
+Omnibus		19.78	3	0
+sbn		19.78	3	0
+-------------------------------------------- 
+
+H0: Parallel Regression Assumption holds
+>
+```
+
+* Note the similarity of this test and the log-likelihood ratio test conducted above.
+* As we can see, there is little practical difference in the conclusions we have drawn between the two models.
+
