@@ -6390,3 +6390,70 @@ write.csv(urban.df,file="urbandf.csv")
 * Use an ordinal logistic regression program to estimate the relationship between seat belt use and injury separately in urban and rural places. Interpret your results. How (if at all) do these results differ from those you obtained from the multinomial analysis?
 * Calculate the observed and expected frequencies for the two models. Comment on your findings.
 * Using the various model selection criteria discussed in class (log-likelihood ratio test, AIC, and BIC) what conclusions do you reach about using the multinomial or ordinal statistical model within each group (urban/rural)?
+
+### Lesson 9 - Thursday 10/28/21
+
+* We now turn our attention to the problem of analyzing counted outcome data. Counted data can generally be grouped into 3 categories: (1) bounded counts; (2) unbounded counts; and (3) censored counts. We will discuss each of these categories.
+* For today's class, we will consider the problem of bounded count data. Here is a reading that addresses the issue ([link](https://link.springer.com/article/10.1007/s10940-017-9346-9)).
+* Let's begin by reading in a dataset (emailed to you) with 1000 cases and 2 variables (x and y):
+
+```R
+df <- read.csv(file="df.csv",header=T,sep=",")
+head(df)
+tail(df)
+```
+
+* Here is the output:
+
+```Rout
+> df <- read.csv(file="df.csv",header=T,sep=",")
+> head(df)
+  X          x y
+1 1 -1.1155665 3
+2 2 -0.8795643 5
+3 3 -0.7568539 2
+4 4 -0.2033934 4
+5 5 -1.1694296 0
+6 6  0.2639083 8
+> tail(df)
+        X           x y
+995   995 -1.73083611 2
+996   996  0.03160026 9
+997   997  0.18312608 6
+998   998 -0.51101843 7
+999   999  0.53383795 7
+1000 1000 -0.44075654 5
+> 
+```
+
+* Next, we create a table showing the distribution of *df$y*:
+
+```R
+table(df$y,exclude=NULL)
+```
+
+which gives us:
+
+
+```Rout
+> table(df$y,exclude=NULL)
+
+  0   1   2   3   4   5   6   7   8   9  10  11  12 
+ 17  40  54 109 103 124 100 121 108  88  74  43  19 
+> 
+```
+
+* Notice that these counts are bounded (range of 0-12).
+* What kinds of variables might take this form? (discussion)
+* Here is a scatterplot of *df$x* and *df$y*:
+
+```R
+plot(x=df$x,y=df$y)
+```
+
+which gives us this plot:
+
+<p align="left">
+<img src="/gfiles/xy-scatterplot.png" width="600px">
+</p>
+
