@@ -6457,3 +6457,131 @@ which gives us this plot:
 <img src="/gfiles/xy-scatterplot.png" width="600px">
 </p>
 
+* Now, let's construct a statistical model of this relationship.
+
+```
+m1 <- glm(cbind(y,12-y)~1+x,data=df,family=binomial(link="logit"))
+summary(m1)
+logLik(m1)
+```
+
+* Here is the output:
+
+
+```Rout
+> m1 <- glm(cbind(y,12-y)~1+x,data=df,family=binomial(link="logit"))
+> summary(m1)
+
+Call:
+glm(formula = cbind(y, 12 - y) ~ 1 + x, family = binomial(link = "logit"), 
+    data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.0461  -0.6559  -0.0394   0.6634   3.9342  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) 0.002481   0.019914   0.125    0.901    
+x           0.998452   0.024688  40.443   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 3139.9  on 999  degrees of freedom
+Residual deviance: 1097.8  on 998  degrees of freedom
+AIC: 3731.8
+
+Number of Fisher Scoring iterations: 4
+
+> logLik(m1)
+'log Lik.' -1863.885 (df=2)
+> 
+```
+
+* So, we can see that we have an intercept estimate of approximately zero and a regression coefficient estimate of approximately 1. How do we interpret these estimates?
+
+* Let's further consider this question by writing down the likelihood function:
+
+```R
+library(maxLik)
+
+ll2 <- function(parms)
+  {
+   a <- parms[1]
+   b <- parms[2]
+   p <- exp(a+b*df$x)/(1+exp(a+b*df$x))
+   pt1 <- factorial(12)
+   pt2 <- factorial(df$y)*factorial(12-df$y)
+   pt3 <- p^df$y
+   pt4 <- (1-p)^(12-df$y)
+   pmf <- pt1/pt2*pt3*pt4
+   lpmf <- log(pmf)
+   return(lpmf)
+  }
+
+m2 <- maxLik(ll2,start=c(0.02384042,1.02384023),
+             method="BHHH",finalHessian="BHHH")
+summary(m2)
+```
+
+which yields the following results:
+
+```rout
+> library(maxLik)
+> 
+> ll2 <- function(parms)
++   {
++    a <- parms[1]
++    b <- parms[2]
++    p <- exp(a+b*df$x)/(1+exp(a+b*df$x))
++    pt1 <- factorial(12)
++    pt2 <- factorial(df$y)*factorial(12-df$y)
++    pt3 <- p^df$y
++    pt4 <- (1-p)^(12-df$y)
++    pmf <- pt1/pt2*pt3*pt4
++    lpmf <- log(pmf)
++    return(lpmf)
++   }
+> 
+> m2 <- maxLik(ll2,start=c(0.02384042,1.02384023),
++              method="BHHH",finalHessian="BHHH")
+> summary(m2)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 3 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -1863.885 
+2  free parameters
+Estimates:
+     Estimate Std. error t value Pr(> t)    
+[1,] 0.002481   0.019715   0.126     0.9    
+[2,] 0.998451   0.025243  39.553  <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Next, we extract the parameter estimates form this model:
+
+```R
+a <- coef(m2)[1]
+a
+b <- coef(m2)[2]
+b
+```
+
+which we then use to plot the functional form of the relationship between *df$x* and *df$y*:
+
+```R
+p <- exp(a+b*df$x)/(1+exp(a+b*df$x))
+plot(x=df$x,y=p)
+```
+
+which yields:
+
+<p align="left">
+<img src="/gfiles/fform.png" width="600px">
+</p>
