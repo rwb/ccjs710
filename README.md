@@ -6776,3 +6776,7 @@ and the resulting plot is:
 <p align="left">
 <img src="/gfiles/eyx-plot.png" width="600px">
 </p>
+
+##### Assignment Due Thursday 11/4/21
+
+For this week's assignment, use the homework dataset I will send to you to study the relationship between *x* and *y* where *y* is a bounded count variable whose values range from 0 to 8. Assess the model fit and interpret the relationship between $x$ and $y$.
