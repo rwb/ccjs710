@@ -6780,3 +6780,41 @@ and the resulting plot is:
 ##### Assignment Due Thursday 11/4/21
 
 For this week's assignment, use the homework dataset I will send to you to study the relationship between *x* and *y* where *y* is a bounded count variable whose values range from 0 to 8. Assess the model fit and interpret the relationship between $x$ and $y$.
+
+### Lesson 10 - Thursday 11/4/21
+
+* For tonight's class, we turn to the issue of unbounded event count data.
+* A good deal of criminological data takes the form of event counts so we will spend some time on this topic.
+* Let's begin by reading in tonight's data set which consists of a continuous independent variable, *x*, a binary independent variable, *z*, and an unbounded event count outcome, *y*.
+* Here is an exploratory data analysis:
+
+```R
+df <- read.csv(file="df.csv",sep=",",header=T)
+table(df$y)
+
+par(mfrow=c(2,2))
+boxplot(df$y~df$z)
+boxplot(df$x~df$z)
+
+df.z0 <- subset(df,z==0)
+df.z1 <- subset(df,z==1)
+
+plot(x=df.z0$x,y=df.z0$y)
+plot(x=df.z1$x,y=df.z1$y)
+```
+
+and here is the resulting plot:
+
+<p align="left">
+<img src="/gfiles/eda-plot.png" width="600px">
+</p>
+
+along with the marginal distribution of *y*:
+
+```Rout
+> table(df$y)
+
+  0   1   2   3   4   5   6   7   8 
+410 305 162  75  28  15   2   2   1 
+> 
+```
