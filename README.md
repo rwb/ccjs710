@@ -7534,3 +7534,8 @@ and a plot:
 <p align="left">
 <img src="/gfiles/poisson-plot.png" width="600px">
 </p>
+
+##### Assignment Due Thursday 11/11/21
+
+* Relevant foundational reading is [here](https://gking.harvard.edu/files/ISQ33.pdf).
+* For this week's assignment, you should use the homework dataset I sent you to: (1) conduct an exploratory analysis; (2) estimate a linear regression specification; (3) interpret your linear regression results; (3) assess the linear regression fit; (4) estimate a Poisson regression; (5) assess the fit of the Poisson regression specification; (6) interpret the Poisson regression analysis; and (7) compare your conclusions from the linear and Poisson specifications.
