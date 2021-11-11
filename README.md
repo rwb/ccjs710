@@ -9233,3 +9233,6 @@ data.frame(k,round(pvec,5))
 > 
 ```
 
+##### Assignment Due Thursday 11/18/21
+
+For this week's assignment, please use the homework dataset to: (1) assess overdispersion in the dataset; (2) estimate Poisson, geometric, and negative binomial regressions looking at the relationship between the covariates *x* and *z* and the outcome variable, *y*; (3) assess the fit of each of these distributions considering log-likelihood, AIC, and BIC metrics along with a goodness-of-fit assessment; (4) graph the predicted values of the rate parameter, lambda, as a function of the covariates; and (5) tabulate the predicted probability distributions of *y* based on reasonable variation in both *x* and *z*.
