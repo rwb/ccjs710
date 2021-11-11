@@ -8768,3 +8768,468 @@ which yields the following results:
 <p align="left">
 <img src="/gfiles/effect-plot.png" width="600px">
 </p>
+
+* As a final step, we tabulate the expected distribution of *y* for different values of *x* and *z* based on the negative binomial model. Here is
+the R code:
+
+```R
+# probability distribution of y|x=?,z=?
+
+xq <- 3
+zq <- 0
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+
+xq <- 5
+zq <- 0
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+
+xq <- 7
+zq <- 0
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+
+xq <- 3
+zq <- 1
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+
+xq <- 5
+zq <- 1
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+
+xq <- 7
+zq <- 1
+lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+
+pvec <- vector()
+k <- vector()
+
+for(i in 1:31){
+  k[i] <- i-1
+  pt1 <- gamma(k[i]+theta)
+  pt2 <- gamma(theta)*factorial(k[i])
+  pt3 <- pt1/pt2
+  pt4 <- (lmb^k[i])*(theta^theta)
+  pt5 <- (lmb+theta)^(k[i]+theta)
+  pt6 <- pt4/pt5
+  pvec[i] <- pt3*pt6
+}
+
+sum(pvec)
+data.frame(k,round(pvec,5))
+```
+
+* And, these are the results:
+
+```Rout
+> # probability distribution of y|x=?,z=?
+> 
+> xq <- 3
+> zq <- 0
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 1
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.93541
+2   1        0.06190
+3   2        0.00260
+4   3        0.00009
+5   4        0.00000
+6   5        0.00000
+7   6        0.00000
+8   7        0.00000
+9   8        0.00000
+10  9        0.00000
+11 10        0.00000
+12 11        0.00000
+13 12        0.00000
+14 13        0.00000
+15 14        0.00000
+16 15        0.00000
+17 16        0.00000
+18 17        0.00000
+19 18        0.00000
+20 19        0.00000
+21 20        0.00000
+22 21        0.00000
+23 22        0.00000
+24 23        0.00000
+25 24        0.00000
+26 25        0.00000
+27 26        0.00000
+28 27        0.00000
+29 28        0.00000
+30 29        0.00000
+31 30        0.00000
+> 
+> xq <- 5
+> zq <- 0
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 1
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.68383
+2   1        0.24707
+3   2        0.05661
+4   3        0.01048
+5   4        0.00171
+6   5        0.00026
+7   6        0.00004
+8   7        0.00000
+9   8        0.00000
+10  9        0.00000
+11 10        0.00000
+12 11        0.00000
+13 12        0.00000
+14 13        0.00000
+15 14        0.00000
+16 15        0.00000
+17 16        0.00000
+18 17        0.00000
+19 18        0.00000
+20 19        0.00000
+21 20        0.00000
+22 21        0.00000
+23 22        0.00000
+24 23        0.00000
+25 24        0.00000
+26 25        0.00000
+27 26        0.00000
+28 27        0.00000
+29 28        0.00000
+30 29        0.00000
+31 30        0.00000
+> 
+> xq <- 7
+> zq <- 0
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 1
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.15914
+2   1        0.23089
+3   2        0.21244
+4   3        0.15788
+5   4        0.10337
+6   5        0.06220
+7   6        0.03522
+8   7        0.01906
+9   8        0.00995
+10  9        0.00505
+11 10        0.00250
+12 11        0.00122
+13 12        0.00058
+14 13        0.00027
+15 14        0.00013
+16 15        0.00006
+17 16        0.00003
+18 17        0.00001
+19 18        0.00001
+20 19        0.00000
+21 20        0.00000
+22 21        0.00000
+23 22        0.00000
+24 23        0.00000
+25 24        0.00000
+26 25        0.00000
+27 26        0.00000
+28 27        0.00000
+29 28        0.00000
+30 29        0.00000
+31 30        0.00000
+> 
+> xq <- 3
+> zq <- 1
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 1
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.83185
+2   1        0.14942
+3   2        0.01702
+4   3        0.00157
+5   4        0.00013
+6   5        0.00001
+7   6        0.00000
+8   7        0.00000
+9   8        0.00000
+10  9        0.00000
+11 10        0.00000
+12 11        0.00000
+13 12        0.00000
+14 13        0.00000
+15 14        0.00000
+16 15        0.00000
+17 16        0.00000
+18 17        0.00000
+19 18        0.00000
+20 19        0.00000
+21 20        0.00000
+22 21        0.00000
+23 22        0.00000
+24 23        0.00000
+25 24        0.00000
+26 25        0.00000
+27 26        0.00000
+28 27        0.00000
+29 28        0.00000
+30 29        0.00000
+31 30        0.00000
+> 
+> xq <- 5
+> zq <- 1
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 1
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.22827
+2   1        0.27838
+3   2        0.21531
+4   3        0.13451
+5   4        0.07403
+6   5        0.03744
+7   6        0.01782
+8   7        0.00811
+9   8        0.00356
+10  9        0.00152
+11 10        0.00063
+12 11        0.00026
+13 12        0.00010
+14 13        0.00004
+15 14        0.00002
+16 15        0.00001
+17 16        0.00000
+18 17        0.00000
+19 18        0.00000
+20 19        0.00000
+21 20        0.00000
+22 21        0.00000
+23 22        0.00000
+24 23        0.00000
+25 24        0.00000
+26 25        0.00000
+27 26        0.00000
+28 27        0.00000
+29 28        0.00000
+30 29        0.00000
+31 30        0.00000
+> 
+> xq <- 7
+> zq <- 1
+> lmb <- exp(nb.a+nb.b*xq+nb.c*zq+nb.d*xq*zq)
+> 
+> pvec <- vector()
+> k <- vector()
+> 
+> for(i in 1:31){
++   k[i] <- i-1
++   pt1 <- gamma(k[i]+theta)
++   pt2 <- gamma(theta)*factorial(k[i])
++   pt3 <- pt1/pt2
++   pt4 <- (lmb^k[i])*(theta^theta)
++   pt5 <- (lmb+theta)^(k[i]+theta)
++   pt6 <- pt4/pt5
++   pvec[i] <- pt3*pt6
++ }
+> 
+> sum(pvec)
+[1] 0.8969508
+> data.frame(k,round(pvec,5))
+    k round.pvec..5.
+1   0        0.00155
+2   1        0.00477
+3   2        0.00928
+4   3        0.01458
+5   4        0.02020
+6   5        0.02571
+7   6        0.03080
+8   7        0.03525
+9   8        0.03894
+10  9        0.04179
+11 10        0.04381
+12 11        0.04503
+13 12        0.04552
+14 13        0.04536
+15 14        0.04464
+16 15        0.04346
+17 16        0.04190
+18 17        0.04005
+19 18        0.03799
+20 19        0.03578
+21 20        0.03349
+22 21        0.03117
+23 22        0.02886
+24 23        0.02659
+25 24        0.02439
+26 25        0.02228
+27 26        0.02028
+28 27        0.01839
+29 28        0.01663
+30 29        0.01498
+31 30        0.01347
+> 
+```
+
