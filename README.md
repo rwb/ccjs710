@@ -9236,3 +9236,1007 @@ data.frame(k,round(pvec,5))
 ##### Assignment Due Thursday 11/18/21
 
 For this week's assignment, please use the homework dataset to: (1) assess overdispersion in the dataset; (2) estimate Poisson, geometric, and negative binomial regressions looking at the relationship between the covariates *x* and *z* and the outcome variable, *y*; (3) assess the fit of each of these distributions considering log-likelihood, AIC, and BIC metrics along with a goodness-of-fit assessment; (4) graph the predicted values of the rate parameter, lambda, as a function of the covariates; and (5) tabulate the predicted probability distributions of *y* based on reasonable variation in both *x* and *z*.
+
+### Lesson 12 - Thursday 11/18/21
+
+* For tonight's class, we will continue working with the lesson 11 dataset we used last week.
+* We begin by reading in the dataset:
+
+```r
+df <- read.csv(file="lesson11.csv",sep=",",header=T)
+table(df$y,exclude=NULL)
+```
+
+* Here is our frequency table for the outcome variable, *y*:
+
+```rout
+> df <- read.csv(file="lesson11.csv",sep=",",header=T)
+> 
+> table(df$y,exclude=NULL)
+
+  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 
+790 258 121  80  71  66  43  46  32  35  31  24  23  20  10  15 
+ 16  17  18  19  20  21  22  23  24  25  26  27  28  29  33  36 
+  7   8   9   9  11   5   5   4   5   4   2   2   5   1   1   1 
+ 37  41  42  46  57  63 
+  1   1   1   1   1   1 
+> 
+```
+
+* Next, we re-estimate the Poisson regression model from last week:
+
+```R
+pm <- glm(y~1+x+z+x*z,data=df,family="poisson")
+summary(pm)
+logLik(pm)
+```
+
+* which gives us the following results:
+
+```rout
+> pm <- glm(y~1+x+z+x*z,data=df,family="poisson")
+> summary(pm)
+
+Call:
+glm(formula = y ~ 1 + x + z + x * z, family = "poisson", data = df)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-4.2682  -0.8678  -0.4798   0.4000   8.7653  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -5.38010    0.34173 -15.744  < 2e-16 ***
+x            0.89293    0.06705  13.318  < 2e-16 ***
+z            0.23987    0.37467   0.640 0.522037    
+x:z          0.25111    0.07121   3.526 0.000421 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 12675  on 1749  degrees of freedom
+Residual deviance:  3077  on 1746  degrees of freedom
+AIC: 6170.4
+
+Number of Fisher Scoring iterations: 6
+
+> logLik(pm)
+'log Lik.' -3081.196 (df=4)
+> 
+```
+
+* Next, we turn to the negative binomial regression model we estimated last week:
+
+```R
+library(MASS)
+nbrm <- glm.nb(y~1+x+z+x*z,data=df)
+summary(nbrm)
+logLik(nbrm)
+```
+
+which gives us the following results:
+
+```Rout
+> library(MASS)
+> 
+> nbrm <- glm.nb(y~1+x+z+x*z,data=df)
+> summary(nbrm)
+
+Call:
+glm.nb(formula = y ~ 1 + x + z + x * z, data = df, init.theta = 3.725822978, 
+    link = log)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.6583  -0.7557  -0.4531   0.2630   3.1433  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -5.36962    0.36317 -14.785  < 2e-16 ***
+x            0.89072    0.07247  12.291  < 2e-16 ***
+z            0.30852    0.42412   0.727  0.46696    
+x:z          0.24049    0.08069   2.980  0.00288 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for Negative Binomial(3.7258) family taken to be 1)
+
+    Null deviance: 6679.5  on 1749  degrees of freedom
+Residual deviance: 1518.0  on 1746  degrees of freedom
+AIC: 5413.8
+
+Number of Fisher Scoring iterations: 1
+
+
+              Theta:  3.726 
+          Std. Err.:  0.305 
+
+ 2 x log-likelihood:  -5403.779 
+> logLik(nbrm)
+'log Lik.' -2701.89 (df=5)
+> 
+```
+
+* In preparation for thinking about the fit of this model, we calculate expected values of lambda for each case in the dataset. Note that this code doesn't produce any output.
+
+```R
+nb.a <- coef(nbrm)[1]
+nb.b <- coef(nbrm)[2]
+nb.c <- coef(nbrm)[3]
+nb.d <- coef(nbrm)[4]
+theta <- nbrm$theta
+nb.lambda <- exp(nb.a+nb.b*df$x+nb.c*df$z+nb.d*df$x*df$z)
+```
+
+* Now, we calculate the theoretical probability distribution of *y* for each observation in the dataset:
+
+
+```R
+nbm0 <- vector()
+nbm1 <- vector()
+nbm2 <- vector()
+nbm3 <- vector()
+nbm4 <- vector()
+nbm5 <- vector()
+nbm6 <- vector()
+nbm7 <- vector()
+nbm8 <- vector()
+nbm9 <- vector()
+
+nbm10 <- vector()
+nbm11 <- vector()
+nbm12 <- vector()
+nbm13 <- vector()
+nbm14 <- vector()
+nbm15 <- vector()
+nbm16 <- vector()
+nbm17 <- vector()
+nbm18 <- vector()
+nbm19 <- vector()
+
+nbm20 <- vector()
+nbm21 <- vector()
+nbm22 <- vector()
+nbm23 <- vector()
+
+ncases <- nrow(df)
+
+for(i in 1:ncases){
+
+  k <- 0
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm0[i] <- pt3*pt6
+
+  k <- 1
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm1[i] <- pt3*pt6
+
+  k <- 2
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm2[i] <- pt3*pt6
+
+  k <- 3
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm3[i] <- pt3*pt6
+
+  k <- 4
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm4[i] <- pt3*pt6
+
+  k <- 5
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm5[i] <- pt3*pt6
+
+  k <- 6
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm6[i] <- pt3*pt6
+
+  k <- 7
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm7[i] <- pt3*pt6
+
+  k <- 8
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm8[i] <- pt3*pt6
+
+  k <- 9
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm9[i] <- pt3*pt6
+
+  k <- 10
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm10[i] <- pt3*pt6
+
+  k <- 11
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm11[i] <- pt3*pt6
+
+  k <- 12
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm12[i] <- pt3*pt6
+
+  k <- 13
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm13[i] <- pt3*pt6
+
+  k <- 14
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm14[i] <- pt3*pt6
+
+  k <- 15
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm15[i] <- pt3*pt6
+
+  k <- 16
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm16[i] <- pt3*pt6
+
+  k <- 17
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm17[i] <- pt3*pt6
+
+  k <- 18
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm18[i] <- pt3*pt6
+
+  k <- 19
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm19[i] <- pt3*pt6
+
+  k <- 20
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm20[i] <- pt3*pt6
+
+  k <- 21
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm21[i] <- pt3*pt6
+
+  k <- 22
+  pt1 <- gamma(k+theta)
+  pt2 <- gamma(theta)*factorial(k)
+  pt3 <- pt1/pt2
+  pt4 <- (nb.lambda[i]^k)*(theta^theta)
+  pt5 <- (nb.lambda[i]+theta)^(k+theta)
+  pt6 <- pt4/pt5
+  nbm22[i] <- pt3*pt6
+
+}
+
+nbmvec <- c(sum(nbm0),sum(nbm1),sum(nbm2),sum(nbm3),sum(nbm4),
+  sum(nbm5),sum(nbm6),sum(nbm7),sum(nbm8),sum(nbm9),sum(nbm10),
+  sum(nbm11),sum(nbm12),sum(nbm13),sum(nbm14),sum(nbm15),
+  sum(nbm16),sum(nbm17),sum(nbm18),sum(nbm19),sum(nbm20),
+  sum(nbm21),sum(nbm22),sum(nbm23))
+length(nbmvec)
+
+nbmvec[24] <- 1750-sum(nbmvec[1:23])
+sum(nbmvec)
+```
+
+* Note that this vector of probabilities is censored at *y* values of 23 and above due to low expected frequencies. We can verify that we have the right summation from:
+
+```Rout
+> length(nbmvec)
+[1] 24
+> 
+> nbmvec[24] <- 1750-sum(nbmvec[1:23])
+> sum(nbmvec)
+[1] 1750
+> 
+```
+
+* Next, we turn our attention to building a suitable finite mixture model for this dataset. We start by estimating a mixture model with *k* = 1 components which is equivalent to the Poisson regression model we estimated earlier. Here is the R code:
+
+```R
+library(maxLik)
+
+k1 <- function(parms) {
+  a1 <- parms[1]
+  b  <- parms[2]
+  c  <- parms[3]
+  d  <- parms[4]
+
+  lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
+
+  pmf <- exp(-lambda1)*lambda1^df$y/gamma(df$y+1)
+  lpmf <- log(pmf)
+  return(lpmf)
+  }
+
+fm1 <- maxLik(k1,start=c(-5.302480242,
+                          0.732094323,
+                          0.203294774,
+                          0.230943204),method="BHHH",finalHessian="BHHH")
+summary(fm1)
+```
+
+where the starting values are mild perturbations from the Poisson regression model estimates above. Here are the results:
+
+```Rout
+> library(maxLik)
+Loading required package: miscTools
+
+Please cite the 'maxLik' package as:
+Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihood estimation in R. Computational Statistics 26(3), 443-458. DOI 10.1007/s00180-010-0217-1.
+
+If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
+https://r-forge.r-project.org/projects/maxlik/
+> 
+> k1 <- function(parms) {
++   a1 <- parms[1]
++   b  <- parms[2]
++   c  <- parms[3]
++   d  <- parms[4]
++ 
++   lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
++ 
++   pmf <- exp(-lambda1)*lambda1^df$y/gamma(df$y+1)
++   lpmf <- log(pmf)
++   return(lpmf)
++   }
+> 
+> fm1 <- maxLik(k1,start=c(-5.302480242,
++                           0.732094323,
++                           0.203294774,
++                           0.230943204),method="BHHH",finalHessian="BHHH")
+> summary(fm1)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 51 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -3081.196 
+4  free parameters
+Estimates:
+     Estimate Std. error t value  Pr(> t)    
+[1,] -5.38010    0.34743 -15.485  < 2e-16 ***
+[2,]  0.89293    0.06795  13.142  < 2e-16 ***
+[3,]  0.24087    0.36039   0.668 0.503911    
+[4,]  0.25093    0.06948   3.611 0.000305 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Note that these results are consistent with those we estimated earlier from the glm() function.
+* Next, we think about the expansion of this specification into a k=2 component mixture:
+
+```R
+k2 <- function(parms) {
+
+  a1 <- parms[1]
+  a2 <- parms[2]
+
+  b  <- parms[3]
+  c  <- parms[4]
+  d  <- parms[5]
+  e  <- parms[6]
+
+  pg1 <- exp(e)/(1+exp(e))
+  pg2 <- 1/(1+exp(e))
+
+  lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
+  lambda2 <- exp(a2+b*df$x+c*df$z+d*df$x*df$z)
+
+  pmf1 <- exp(-lambda1)*lambda1^df$y/factorial(df$y)
+  pmf2 <- exp(-lambda2)*lambda2^df$y/factorial(df$y)
+  lpmf <- log(pg1*pmf1+pg2*pmf2)
+  return(lpmf)
+  }
+
+fm2 <- maxLik(k2,start=c(-6.38010,
+                         -4.38010,
+                          0.89293,
+                          0.24087,
+                          0.25093,
+                          0.00320),method="BHHH",finalHessian="BHHH")
+summary(fm2)
+```
+
+which produces the following results:
+
+```Rout
+> k2 <- function(parms) {
++ 
++   a1 <- parms[1]
++   a2 <- parms[2]
++ 
++   b  <- parms[3]
++   c  <- parms[4]
++   d  <- parms[5]
++   e  <- parms[6]
++ 
++   pg1 <- exp(e)/(1+exp(e))
++   pg2 <- 1/(1+exp(e))
++ 
++   lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
++   lambda2 <- exp(a2+b*df$x+c*df$z+d*df$x*df$z)
++ 
++   pmf1 <- exp(-lambda1)*lambda1^df$y/factorial(df$y)
++   pmf2 <- exp(-lambda2)*lambda2^df$y/factorial(df$y)
++   lpmf <- log(pg1*pmf1+pg2*pmf2)
++   return(lpmf)
++   }
+> 
+> fm2 <- maxLik(k2,start=c(-6.38010,
++                          -4.38010,
++                           0.89293,
++                           0.24087,
++                           0.25093,
++                           0.00320),method="BHHH",finalHessian="BHHH")
+> summary(fm2)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 31 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -2753.068 
+6  free parameters
+Estimates:
+     Estimate Std. error t value Pr(> t)    
+[1,] -5.69182    0.39116 -14.551 < 2e-16 ***
+[2,] -4.74932    0.39113 -12.143 < 2e-16 ***
+[3,]  0.89090    0.07838  11.367 < 2e-16 ***
+[4,]  0.22637    0.42209   0.536 0.59175    
+[5,]  0.25407    0.08254   3.078 0.00208 ** 
+[6,]  1.14140    0.12952   8.813 < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Notice that the log-likelihood for this specification is higher than the Poisson regression log-likelihood but lower than the negative binomial log-likelihood.
+* Since we know the negative binomial model provides an excellent fit to these data, this is evidence that we could fit a higher-order mixture model.
+* This R code expands the mixture specification to *k* = 3 components.
+
+```R
+k3 <- function(parms) {
+
+  a1 <- parms[1]
+  a2 <- parms[2]
+  a3 <- parms[3]
+
+  b  <- parms[4]
+  c  <- parms[5]
+  d  <- parms[6]
+
+  e  <- parms[7]
+  f  <- parms[8]
+
+  pg1 <- exp(e)/(1+exp(e)+exp(f))
+  pg2 <- exp(f)/(1+exp(e)+exp(f))
+  pg3 <- 1/(1+exp(e)+exp(f))
+
+  lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
+  lambda2 <- exp(a2+b*df$x+c*df$z+d*df$x*df$z)
+  lambda3 <- exp(a3+b*df$x+c*df$z+d*df$x*df$z)
+
+  pmf1 <- exp(-lambda1)*lambda1^df$y/factorial(df$y)
+  pmf2 <- exp(-lambda2)*lambda2^df$y/factorial(df$y)
+  pmf3 <- exp(-lambda3)*lambda3^df$y/factorial(df$y)
+  lpmf <- log(pg1*pmf1+pg2*pmf2+pg3*pmf3)
+  return(lpmf)
+  }
+
+fm3 <- maxLik(k3,start=c(-6.69182,
+                         -5.74932,
+                         -4.74932,
+                          0.89090,
+                          0.22637,
+                          0.25407,
+                          1.14140,
+                          0.14140),method="BHHH",finalHessian="BHHH")
+summary(fm3)
+```
+
+* Which yields the following results:
+
+```Rout
+> k3 <- function(parms) {
++ 
++   a1 <- parms[1]
++   a2 <- parms[2]
++   a3 <- parms[3]
++ 
++   b  <- parms[4]
++   c  <- parms[5]
++   d  <- parms[6]
++ 
++   e  <- parms[7]
++   f  <- parms[8]
++ 
++   pg1 <- exp(e)/(1+exp(e)+exp(f))
++   pg2 <- exp(f)/(1+exp(e)+exp(f))
++   pg3 <- 1/(1+exp(e)+exp(f))
++ 
++   lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
++   lambda2 <- exp(a2+b*df$x+c*df$z+d*df$x*df$z)
++   lambda3 <- exp(a3+b*df$x+c*df$z+d*df$x*df$z)
++ 
++   pmf1 <- exp(-lambda1)*lambda1^df$y/factorial(df$y)
++   pmf2 <- exp(-lambda2)*lambda2^df$y/factorial(df$y)
++   pmf3 <- exp(-lambda3)*lambda3^df$y/factorial(df$y)
++   lpmf <- log(pg1*pmf1+pg2*pmf2+pg3*pmf3)
++   return(lpmf)
++   }
+> 
+> fm3 <- maxLik(k3,start=c(-6.69182,
++                          -5.74932,
++                          -4.74932,
++                           0.89090,
++                           0.22637,
++                           0.25407,
++                           1.14140,
++                           0.14140),method="BHHH",finalHessian="BHHH")
+> summary(fm3)
+--------------------------------------------
+Maximum Likelihood estimation
+BHHH maximisation, 20 iterations
+Return code 8: successive function values within relative tolerance limit (reltol)
+Log-Likelihood: -2699.396 
+8  free parameters
+Estimates:
+     Estimate Std. error t value  Pr(> t)    
+[1,] -5.93751    0.39752 -14.936  < 2e-16 ***
+[2,] -5.17644    0.39710 -13.035  < 2e-16 ***
+[3,] -4.42572    0.39708 -11.146  < 2e-16 ***
+[4,]  0.89428    0.07944  11.257  < 2e-16 ***
+[5,]  0.24761    0.44405   0.558  0.57711    
+[6,]  0.24968    0.08600   2.903  0.00369 ** 
+[7,]  1.96298    0.25031   7.842 4.42e-15 ***
+[8,]  1.80298    0.22955   7.854 4.02e-15 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+--------------------------------------------
+> 
+```
+
+* Now, this *k* = 3 component mixture specification attains the highest log-likelihood value we have seen so far. 
+* We are at a point where we can now check on the fit. We begin by calculating lambda values for each observation in the dataset:
+
+```R
+xvec <- seq(from=0,to=23,by=1)
+xvec
+
+yvec <- c(790,258,121,80,71,66,43,46,32,35,31,24,23,20,10,15,7,
+  8,9,9,11,5,5,31)
+length(yvec)
+sum(yvec)
+
+  a1 <- -5.93746
+  a2 <- -5.17638
+  a3 <- -4.42563
+
+  b  <- 0.89428
+  c  <- 0.24753 
+  d  <- 0.24969
+
+  e  <- 1.96342
+  f  <- 1.80319
+
+  pg1 <- exp(e)/(1+exp(e)+exp(f))
+  pg2 <- exp(f)/(1+exp(e)+exp(f))
+  pg3 <- 1/(1+exp(e)+exp(f))
+
+  lambda1 <- exp(a1+b*df$x+c*df$z+d*df$x*df$z)
+  lambda2 <- exp(a2+b*df$x+c*df$z+d*df$x*df$z)
+  lambda3 <- exp(a3+b*df$x+c*df$z+d*df$x*df$z)
+  ```
+  
+  * We can ask for the component probabilities by calling the objects pg1, pg2, and pg3 as follows:
+
+```rout
+> pg1
+[1] 0.5019261
+> pg2
+[1] 0.4276148
+> pg3
+[1] 0.07045913
+> 
+```
+
+* These estimates represent the probability that an observation drawn at random from the dataset belongs to each group.
+* Now, we are ready to calculate the theoretical distribution of *y* for each observation in the dataset:
+
+```R
+fpm0 <- vector()
+fpm1 <- vector()
+fpm2 <- vector()
+fpm3 <- vector()
+fpm4 <- vector()
+fpm5 <- vector()
+fpm6 <- vector()
+fpm7 <- vector()
+fpm8 <- vector()
+fpm9 <- vector()
+
+fpm10 <- vector()
+fpm11 <- vector()
+fpm12 <- vector()
+fpm13 <- vector()
+fpm14 <- vector()
+fpm15 <- vector()
+fpm16 <- vector()
+fpm17 <- vector()
+fpm18 <- vector()
+fpm19 <- vector()
+
+fpm20 <- vector()
+fpm21 <- vector()
+fpm22 <- vector()
+fpm23 <- vector()
+
+ncases <- nrow(df)
+
+for(i in 1:ncases){
+
+  k <- 0
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm0[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 1
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm1[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 2
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm2[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 3
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm3[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 4
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm4[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 5
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm5[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 6
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm6[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 7
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm7[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 8
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm8[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 9
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm9[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 10
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm10[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 11
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm11[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 12
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm12[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 13
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm13[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 14
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm14[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 15
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm15[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 16
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm16[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 17
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm17[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 18
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm18[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 19
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm19[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 20
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm20[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 21
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm21[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+  k <- 22
+  pmf1 <- exp(-lambda1[i])*lambda1[i]^k/factorial(k)
+  pmf2 <- exp(-lambda2[i])*lambda2[i]^k/factorial(k)
+  pmf3 <- exp(-lambda3[i])*lambda3[i]^k/factorial(k)
+  fpm22[i] <- pg1*pmf1+pg2*pmf2+pg3*pmf3
+
+}
+
+fpmvec <- c(sum(fpm0),sum(fpm1),sum(fpm2),sum(fpm3),sum(fpm4),
+  sum(fpm5),sum(fpm6),sum(fpm7),sum(fpm8),sum(fpm9),sum(fpm10),
+  sum(fpm11),sum(fpm12),sum(fpm13),sum(fpm14),sum(fpm15),
+  sum(fpm16),sum(fpm17),sum(fpm18),sum(fpm19),sum(fpm20),
+  sum(fpm21),sum(fpm22))
+length(fpmvec)
+
+fpmvec[24] <- 1750-sum(fpmvec[1:23])
+sum(fpmvec)
+```
+
+* This is the output:
+
+```Rout
+> fpmvec <- c(sum(fpm0),sum(fpm1),sum(fpm2),sum(fpm3),sum(fpm4),
++   sum(fpm5),sum(fpm6),sum(fpm7),sum(fpm8),sum(fpm9),sum(fpm10),
++   sum(fpm11),sum(fpm12),sum(fpm13),sum(fpm14),sum(fpm15),
++   sum(fpm16),sum(fpm17),sum(fpm18),sum(fpm19),sum(fpm20),
++   sum(fpm21),sum(fpm22))
+> length(fpmvec)
+[1] 23
+> 
+> fpmvec[24] <- 1750-sum(fpmvec[1:23])
+> sum(fpmvec)
+[1] 1750
+> 
+```
+
+* Next, we create a table showing the results. Here is the R code:
+
+```R
+data.frame(xvec,yvec,nbmvec,fpmvec)
+
+nbcsq <- sum((yvec-nbmvec)^2/nbmvec)
+nbcsq 
+df.nb <- 24-5
+df.nb
+aic.nb <- logLik(nbrm)-5
+aic.nb 
+bic.nb <- logLik(nbrm)-5/2*log(ncases)
+bic.nb 
+
+fbcsq <- sum((yvec-nbmvec)^2/nbmvec)
+fbcsq 
+df.fm <- 24-8
+df.fm
+aic.fm <- logLik(fm3)-8
+aic.fm 
+bic.fm <- logLik(fm3)-8/2*log(ncases)
+bic.fm
+```
+
+* And, here are our results:
+
+```Rout
+> data.frame(xvec,yvec,nbmvec,fpmvec)
+   xvec yvec     nbmvec     fpmvec
+1     0  790 794.565653 790.055168
+2     1  258 252.440226 251.088071
+3     2  121 123.141695 122.801565
+4     3   80  85.367032  86.322415
+5     4   71  67.817264  69.837198
+6     5   66  56.696653  59.388925
+7     6   43  48.472161  51.318857
+8     7   46  41.904999  44.400631
+9     8   32  36.441252  38.205267
+10    9   35  31.787044  32.624540
+11   10   31  27.766226  27.684535
+12   11   24  24.263095  23.443588
+13   12   23  21.195936  19.926751
+14   13   20  18.503465  17.095127
+15   14   10  16.137361  14.849190
+16   15   15  14.057935  13.054364
+17   16    7  12.231557  11.572552
+18   17    8  10.629074  10.287074
+19   18    9   9.224838   9.115666
+20   19    9   7.996071   8.012161
+21   20   11   6.922449   6.960507
+22   21    5   5.985798   5.965203
+23   22    5   5.169866   5.041376
+24   23   31  31.282351  30.949267
+> 
+> nbcsq <- sum((yvec-nbmvec)^2/nbmvec)
+> nbcsq 
+[1] 12.72633
+> df.nb <- 24-5
+> df.nb
+[1] 19
+> aic.nb <- logLik(nbrm)-5
+> aic.nb 
+'log Lik.' -2706.89 (df=5)
+> bic.nb <- logLik(nbrm)-5/2*log(ncases)
+> bic.nb 
+'log Lik.' -2720.558 (df=5)
+> 
+> fbcsq <- sum((yvec-nbmvec)^2/nbmvec)
+> fbcsq 
+[1] 12.72633
+> df.fm <- 24-8
+> df.fm
+[1] 16
+> aic.fm <- logLik(fm3)-8
+> aic.fm 
+[1] -2707.396
+attr(,"df")
+[1] 8
+> bic.fm <- logLik(fm3)-8/2*log(ncases)
+> bic.fm
+[1] -2729.265
+attr(,"df")
+[1] 8
+> 
+```
+
+* What should we conclude from these results?
+
+### Assignment Due Thursday 12/2/21
+
+* For this assignment, you should use last week's homework dataset to: (1) re-estimate the Poisson and negative binomial regression models you estimated last week; (2) estimate finite mixture models up to order *k* = 3; (3) check on the fit of the negative binomial and finite mixture models; (4) calculate AIC and BIC results from the two best models; and (5) develop a written summary where you interpret the results of your analysis including (a) a substantive interpretation of the coefficients for *x*, *z*, and the product of *x* and *z*; and (b) the model selection exercise.
