@@ -10216,9 +10216,9 @@ bic.fm
 > bic.nb 
 'log Lik.' -2720.558 (df=5)
 > 
-> fbcsq <- sum((yvec-nbmvec)^2/nbmvec)
+> fbcsq <- sum((yvec-fpmvec)^2/fpmvec)
 > fbcsq 
-[1] 12.72633
+[1] 12.21272
 > df.fm <- 24-8
 > df.fm
 [1] 16
