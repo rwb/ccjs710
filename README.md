@@ -37,12 +37,12 @@
 * 10/7: zero-inflation and mixtures
 * 10/14: hurdle specifications
 * 10/21: censoring
-* 10/28: tobit 
+* 10/28: tobit models
 * 11/4: selection problem
 * 11/11: instrumental variables
 * 11/18: partial identification
 * 11/25: no class, Thanksgiving Holiday
-* 12/2: survival time
+* 12/2: survival time analysis
 * 12/9: split population specifications
 
 ### Lesson 1 - Thursday 9/2/21
