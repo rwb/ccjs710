@@ -10314,7 +10314,7 @@ F-statistic: 225.8 on 1 and 1785 DF,  p-value: < 2.2e-16
 
 ```R
 df.x0 <- subset(df,x==0)
-median(df.x0$y)
+mean(df.x0$y)
 df.x1 <- subset(df,x==1)
 mean(df.x1$y)
 ```
@@ -10323,11 +10323,12 @@ mean(df.x1$y)
 
 ```Rout
 > df.x0 <- subset(df,x==0)
-> median(df.x0$y)
-[1] 3.469414
+> mean(df.x0$y)
+[1] 3.494549
 > df.x1 <- subset(df,x==1)
 > mean(df.x1$y)
 [1] 4.206244
+> 
 > 
 ```
 
