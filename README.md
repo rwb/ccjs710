@@ -92,19 +92,24 @@ ucl
 t.test(ts[S],conf.level=0.82)
 
 trap <- vector()
+sm <- vector()
+std.err <- vector()
 
 for(i in 1:30000){
   s <- sample(1:9327,size=300,replace=T)
-  sm <- mean(ts[s])
-  std.err <- sd(ts[s])/sqrt(300)
+  sm[i] <- mean(ts[s])
+  std.err[i] <- sd(ts[s])/sqrt(300)
   t.mult <- qt(0.91,df=300-1)
-  lcl <- sm-t.mult*std.err
-  ucl <- sm+t.mult*std.err
+  lcl <- sm[i]-t.mult*std.err[i]
+  ucl <- sm[i]+t.mult*std.err[i]
   trap[i] <- ifelse(lcl<=19.75458 & ucl>=19.75458,1,0)
   }
 
 table(trap)
 mean(trap)
+mean(sm)
+sd(sm)
+mean(std.err)
 ```
 
 * a. check to make sure you have 9,327 observations and that the mean is 19.75458 and the median is 10; this will ensure you have read the data set correctly; set a random number seed equal to your UID number.
@@ -183,14 +188,16 @@ mean of x
 
 > 
 > trap <- vector()
+> sm <- vector()
+> std.err <- vector()
 > 
 > for(i in 1:30000){
 +   s <- sample(1:9327,size=300,replace=T)
-+   sm <- mean(ts[s])
-+   std.err <- sd(ts[s])/sqrt(300)
++   sm[i] <- mean(ts[s])
++   std.err[i] <- sd(ts[s])/sqrt(300)
 +   t.mult <- qt(0.91,df=300-1)
-+   lcl <- sm-t.mult*std.err
-+   ucl <- sm+t.mult*std.err
++   lcl <- sm[i]-t.mult*std.err[i]
++   ucl <- sm[i]+t.mult*std.err[i]
 +   trap[i] <- ifelse(lcl<=19.75458 & ucl>=19.75458,1,0)
 +   }
 > 
@@ -200,6 +207,12 @@ trap
  5427 24573 
 > mean(trap)
 [1] 0.8191
+> mean(sm)
+[1] 19.7508
+> sd(sm)
+[1] 1.537318
+> mean(std.err)
+[1] 1.539153
 >
 ```
 
@@ -299,5 +312,3 @@ trap
 > 
 >
 ```
-
-
