@@ -312,3 +312,190 @@ trap
 > 
 >
 ```
+
+### Lesson 2 - Thursday 9/10/26
+
+```R
+# dataset - NC Department of Corrections FY1978 Releases 
+# variable: age (in years) at time of release from prison
+
+age <- c(rep(16,19),rep(17,161),rep(18,492),rep(19,480),rep(20,624),
+         rep(21,599),rep(22,580),rep(23,468),rep(24,537),rep(25,443),rep(26,432),
+         rep(27,338),rep(28,415),rep(29,292),rep(30,324),rep(31,254),rep(32,234),
+         rep(33,179),rep(34,187),rep(35,167),rep(36,177),rep(37,132),rep(38,152),
+         rep(39,117),rep(40,119),rep(41,93),rep(42,113),rep(43,102),rep(44,85),
+         rep(45,75),rep(46,90),rep(47,72),rep(48,86),rep(49,62),rep(50,78),
+         rep(51,61),rep(52,57),rep(53,50),rep(54,44),rep(55,49),rep(56,55),
+         rep(57,34),rep(58,34),rep(59,25),rep(60,21),rep(61,18),rep(62,19),
+         rep(63,11),rep(64,16),rep(65,7),rep(66,5),rep(67,13),rep(68,5),rep(69,3),
+         rep(70,1),rep(71,3),rep(72,5),rep(73,3),rep(74,4),rep(75,2),rep(77,2),rep(78,2))
+
+# population size
+
+n <- length(age)
+n
+
+# population central tendency
+
+mean(age)
+median(age)
+
+# population distribution
+
+hist(age,xlab="Age (in years) at Time of Release",
+         ylab="Number of People",
+         main="Age at Release from Prison (1978 NCDOC)")
+
+# let's draw a single sample from the population
+
+set.seed(847)
+ss <- sample(1:9327,size=300,replace=T)
+yss <- age[ss]
+hist(yss)
+mean(yss)
+median(yss)
+mean(yss)-mean(age)
+median(yss)-median(age)
+
+# let's draw 3,000 samples from the population
+
+set.seed(704)
+
+meanvec <- vector()
+medianvec <- vector()
+
+for(i in 1:3e3){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+  meanvec[i] <- mean(yrs)
+  medianvec[i] <- median(yrs)
+  }
+
+par(mfrow=c(1,3))
+hist(meanvec)
+hist(medianvec)
+boxplot(meanvec,medianvec,names=c("Mean","Median"))
+sd(meanvec)
+sd(medianvec)
+
+# now, we consider a 88% confidence interval for the sample mean
+
+set.seed(872)
+
+ct <- qt(p=0.94,df=300-1)
+ct
+
+trap <- vector()
+
+for(i in 1:3e3){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+  lcl <- mean(yrs)-ct*(sd(yrs)/sqrt(300))
+  ucl <- mean(yrs)+ct*(sd(yrs)/sqrt(300))
+  trap[i] <- ifelse(lcl<=mean(age) & ucl>=mean(age),1,0)
+  }
+
+mean(trap)
+
+# what about an 88% confidence interval for the sample median?
+
+set.seed(873)
+
+library(DescTools)
+
+trap <- vector()
+
+for(i in 1:3e3){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+  ci <- MedianCI(yrs,conf.level=0.88,method="boot")
+  lcl <- ci[2]
+  ucl <- ci[3]
+  trap[i] <- ifelse(lcl<=median(age) & ucl>=median(age),1,0)
+  }
+
+mean(trap)
+
+# how would the bootstrap work for an individual sample?
+
+set.seed(638)
+
+ss <- sample(1:9327,size=300,replace=T)
+yss <- age[ss]
+ct <- qt(p=0.94,df=300-1)
+ct
+
+# parametric confidence interval based on t-distribution
+
+mean(yss)-ct*(sd(yss)/sqrt(300))
+mean(yss)+ct*(sd(yss)/sqrt(300))
+
+mnvec <- vector()
+mdvec <- vector()
+
+for(i in 1:3e3){
+  b <- sample(1:300,size=300,replace=T)
+  yb <- yss[b]
+  mnvec[i] <- mean(yb)
+  mdvec[i] <- median(yb)
+  }
+
+quantile(mnvec,c(0.06,0.94))
+quantile(mdvec,c(0.06,0.94))
+
+# what if we wanted to test for whether the mean and median were
+# significantly different from each other in our sample
+# how could we do that?
+
+delta <- vector()
+
+for(i in 1:1e4){
+  b <- sample(1:300,size=300,replace=T)
+  yb <- yss[b]
+  delta[i] <- mean(yb)-median(yb)
+  }
+
+quantile(delta,c(0.06,0.94))
+
+# another approach using the canned bootstrap function in R
+
+library(boot)
+
+id <- 1:300
+id.y <- data.frame(id,yss)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  return(mean(b$yss)-median(b$yss))
+  }
+
+med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
+boot.ci(med.dist,conf=0.88,type="perc")
+
+# how can we check to see whether the confidence interval 
+# is trapping at or above the advertised rate?
+
+set.seed(391)
+
+trap <- vector()
+
+for(i in 1:1000){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+
+  id.y <- data.frame(id,yrs)
+
+  tboot <- function(data,i){
+    b <- data[i,]
+    return(mean(b$yrs)-median(b$yrs))
+    }
+
+  med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
+  lcl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[4]
+  ucl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[5]
+  trap[i] <- ifelse(lcl<=(mean(age)-median(age)) &
+                    ucl>=(mean(age)-median(age)),1,0)
+  }
+
+mean(trap)
+```
