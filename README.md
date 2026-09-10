@@ -430,6 +430,8 @@ ct
 mean(yss)-ct*(sd(yss)/sqrt(300))
 mean(yss)+ct*(sd(yss)/sqrt(300))
 
+# bootstrap - percentile method
+
 mnvec <- vector()
 mdvec <- vector()
 
