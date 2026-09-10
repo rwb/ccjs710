@@ -445,6 +445,49 @@ for(i in 1:3e3){
 quantile(mnvec,c(0.06,0.94))
 quantile(mdvec,c(0.06,0.94))
 
+# how can we check on whether the exact method or the bootstrap
+# method works better for trapping the population median at the
+# advertised rate?
+
+set.seed(422)
+
+# first, the exact method
+
+library(DescTools)
+
+trap <- vector()
+
+for(i in 1:300){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+  ci <- MedianCI(yrs,conf.level=0.88,method="boot")
+  lcl <- ci[2]
+  ucl <- ci[3]
+  trap[i] <- ifelse(lcl<=median(age) & ucl>=median(age),1,0)
+  }
+
+mean(trap)
+
+# second, the bootstrap method
+
+trap <- vector()
+
+for(i in 1:300){
+  rs <- sample(1:9327,size=300,replace=T)
+  yrs <- age[rs]
+  id.y <- data.frame(id,yrs)
+  tboot <- function(data,i){
+    b <- data[i,]
+    return(median(b$yrs))
+    }
+  med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
+  lcl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[4]
+  ucl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[5]
+  trap[i] <- ifelse(lcl<=median(age) & ucl>=median(age),1,0)
+  }
+
+mean(trap)
+
 # what if we wanted to test for whether the mean and median were
 # significantly different from each other in our sample
 # how could we do that?
@@ -474,14 +517,14 @@ tboot <- function(data,i){
 med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
 boot.ci(med.dist,conf=0.88,type="perc")
 
-# how can we check to see whether the confidence interval 
+# how can we check on whether the confidence interval 
 # is trapping at or above the advertised rate?
 
 set.seed(391)
 
 trap <- vector()
 
-for(i in 1:1000){
+for(i in 1:100){
   rs <- sample(1:9327,size=300,replace=T)
   yrs <- age[rs]
 
