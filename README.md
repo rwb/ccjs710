@@ -315,6 +315,13 @@ trap
 
 ### Lesson 2 - Thursday 9/10/26
 
+* We begin by considering the NC FY1978 prison releasees.
+* The data measure the age of each inmate at the time they were released from prison.
+* I will also be providing an example dataset for the NC FY1980 prison releasees (again, age at time of release)
+* The data is a limited dv in 2 senses: (1) they are measured in discrete years (integers only); and (2) since the data are based on age at release from prison, there is a lower bound on the age of release (probably around 15 or 16 years old).
+
+#### Script #1
+
 ```R
 # dataset - NC Department of Corrections FY1978 Releases 
 # variable: age (in years) at time of release from prison
@@ -345,7 +352,11 @@ median(age)
 hist(age,xlab="Age (in years) at Time of Release",
          ylab="Number of People",
          main="Age at Release from Prison (1978 NCDOC)")
+```
 
+#### Script #2
+
+```R
 # let's draw a single sample from the population
 
 set.seed(847)
@@ -356,7 +367,11 @@ mean(yss)
 median(yss)
 mean(yss)-mean(age)
 median(yss)-median(age)
+```
 
+#### Script #3
+
+```R
 # let's draw 3,000 samples from the population
 
 set.seed(704)
@@ -377,8 +392,15 @@ hist(medianvec)
 boxplot(meanvec,medianvec,names=c("Mean","Median"))
 sd(meanvec)
 sd(medianvec)
+```
 
+#### Script #4
+
+```R
 # now, we consider a 88% confidence interval for the sample mean
+# we will use the t-distribution under the assumption that the
+# sampling distribution of the sample means follows a t-distribution
+# with N-1 degrees of freedom (in this case, 300-1 = 299 df.
 
 set.seed(872)
 
@@ -396,11 +418,14 @@ for(i in 1:3e3){
   }
 
 mean(trap)
+```
 
+#### Script #5
+
+```R
 # what about an 88% confidence interval for the sample median?
 
 set.seed(873)
-
 library(DescTools)
 
 trap <- vector()
@@ -415,8 +440,16 @@ for(i in 1:3e3){
   }
 
 mean(trap)
+```
 
-# how would the bootstrap work for an individual sample?
+#### Script #6
+
+```R
+# using the bootstrap to calculate a confidence interval
+# we will calculate a 88% confidence interval for both the
+# sample mean and the sample median based on the information
+# in a single simple random sample of 300 cases (drawn from
+# the sampling frame of 9,327 cases.
 
 set.seed(638)
 
@@ -429,6 +462,9 @@ ct
 
 mean(yss)-ct*(sd(yss)/sqrt(300))
 mean(yss)+ct*(sd(yss)/sqrt(300))
+
+# note there is no parametric formula for the 88% confidence
+# interval for the sample median.
 
 # bootstrap - percentile method
 
@@ -444,14 +480,21 @@ for(i in 1:3e3){
 
 quantile(mnvec,c(0.06,0.94))
 quantile(mdvec,c(0.06,0.94))
+```
 
-# how can we check on whether the exact method or the bootstrap
-# method works better for trapping the population median at the
-# advertised rate?
+#### Script #7
+
+```R
+# there is an exact procedure for calculating the
+# confidence interval for the sample median (based on
+# the binomial distribution)
+# in this case, exact means that the procedure is guaranteed
+# to cover the true population parameter across repeated
+# samples at or above the advertised rate
+# we will repeatedly sample from the sampling frame to
+# demonstrate this property
 
 set.seed(422)
-
-# first, the exact method
 
 library(DescTools)
 
@@ -460,87 +503,26 @@ trap <- vector()
 for(i in 1:300){
   rs <- sample(1:9327,size=300,replace=T)
   yrs <- age[rs]
-  ci <- MedianCI(yrs,conf.level=0.88,method="boot")
+  ci <- MedianCI(yrs,conf.level=0.88,method="exact")
   lcl <- ci[2]
   ucl <- ci[3]
   trap[i] <- ifelse(lcl<=median(age) & ucl>=median(age),1,0)
   }
 
 mean(trap)
+```
 
-# second, the bootstrap method
+#### NCDOC FY1980 Age at Release Dataset (N = 9,549)
 
-trap <- vector()
-
-for(i in 1:300){
-  rs <- sample(1:9327,size=300,replace=T)
-  yrs <- age[rs]
-  id.y <- data.frame(id,yrs)
-  tboot <- function(data,i){
-    b <- data[i,]
-    return(median(b$yrs))
-    }
-  med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
-  lcl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[4]
-  ucl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[5]
-  trap[i] <- ifelse(lcl<=median(age) & ucl>=median(age),1,0)
-  }
-
-mean(trap)
-
-# what if we wanted to test for whether the mean and median were
-# significantly different from each other in our sample
-# how could we do that?
-
-delta <- vector()
-
-for(i in 1:1e4){
-  b <- sample(1:300,size=300,replace=T)
-  yb <- yss[b]
-  delta[i] <- mean(yb)-median(yb)
-  }
-
-quantile(delta,c(0.06,0.94))
-
-# another approach using the canned bootstrap function in R
-
-library(boot)
-
-id <- 1:300
-id.y <- data.frame(id,yss)
-
-tboot <- function(data,i){
-  b <- data[i,]
-  return(mean(b$yss)-median(b$yss))
-  }
-
-med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
-boot.ci(med.dist,conf=0.88,type="perc")
-
-# how can we check on whether the confidence interval 
-# is trapping at or above the advertised rate?
-
-set.seed(391)
-
-trap <- vector()
-
-for(i in 1:100){
-  rs <- sample(1:9327,size=300,replace=T)
-  yrs <- age[rs]
-
-  id.y <- data.frame(id,yrs)
-
-  tboot <- function(data,i){
-    b <- data[i,]
-    return(mean(b$yrs)-median(b$yrs))
-    }
-
-  med.dist <- boot(data=id.y,statistic=tboot,R=1e4)
-  lcl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[4]
-  ucl <- boot.ci(med.dist,conf=0.88,type="perc")$perc[5]
-  trap[i] <- ifelse(lcl<=(mean(age)-median(age)) &
-                    ucl>=(mean(age)-median(age)),1,0)
-  }
-
-mean(trap)
+```R
+age <- c(rep(15,1),rep(16,20),rep(17,224),rep(18,504),rep(19,472),rep(20,626),
+  rep(21,517),rep(22,601),rep(23,516),rep(24,565),rep(25,407),rep(26,495),
+  rep(27,302),rep(28,397),rep(29,291),rep(30,298),rep(31,261),rep(32,330),
+  rep(33,224),rep(34,231),rep(35,163),rep(36,194),rep(37,157),rep(38,149),
+  rep(39,125),rep(40,129),rep(41,116),rep(42,100),rep(43,88),rep(44,105),
+  rep(45,88),rep(46,80),rep(47,72),rep(48,60),rep(49,68),rep(50,67),
+  rep(51,64),rep(52,50),rep(53,47),rep(54,51),rep(55,47),rep(56,42),
+  rep(57,28),rep(58,39),rep(59,12),rep(60,29),rep(61,12),rep(62,13),
+  rep(63,8),rep(64,19),rep(65,12),rep(66,9),rep(67,2),rep(68,5),rep(69,3),
+  rep(70,6),rep(71,1),rep(73,2),rep(74,2),rep(75,1),rep(77,1),rep(79,1))
 ```
