@@ -766,3 +766,57 @@ r2 <- 100000*rbeta(n=1e5,shape1=1/2+h2,shape2=1/2+p2-h2)
 hist(r2-r1)
 quantile(r2-r1,c(0.06,0.94))
 ```
+
+#### Script #6
+
+* introduction to the Minneapolis Domestic Violence Experiment
+
+```R
+# arrest group
+
+na <- 92
+ra <- 10
+
+# informal group
+
+ni <- 108+113
+ri <- 21+26
+
+# calculate the failure rates
+
+ra/na
+ri/ni
+
+# create a contingency table
+
+t <- c(rep("A",92),rep("I",221))
+y <- c(rep("no",92-10),rep("yes",10),rep("no",221-47),rep("yes",47))
+table(y,t)
+
+pa <- 10/(82+10)
+pa
+pi <- 47/(174+47)
+pi
+pi-pa
+
+# we can also do arithmetic on the contingency table
+
+t <- c(rep("A",92),rep("I",221))
+y <- c(rep("no",92-10),rep("yes",10),rep("no",221-47),rep("yes",47))
+mt <- table(y,t)
+mt
+
+c11 <- mt[1,1]
+c11
+c12 <- mt[1,2]
+c12
+c21 <- mt[2,1]
+c21
+c22 <- mt[2,2]
+c22
+
+pa <- c21/(c11+c21)
+pa
+pi <- c22/(c12+c22)
+pi
+```
