@@ -573,14 +573,14 @@ std.err
 * How could we obtain a 95% confidence interval for this estimate?
 * We *consider* the idea of a sampling distribution of proportions.
 * We *assume* that the standardized version of this sampling distribution can be approximated by the standard normal distribution.
-* Next, we find the 3.5th and 96.5th percentiles of this normal distribution.
+* Next, we find the 2.5th and 9.5th percentiles of this normal distribution.
 
 ```R
 qnorm(p=0.025)
 qnorm(p=0.975)
 ```
 
-* So, the 93% confidence interval for the sample proportion is:
+* So, the 95% confidence interval for the sample proportion is:
 
 ```R
 lower.limit <- p-1.96*std.err
