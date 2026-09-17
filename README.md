@@ -543,22 +543,21 @@ alt="figure demonstrating the concept of sampling variation">
 
 ##### Script #1
 
+* estimate a sample proportion when the population proportion, pi, is set to 0.2.
+  
 ```R
 set.seed(602)
-u <- runif(n=500,min=0,max=1)
-y <- ifelse(u>0.675,0,1)
+pi <- 0.2
+u <- runif(n=92,min=0,max=1)
+y <- ifelse(u>0.2,0,1)
 table(y,exclude=NULL)
-```
-* How should we use the information in the sample to estimate the population recidivism rate?
-
-```R
 N <- length(y)
 N
 1/N*sum(y)
 mean(y)
 ```
 
-* How can we calculate the standard error of this estimate?
+* how can we calculate the standard error of this estimate?
 
 ```
 N <- length(y)
@@ -571,50 +570,122 @@ std.err <- sqrt(p*q/N)
 std.err
 ```
 
-* How could we obtain a 93% confidence interval for this estimate?
+* How could we obtain a 95% confidence interval for this estimate?
 * We *consider* the idea of a sampling distribution of proportions.
 * We *assume* that the standardized version of this sampling distribution can be approximated by the standard normal distribution.
 * Next, we find the 3.5th and 96.5th percentiles of this normal distribution.
 
 ```R
-(1-0.93)/2
-qnorm(p=0.035)
-qnorm(p=0.965)
+qnorm(p=0.025)
+qnorm(p=0.975)
 ```
 
 * So, the 93% confidence interval for the sample proportion is:
 
 ```R
-lower.limit <- p-1.811911*std.err
+lower.limit <- p-1.96*std.err
 lower.limit
-upper.limit <- p+1.811911*std.err
+upper.limit <- p+1.96*std.err
 upper.limit
 ```
 
-* Does the interval include the true population parameter value of 0.675?
+* Does the interval include the true population parameter value of 0.2?
 * If so, the confidence interval "trapped" the true population value; if not, it didn't.
 * Notice that whether a population parameter value is trapped is a yes or no question.
 
 ---
-* Interpretation: if this is a valid procedure for calculating a 93% confidence interval, then if we drew many thousands of samples and used this same procedure to calculate the 93% confidence interval for each sample, then 93% of the sample intervals would contain the true population parameter value.
-* How do we know whether it is valid?
+* Interpretation: if this is a valid procedure for calculating a 95% confidence interval, then if we drew many thousands of samples and used this same procedure to calculate the 95% confidence interval for each sample, then 95% of the sample intervals would contain the true population parameter value.
+
+#### Script #2
 
 ```R
+# standard interval
+
+set.seed(830)
+
+pi <- 0.2
+
 trap <- vector()
 pvec <- vector()
 
-for(i in 1:1e5){
-  u <- runif(n=500,min=0,max=1)
-  y <- ifelse(u>0.675,0,1)
+for(i in 1:1e4){
+  u <- runif(n=92,min=0,max=1)
+  y <- ifelse(u>pi,0,1)
   N <- length(y)
   pvec[i] <- mean(y)
   q <- 1-pvec[i]
   std.err <- sqrt(pvec[i]*q/N)
-  lower.limit <- pvec[i]-1.811911*std.err
-  upper.limit <- pvec[i]+1.811911*std.err
-  trap[i] <- ifelse(lower.limit<=0.675 & upper.limit>=0.675,1,0)
+  lower.limit <- pvec[i]-1.96*std.err
+  upper.limit <- pvec[i]+1.96*std.err
+  trap[i] <- ifelse(lower.limit<=pi & upper.limit>=pi,1,0)
   }
 
 table(trap,exclude=NULL)
-hist(pvec)
+
+# jeffreys prior
+
+set.seed(830)
+
+trap <- vector()
+pvec <- vector()
+
+for(i in 1:1e4){
+  u <- runif(n=92,min=0,max=1)
+  y <- ifelse(u>pi,0,1)
+  N <- length(y)
+  pvec[i] <- mean(y)
+  lower.limit <- qbeta(p=0.025,shape1=1/2+sum(y),shape2=1/2+N-sum(y))
+  upper.limit <- qbeta(p=0.975,shape1=1/2+sum(y),shape2=1/2+N-sum(y))
+  trap[i] <- ifelse(lower.limit<=pi & upper.limit>=pi,1,0)
+  }
+
+table(trap,exclude=NULL)
+
+# clopper-pearson
+
+set.seed(830)
+
+trap <- vector()
+pvec <- vector()
+
+for(i in 1:1e4){
+  u <- runif(n=92,min=0,max=1)
+  y <- ifelse(u>pi,0,1)
+  N <- length(y)
+  pvec[i] <- mean(y)
+  lower.limit <- qbeta(p=0.025,shape1=sum(y),shape2=1+N-sum(y))
+  upper.limit <- qbeta(p=0.975,shape1=1+sum(y),shape2=N-sum(y))
+  trap[i] <- ifelse(lower.limit<=pi & upper.limit>=pi,1,0)
+  }
+
+table(trap,exclude=NULL)
+
+# bootstrap
+
+set.seed(830)
+
+trap <- vector()
+pvec <- vector()
+
+for(i in 1:1e4){
+  u <- runif(n=92,min=0,max=1)
+  y <- ifelse(u>pi,0,1)
+  N <- length(y)
+  pvec[i] <- mean(y)
+
+  pyb <- vector()
+
+  for(j in 1:3000){
+    b <- sample(1:92,size=92,replace=T)
+    yb <- y[b]
+    pyb[j] <- mean(yb)             
+    }
+
+  lower.limit <- quantile(pyb,0.025)
+  upper.limit <- quantile(pyb,0.975)
+  trap[i] <- ifelse(lower.limit<=pi & upper.limit>=pi,1,0)
+  }
+
+table(trap,exclude=NULL)
 ```
+
