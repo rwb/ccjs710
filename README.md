@@ -689,3 +689,80 @@ for(i in 1:1e4){
 table(trap,exclude=NULL)
 ```
 
+#### Script #3
+
+* test Ho that probability of two coins flipping heads is equal.
+* conduct test at the 92% confidence level.
+* use Jeffreys prior procedure
+  
+```R
+# coin 1
+
+h1 <- 12
+f1 <- 22
+h1/f1
+
+# coin 2
+
+h2 <- 15
+f2 <- 31
+h2/f2
+
+# build confidence interval
+
+r1 <- rbeta(n=1e5,shape1=1/2+h1,shape2=1/2+f1-h1)
+r2 <- rbeta(n=1e5,shape1=1/2+h2,shape2=1/2+f2-h2)
+hist(r2-r1)
+quantile(r2-r1,c(0.04,0.96))
+```
+
+#### Script #4
+
+* Let's check on the validity of this procedure under repeated sampling
+
+```R
+set.seed(387)
+
+trap <- vector()
+
+for(i in 1:1e4){
+  x1 <- rbinom(n=1,size=22,p=0.5)
+  x2 <- rbinom(n=1,size=31,p=0.5)
+  r1 <- rbeta(n=3e3,shape1=1/2+x1,shape2=1/2+22-x1)
+  r2 <- rbeta(n=3e3,shape1=1/2+x2,shape2=1/2+31-x2)
+  d <- r2-r1
+  lcl.d <- quantile(d,0.04)
+  ucl.d <- quantile(d,0.96)
+  trap[i] <- ifelse(lcl.d<=0 & ucl.d>=0,1,0)
+  }
+
+table(trap)
+```
+
+#### Script #5
+
+* We test the hypothesis that the 2024 homicide rate in Washington DC is equal to the 2024 homicide rate in St. Louis MO -- at the 88% confidence level.
+* We will use the Jeffreys prior.
+
+```R
+set.seed(414)
+
+# st. louis 2024
+
+h1 <- 150
+p1 <- 277294
+h1/p1*100000
+
+# washington dc 2024
+
+h2 <- 179
+p2 <- 702250
+h2/p2*100000
+
+# build confidence interval
+
+r1 <- 100000*rbeta(n=1e5,shape1=1/2+h1,shape2=1/2+p1-h1)
+r2 <- 100000*rbeta(n=1e5,shape1=1/2+h2,shape2=1/2+p2-h2)
+hist(r2-r1)
+quantile(r2-r1,c(0.06,0.94))
+```
