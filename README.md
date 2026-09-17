@@ -537,5 +537,6 @@ age <- c(rep(15,1),rep(16,20),rep(17,224),rep(18,504),rep(19,472),rep(20,626),
 * Here is an example:
 
 <p align="center">
-<img src="/gfiles/f2.png" width="750px">
+<img src="/gfiles/fig1.png" width="600px"
+alt="figure demonstrating the concept of sampling variation">
 </p>
