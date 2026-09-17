@@ -769,7 +769,7 @@ quantile(r2-r1,c(0.06,0.94))
 
 #### Script #6
 
-* introduction to the Minneapolis Domestic Violence Experiment
+* Introduction to the [Minneapolis Domestic Violence Experiment](https://www.jstor.org/stable/pdf/2288920.pdf)
 
 ```R
 # arrest group
