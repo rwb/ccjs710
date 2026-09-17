@@ -526,3 +526,16 @@ age <- c(rep(15,1),rep(16,20),rep(17,224),rep(18,504),rep(19,472),rep(20,626),
   rep(63,8),rep(64,19),rep(65,12),rep(66,9),rep(67,2),rep(68,5),rep(69,3),
   rep(70,6),rep(71,1),rep(73,2),rep(74,2),rep(75,1),rep(77,1),rep(79,1))
 ```
+
+### Lesson 3 - Thursday 9/17/26
+
+* Topic: review of point estimation and confidence intervals
+* Our focus today will be on proportions and the difference between 2 proportions.
+* Let's begin by supposing that there is a population of persons released from prison in the United States in any given year.
+* Now, let's further suppose that the recidivism rate for people in this population is 67.5% (i.e., the population parameter).
+* If we draw simple random samples from this population and estimate the recidivism rate in each sample, we should get estimates that are *close* to the population parameter value.
+* Here is an example:
+
+<p align="center">
+<img src="/gfiles/f2.png" width="750px">
+</p>
