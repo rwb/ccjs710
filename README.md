@@ -1063,27 +1063,21 @@ ucl92
 
 set.seed(831)
 
-da <- subset(d,t=="Arrest")
-di <- subset(d,t=="Informal")
 
-pyi <- vector()
+delta.vec <- vector()
 
 for(i in 1:1e4){
-  bi <- sample(1:221,size=221,replace=T)
-  yni <- di$yn[bi]
-  pyi[i] <- mean(yni)
+  b <- sample(1:313,size=313,replace=T)
+  yb <- d$yn[b]
+  tb <- d$t[b]
+  bf <- data.frame(yb,tb)
+  yi <- mean(bf$yb[bf$tb=="Informal"])
+  ya <- mean(bf$yb[bf$tb=="Arrest"])
+  delta.vec[i] <- yi-ya
   }
 
-pya <- vector()
-
-for(i in 1:1e4){
-  ba <- sample(1:92,size=92,replace=T)
-  yna <- da$yn[ba]
-  pya[i] <- mean(yna)
-  }
-
-quantile(pyi-pya,0.04)
-quantile(pyi-pya,0.96)
-mean(pyi-pya)
-sd(pyi-pya)
+quantile(delta.vec,0.04)
+quantile(delta.vec,0.96)
+mean(delta.vec)
+sd(delta.vec)
 ```
