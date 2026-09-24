@@ -888,5 +888,49 @@ table(d$yn,d$y,exclude=NULL)
 
 lpm <- lm(yn~1+as.factor(t),data=d)
 summary(lpm)
+
+ahat <- unname(coef(lpm)[1])
+bhat <- unname(coef(lpm)[2])
+yhat.informal.lpm <- ahat+bhat
+yhat.informal.lpm
+yhat.arrest.lpm <- ahat
+yhat.arrest.lpm
+delta.lpm <- yhat.informal.lpm-yhat.arrest.lpm
+delta.lpm
 ```
 
+##### Script #6
+
+```R
+# logistic regression model
+
+logistic <- glm(yn~1+as.factor(t),data=d,family=binomial(link="logit"))
+summary(logistic)
+
+ahat <- unname(coef(logistic)[1])
+bhat <- unname(coef(logistic)[2])
+yhat.informal.logistic <- exp(ahat+bhat)/(1+exp(ahat+bhat))
+yhat.informal.logistic
+yhat.arrest.logistic <- exp(ahat)/(1+exp(ahat))
+yhat.arrest.logistic
+delta.logistic <- yhat.informal.logistic-yhat.arrest.logistic
+delta.logistic
+```
+
+##### Script #7
+
+```R
+# probit regression model
+
+probit <- glm(yn~1+as.factor(t),data=d,family=binomial(link="probit"))
+summary(probit)
+
+ahat <- unname(coef(probit)[1])
+bhat <- unname(coef(probit)[2])
+yhat.informal.probit <- pnorm(ahat+bhat)
+yhat.informal.probit
+yhat.arrest.probit <- pnorm(ahat)
+yhat.arrest.probit
+delta.probit <- yhat.informal.probit-yhat.arrest.probit
+delta.probit
+```
