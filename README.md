@@ -963,3 +963,55 @@ or
 yulesq <- (or-1)/(or+1)
 yulesq
 ```
+
+##### Script #9 (start a new R session for this)
+
+```R
+# statistical inference for the average treatment effect
+
+# 92% confidence interval based on normal approximation to the binomial
+# this is also called the Wald confidence interval
+
+t <- c(rep("Arrest",92),rep("Informal",221))
+y <- c(rep("no",92-10),rep("yes",10),rep("no",221-47),rep("yes",47))
+d <- data.frame(t,y)
+head(d,n=10)
+tail(d,n=10)
+mt <- table(y,t,exclude=NULL)
+mt
+
+c11 <- mt[1,1]
+c11
+c12 <- mt[1,2]
+c12
+c21 <- mt[2,1]
+c21
+c22 <- mt[2,2]
+c22
+
+pa <- c21/(c11+c21)
+pa
+pi <- c22/(c12+c22)
+pi
+
+delta <- pi-pa
+delta
+
+na <- mt[1,1]+mt[2,1]
+na
+ni <- mt[1,2]+mt[2,2]
+ni
+
+critical.z <- qnorm(p=0.96,mean=0,sd=1)
+critical.z
+
+se.delta.pt1 <- pi*(1-pi)/ni
+se.delta.pt2 <- pa*(1-pa)/na
+se.delta <- sqrt(se.delta.pt1+se.delta.pt2)
+
+lcl92 <- delta-critical.z*se.delta
+lcl92
+ucl92 <- delta+critical.z*se.delta
+ucl92
+```
+
