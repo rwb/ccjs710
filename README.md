@@ -1048,9 +1048,9 @@ se.delta
 critical.z <- qnorm(p=0.96,mean=0,sd=1)
 critical.z
 
-lcl92 <- delta-critical.z*se.delta
+lcl92 <- delta.lpm-critical.z*se.delta
 lcl92
-ucl92 <- delta+critical.z*se.delta
+ucl92 <- delta.lpm+critical.z*se.delta
 ucl92
 ```
 
