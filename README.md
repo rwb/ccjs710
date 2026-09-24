@@ -820,3 +820,73 @@ pa
 pi <- c22/(c12+c22)
 pi
 ```
+
+### Lesson 4 - Thursday 9/24/26
+
+* We will return to the script we were working on at the end of our last class.
+* Let's begin by creating our dataset.
+
+##### Script #1
+
+```R
+t <- c(rep("Arrest",92),rep("Informal",221))
+y <- c(rep("no",92-10),rep("yes",10),rep("no",221-47),rep("yes",47))
+d <- data.frame(t,y)
+head(d,n=10)
+tail(d,n=10)
+mt <- table(y,t,exclude=NULL)
+mt
+```
+
+##### Script #2
+
+```R
+c11 <- mt[1,1]
+c11
+c12 <- mt[1,2]
+c12
+c21 <- mt[2,1]
+c21
+c22 <- mt[2,2]
+c22
+
+pa <- c21/(c11+c21)
+pa
+pi <- c22/(c12+c22)
+pi
+
+delta <- pi-pa
+delta
+```
+
+##### Script #3
+
+```R
+rr.ratio <- pi/pa
+rr.ratio
+
+odds.ratio <- (pi/(1-pi))/(pa/(1-pa))
+odds.ratio
+
+yulesq <- (odds.ratio-1)/(odds.ratio+1)
+yulesq
+```
+
+##### Script #4
+
+```R
+d$yn <- rep(NA,313)
+d$yn[d$y=="yes"] <- 1
+d$yn[d$y=="no"] <- 0
+table(d$yn,d$y,exclude=NULL)
+```
+
+##### Script #5
+
+```R
+# linear probability model
+
+lpm <- lm(yn~1+as.factor(t),data=d)
+summary(lpm)
+```
+
