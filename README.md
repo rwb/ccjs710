@@ -1015,3 +1015,43 @@ ucl92 <- delta+critical.z*se.delta
 ucl92
 ```
 
+##### Script #10
+
+```R
+# statistical inference for the average treatment effect
+# using the linear probability model
+
+d$yn <- rep(NA,313)
+d$yn[d$y=="yes"] <- 1
+d$yn[d$y=="no"] <- 0
+table(d$yn,d$y,exclude=NULL)
+
+lpm <- lm(yn~1+as.factor(t),data=d)
+summary(lpm)
+
+ahat <- unname(coef(lpm)[1])
+bhat <- unname(coef(lpm)[2])
+yhat.informal.lpm <- ahat+bhat
+yhat.informal.lpm
+yhat.arrest.lpm <- ahat
+yhat.arrest.lpm
+delta.lpm <- yhat.informal.lpm-yhat.arrest.lpm
+delta.lpm
+
+delta.lpm <- bhat
+delta.lpm
+
+vcov(lpm)
+se.delta <- sqrt(vcov(lpm)[2,2])
+se.delta
+
+critical.z <- qnorm(p=0.96,mean=0,sd=1)
+critical.z
+
+lcl92 <- delta-critical.z*se.delta
+lcl92
+ucl92 <- delta+critical.z*se.delta
+ucl92
+```
+
+
