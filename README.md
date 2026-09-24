@@ -902,6 +902,24 @@ delta.lpm
 ##### Script #6
 
 ```R
+# probit regression model
+
+probit <- glm(yn~1+as.factor(t),data=d,family=binomial(link="probit"))
+summary(probit)
+
+ahat <- unname(coef(probit)[1])
+bhat <- unname(coef(probit)[2])
+yhat.informal.probit <- pnorm(ahat+bhat)
+yhat.informal.probit
+yhat.arrest.probit <- pnorm(ahat)
+yhat.arrest.probit
+delta.probit <- yhat.informal.probit-yhat.arrest.probit
+delta.probit
+```
+
+##### Script #7
+
+```R
 # logistic regression model
 
 logistic <- glm(yn~1+as.factor(t),data=d,family=binomial(link="logit"))
@@ -917,20 +935,31 @@ delta.logistic <- yhat.informal.logistic-yhat.arrest.logistic
 delta.logistic
 ```
 
-##### Script #7
+##### Script #8
 
 ```R
-# probit regression model
+# association statistics
 
-probit <- glm(yn~1+as.factor(t),data=d,family=binomial(link="probit"))
-summary(probit)
+# average treatment effect (ATE)
 
-ahat <- unname(coef(probit)[1])
-bhat <- unname(coef(probit)[2])
-yhat.informal.probit <- pnorm(ahat+bhat)
-yhat.informal.probit
-yhat.arrest.probit <- pnorm(ahat)
-yhat.arrest.probit
-delta.probit <- yhat.informal.probit-yhat.arrest.probit
-delta.probit
+delta.logistic <- yhat.informal.logistic-yhat.arrest.logistic
+delta.logistic
+
+# relative risk ratio (rr)
+
+rr.logistic <- yhat.informal.logistic/yhat.arrest.logistic
+rr.logistic
+
+# odds ratio
+
+exp(bhat)
+or.num <- yhat.informal.logistic/(1-yhat.informal.logistic)
+or.den <- yhat.arrest.logistic/(1-yhat.arrest.logistic)
+or <- or.num/or.den
+or
+
+# Yules Q
+
+yulesq <- (or-1)/(or+1)
+yulesq
 ```
