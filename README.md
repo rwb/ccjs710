@@ -1008,6 +1008,7 @@ critical.z
 se.delta.pt1 <- pi*(1-pi)/ni
 se.delta.pt2 <- pa*(1-pa)/na
 se.delta <- sqrt(se.delta.pt1+se.delta.pt2)
+se.delta
 
 lcl92 <- delta-critical.z*se.delta
 lcl92
@@ -1054,4 +1055,35 @@ ucl92 <- delta.lpm+critical.z*se.delta
 ucl92
 ```
 
+##### Script #11
 
+```R
+# statistical inference for the average treatment effect
+# using the bootstrap
+
+set.seed(831)
+
+da <- subset(d,t=="Arrest")
+di <- subset(d,t=="Informal")
+
+pyi <- vector()
+
+for(i in 1:1e4){
+  bi <- sample(1:221,size=221,replace=T)
+  yni <- di$yn[bi]
+  pyi[i] <- mean(yni)
+  }
+
+pya <- vector()
+
+for(i in 1:1e4){
+  ba <- sample(1:92,size=92,replace=T)
+  yna <- da$yn[ba]
+  pya[i] <- mean(yna)
+  }
+
+quantile(pyi-pya,0.04)
+quantile(pyi-pya,0.96)
+mean(pyi-pya)
+sd(pyi-pya)
+```
