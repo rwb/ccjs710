@@ -1081,3 +1081,26 @@ quantile(delta.vec,0.96)
 mean(delta.vec)
 sd(delta.vec)
 ```
+
+#### Practice Dataset
+
+* You can use the dataset below to practice the work we've been doing in class.
+* The *t* variable represents the treatment as it was actually delivered (as opposed to the treatment as it was randomly assigned).
+
+```R
+t <- c(rep("Arrest",63),rep("Informal",1),rep("Arrest",28),
+  rep("Arrest",18),rep("Informal",45),rep("Informal",4),
+  rep("Informal",39),rep("Informal",2),rep("Arrest",22),
+  rep("Informal",2),rep("Informal",40),rep("Arrest",4),
+  rep("Informal",3),rep("Informal",42))
+ 
+y <- c(rep("yes",7),rep("no",56),"no",rep("yes",3),rep("no",25),
+     rep("yes",3),rep("no",15),rep("yes",7),rep("no",38),
+     rep("yes",2),rep("no",2),rep("yes",8),rep("no",31),"yes","no",
+      rep("yes",4),rep("no",18),"yes",rep("no",1),rep("yes",9),
+      rep("no",31),"yes",rep("no",3),rep("no",3),rep("yes",11),
+      rep("no",31))
+ 
+df <- data.frame(t,y)
+table(y,td)
+```
