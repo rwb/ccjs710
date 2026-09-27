@@ -1101,6 +1101,7 @@ y <- c(rep("yes",7),rep("no",56),"no",rep("yes",3),rep("no",25),
       rep("no",31),"yes",rep("no",3),rep("no",3),rep("yes",11),
       rep("no",31))
  
-df <- data.frame(t,y)
-table(y,td)
+d <- data.frame(t,y)
+mt <- table(d$y,d$td)
+mt
 ```
