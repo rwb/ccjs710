@@ -1082,10 +1082,12 @@ mean(delta.vec)
 sd(delta.vec)
 ```
 
-#### Practice Dataset
+### Lesson 5 - Thursday 10/1/26
 
-* You can use the dataset below to practice the work we've been doing in class.
+* Let's consider the practice dataset.
 * The *t* variable represents the treatment as it was actually delivered (as opposed to the treatment as it was randomly assigned).
+
+#### Script #1
 
 ```R
 t <- c(rep("Arrest",63),rep("Informal",1),rep("Arrest",28),
@@ -1104,4 +1106,250 @@ y <- c(rep("yes",7),rep("no",56),"no",rep("yes",3),rep("no",25),
 d <- data.frame(t,y)
 mt <- table(d$y,d$td)
 mt
+
+d$yn <- rep(NA,313)
+d$yn[d$y=="yes"] <- 1
+d$yn[d$y=="no"] <- 0
+table(d$yn,d$y,exclude=NULL)
+
+# logistic regression model
+
+logistic <- glm(yn~1+as.factor(t),data=d,family=binomial(link="logit"))
+summary(logistic)
+ahat <- unname(coef(logistic)[1])
+bhat <- unname(coef(logistic)[2])
+yhat.informal.logistic <- exp(ahat+bhat)/(1+exp(ahat+bhat))
+yhat.informal.logistic
+yhat.arrest.logistic <- exp(ahat)/(1+exp(ahat))
+yhat.arrest.logistic
+
+# association statistics
+# average treatment effect (ATE) or classical treatment effect (CTE)
+
+delta.logistic <- yhat.informal.logistic-yhat.arrest.logistic
+delta.logistic
+
+# relative risk ratio (rr)
+
+rr.logistic <- yhat.informal.logistic/yhat.arrest.logistic
+rr.logistic
+
+# odds ratio
+
+exp(bhat)
+or.num <- yhat.informal.logistic/(1-yhat.informal.logistic)
+or.den <- yhat.arrest.logistic/(1-yhat.arrest.logistic)
+or <- or.num/or.den
+or
+
+# Yules Q
+
+yulesq <- (or-1)/(or+1)
+yulesq
+```
+
+#### Script #2
+
+* Note that what we've done above is calculate point estimates of the conditional failure probabilities (conditional on whether the suspect was actually arrested or not).
+* So far, we don't have a measure of uncertainty for any of these point estimates.
+* We can address this by calculating a confidence interval for each statistic.
+* We will use a 89% confidence interval for this exercise.
+
+```R
+# statistical inference for the average treatment effect
+# using the bootstrap
+
+set.seed(903)
+
+
+delta.boot <- vector()
+rr.boot <- vector()
+or.boot <- vector()
+yulesq.boot <- vector()
+
+for(i in 1:1e4){
+  b <- sample(1:313,size=313,replace=T)
+  yb <- d$yn[b]
+  tb <- d$t[b]
+  logistic.boot <- glm(yb~1+as.factor(tb),family=binomial(link="logit"))
+  ahat.boot <- unname(coef(logistic.boot)[1])
+  bhat.boot <- unname(coef(logistic.boot)[2])
+  yhat.informal.logistic.boot <- exp(ahat.boot+bhat.boot)/(1+exp(ahat.boot+bhat.boot))
+  yhat.arrest.logistic.boot <- exp(ahat.boot)/(1+exp(ahat.boot))
+  delta.boot[i] <- yhat.informal.logistic.boot-yhat.arrest.logistic.boot
+  rr.boot[i] <- yhat.informal.logistic.boot/yhat.arrest.logistic.boot
+  or.boot.num <- yhat.informal.logistic.boot/(1-yhat.informal.logistic.boot)
+  or.boot.den <- yhat.arrest.logistic.boot/(1-yhat.arrest.logistic.boot)
+  or.boot[i] <- or.boot.num/or.boot.den
+  yulesq.boot[i] <- (or.boot[i]-1)/(or.boot[i]+1)
+  }
+
+quantile(delta.boot,c(0.055,1-0.055))
+quantile(rr.boot,c(0.055,1-0.055))
+quantile(or.boot,c(0.055,1-0.055))
+quantile(yulesq.boot,c(0.055,1-0.055))
+```
+
+#### Script #3
+
+* A problem with the bootstrap in these settings is that the distribution of bootstrap estimates can be quite skewed.
+* We are now going to program another procedure that will allow us to address this problem.
+* The process we will use is called the *bias-corrected, accelerated* bootstrap.
+
+```
+# statistical inference for the average treatment effect
+# using the bootstrap based on the boot() library
+
+set.seed(903)
+library(boot)
+
+id <- seq(from=1,to=313,by=1)
+t <- d$t
+yn <- d$yn
+id.y <- data.frame(id,t,yn)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  logistic.boot <- glm(yn~1+as.factor(t),data=b,family=binomial(link="logit"))
+  ahat.boot <- unname(coef(logistic.boot)[1])
+  bhat.boot <- unname(coef(logistic.boot)[2])
+  yhat.informal.logistic.boot <- exp(ahat.boot+bhat.boot)/(1+exp(ahat.boot+bhat.boot))
+  yhat.arrest.logistic.boot <- exp(ahat.boot)/(1+exp(ahat.boot))
+  delta.boot <- yhat.informal.logistic.boot-yhat.arrest.logistic.boot
+  rr.boot <- yhat.informal.logistic.boot/yhat.arrest.logistic.boot
+  or.boot.num <- yhat.informal.logistic.boot/(1-yhat.informal.logistic.boot)
+  or.boot.den <- yhat.arrest.logistic.boot/(1-yhat.arrest.logistic.boot)
+  or.boot <- or.boot.num/or.boot.den
+  yulesq.boot <- (or.boot-1)/(or.boot+1)
+  return(c(delta.boot,rr.boot,or.boot,yulesq.boot))
+}
+
+pdist <- boot(data=id.y,statistic=tboot,R=1e4)
+par(mfrow=c(2,2))
+hist(pdist$t[,1])
+hist(pdist$t[,2])
+hist(pdist$t[,3])
+hist(pdist$t[,4])
+
+boot.ci(pdist,conf=0.89,type="bca",index=1)
+boot.ci(pdist,conf=0.89,type="bca",index=2)
+boot.ci(pdist,conf=0.89,type="bca",index=3)
+boot.ci(pdist,conf=0.89,type="bca",index=4)
+```
+
+#### Script #4
+
+* Here is a new version of the dataset.
+
+```R
+id <- 1:313
+
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(id,ta,td,aggcirc,y)
+head(df)
+tail(df)
+table(y,ta)
+```
+
+#### Script #5
+
+* Now, let's consider what is involved in decomposing the two informal groups.
+* So, we have 3 groups: (1) arrest; (2) advice; and (3) separate
+* ta = treatment as assigned and td = treatment as delivered
+* the y's are now coded as 0's (successes) and 1's (failures)
+* We are now being asked to estimate the failure rates for each group and the confidence intervals for the 3 possible comparisons.
+* The 3 comparisons are: (1) arrest vs. advice; (2) arrest vs. separate; and (3) advice vs. separate.
+* aggcirc = 1 if there are aggravating circumstances and 0 if not (see [Berk and Sherman (1988)](https://www.jstor.org/stable/pdf/2288920.pdf) for details).
+* We can use logistic regression to do this.
+* First, we need to do a global likelihood ratio test; we will conduct our test at the 90% confidence level.
+
+```R
+critical.value <- qchisq(p=0.9,df=2)
+Mr <- glm(y~1,data=df,family=binomial(link="logit"))
+summary(Mr)
+logLik(Mr)
+Mf <- glm(y~1+as.factor(ta),data=df,family=binomial(link="logit"))
+summary(Mf)
+logLik(Mf)
+test.statistic <- 2*abs(logLik(Mf)-logLik(Mr))
+test.statistic
+```
+
+* Once we have completed this test, we now turn to the task of estimating the confidence intervals.
+* We will focus on the difference statistics here.
+* First, we get the point estimates:
+
+```R
+# use logistic regression coefficients to calculate logits
+
+logit.arrest <- unname(coef(Mf)[1])
+logit.arrest
+logit.advice <- unname(coef(Mf)[1])+unname(coef(Mf)[2])
+logit.advice
+logit.separate <- unname(coef(Mf)[1])+unname(coef(Mf)[3])
+logit.separate
+
+# use logits to calculate conditional failure rates
+
+pfail.arrest <- exp(logit.arrest)/(1+exp(logit.arrest))
+pfail.arrest
+pfail.advice <- exp(logit.advice)/(1+exp(logit.advice))
+pfail.advice
+pfail.separate <- exp(logit.separate)/(1+exp(logit.separate))
+pfail.separate
+
+# point estimates of the difference statistics
+
+pfail.advice-pfail.arrest
+pfail.separate-pfail.arrest
+pfail.separate-pfail.advice
+```
+
+* Now that we have the point estimates, we are ready to calculate our confidence intervals:
+
+```R
+set.seed(387)
+library(boot)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  logistic.boot <- glm(y~1+as.factor(ta),data=b,family=binomial(link="logit"))
+  int.b <- unname(coef(logistic.boot)[1])
+  adv.b <- unname(coef(logistic.boot)[2])
+  sep.b <- unname(coef(logistic.boot)[3])
+  logit.arr.b <- int.b
+  logit.adv.b <- int.b+adv.b
+  logit.sep.b <- int.b+sep.b
+  yhat.arr.b <- exp(logit.arr.b)/(1+exp(logit.arr.b))
+  yhat.adv.b <- exp(logit.adv.b)/(1+exp(logit.adv.b))
+  yhat.sep.b <- exp(logit.sep.b)/(1+exp(logit.sep.b))
+  delta.adv.arr.b <- yhat.adv.b-yhat.arr.b
+  delta.sep.arr.b <- yhat.sep.b-yhat.arr.b
+  delta.sep.adv.b <- yhat.sep.b-yhat.adv.b
+  return(c(delta.adv.arr.b,delta.sep.arr.b,delta.sep.adv.b))
+}
+
+pdist <- boot(data=df,statistic=tboot,R=1e4)
+boxplot(pdist$t[,1],pdist$t[,2],pdist$t[,3])
+
+boot.ci(pdist,conf=0.9,type="bca",index=1)
+boot.ci(pdist,conf=0.9,type="bca",index=2)
+boot.ci(pdist,conf=0.9,type="bca",index=3)
 ```
