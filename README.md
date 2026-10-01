@@ -1084,7 +1084,7 @@ sd(delta.vec)
 
 ### Lesson 5 - Thursday 10/1/26
 
-* Let's consider the practice dataset.
+* Let's consider the practice dataset (using treatment delivered as the independent variable, rather than treatment assigned).
 * The *t* variable represents the treatment as it was actually delivered (as opposed to the treatment as it was randomly assigned).
 
 #### Script #1
