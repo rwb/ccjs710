@@ -1104,7 +1104,7 @@ y <- c(rep("yes",7),rep("no",56),"no",rep("yes",3),rep("no",25),
       rep("no",31))
  
 d <- data.frame(t,y)
-mt <- table(d$y,d$td)
+mt <- table(d$y,d$t)
 mt
 
 d$yn <- rep(NA,313)
