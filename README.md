@@ -1353,3 +1353,61 @@ boot.ci(pdist,conf=0.9,type="bca",index=1)
 boot.ci(pdist,conf=0.9,type="bca",index=2)
 boot.ci(pdist,conf=0.9,type="bca",index=3)
 ```
+
+#### Supplementary Material on Dummy Variable Coding
+
+```R
+id <- 1:313
+
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(id,ta,td,aggcirc,y)
+head(df)
+tail(df)
+table(y,ta)
+
+df$ta.arr <- rep(NA,313)
+df$ta.adv <- rep(NA,313)
+df$ta.sep <- rep(NA,313)
+
+df$ta.arr[df$ta==1] <- 1
+df$ta.arr[df$ta==2] <- 0
+df$ta.arr[df$ta==3] <- 0
+
+df$ta.adv[df$ta==1] <- 0
+df$ta.adv[df$ta==2] <- 1
+df$ta.adv[df$ta==3] <- 0
+
+df$ta.sep[df$ta==1] <- 0
+df$ta.sep[df$ta==2] <- 0
+df$ta.sep[df$ta==3] <- 1
+
+head(df)
+tail(df)
+
+# using as.factor() coding
+
+Mf.ver1 <- glm(y~1+as.factor(ta),data=df,family=binomial(link="logit"))
+summary(Mf.ver1)
+
+# using dummy coding
+
+Mf.ver2 <- glm(y~1+ta.arr+ta.adv+ta.sep,data=df,family=binomial(link="logit"))
+summary(Mf.ver2)
+```
