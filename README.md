@@ -1408,6 +1408,6 @@ summary(Mf.ver1)
 
 # using dummy coding
 
-Mf.ver2 <- glm(y~1+ta.arr+ta.adv+ta.sep,data=df,family=binomial(link="logit"))
+Mf.ver2 <- glm(y~1+ta.adv+ta.sep,data=df,family=binomial(link="logit"))
 summary(Mf.ver2)
 ```
