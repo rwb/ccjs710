@@ -1411,3 +1411,5 @@ summary(Mf.ver1)
 Mf.ver2 <- glm(y~1+ta.adv+ta.sep,data=df,family=binomial(link="logit"))
 summary(Mf.ver2)
 ```
+
+### Lesson 6 - Thursday 10/8/26
