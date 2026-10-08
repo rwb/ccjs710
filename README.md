@@ -1799,7 +1799,7 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * calculate the sample mean and the sample median
 * estimate a 85% confidence interval for each sample statistic
 * for each confidence interval address whether the true population parameter value was trapped
-* design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
+* for either the mean or the median, design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
 * what do you conclude about the coverage rate of your two confidence interval procedures (the mean and the median)
 
 2. The data below come from the FBI's Uniform Crime Reports for 2018.
@@ -1812,5 +1812,15 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * calculate a 87% confidence interval for the murder rate in Philadelphia
 * calculate a 87% confidence interval for the murder rate in Pittsburgh
 * test the hypothesis that the 2 murder rates are equal to each other (use a 87% confidence level for your test)
+* develop and implement a simulation study to measure the coverage rate for the confidence interval you used for your test
+ 
+3. Using the Minneapolis dataset with treatment as delivered.
 
-3. 
+* estimate a probit regression model examining the failure rates for each of the 3 treatment groups.
+* estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
+* conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
+* with the probit model you estimated, calculate the difference statistics for each of the 3 groups.
+* calculate individual tests of whether each difference is equal to zero for each pair of group comparisons (75% confidence level)
+* estimate a new probit model controlling for aggravating circumstances
+* conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
+* based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
