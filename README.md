@@ -1477,10 +1477,12 @@ Mr <- glm(y~1,data=df,family=binomial(link="logit"))
 summary(Mr)
 logLik(Mr)
 
+# calculate likelihood ratio test
+
 ts <- 2*abs(logLik(Mf)-logLik(Mr))
 attributes(ts) <- NULL
 ts
-cv <- qchisq(p=0.88,df=2)
+cv <- qchisq(p=0.82,df=3-1)
 cv
 ifelse(ts>cv,"reject","fail to reject")
 ```
@@ -1593,4 +1595,168 @@ p.sim.sep <- exp(sim.logit.sep)/(1+exp(sim.logit.sep))
 quantile(p.sim.adv-p.sim.arr,c(0.06,0.94))
 quantile(p.sim.sep-p.sim.arr,c(0.06,0.94))
 quantile(p.sim.sep-p.sim.adv,c(0.06,0.94))
+```
+
+* Now, we will complicate the model by adding the control variable for aggravating circumstances to the specification.
+* Let's begin by starting a new R session and reading in the dataset again.
+* We will use a 82% confidence level for our likelihood ratio test.
+
+#### Script #6
+
+```R
+id <- 1:313
+
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(id,ta,td,aggcirc,y)
+head(df)
+tail(df)
+
+df$ta.arr <- rep(NA,313)
+df$ta.adv <- rep(NA,313)
+df$ta.sep <- rep(NA,313)
+
+df$ta.arr[df$ta==1] <- 1
+df$ta.arr[df$ta==2] <- 0
+df$ta.arr[df$ta==3] <- 0
+
+df$ta.adv[df$ta==1] <- 0
+df$ta.adv[df$ta==2] <- 1
+df$ta.adv[df$ta==3] <- 0
+
+df$ta.sep[df$ta==1] <- 0
+df$ta.sep[df$ta==2] <- 0
+df$ta.sep[df$ta==3] <- 1
+
+table(y,ta,aggcirc)
+
+# full model
+
+Mf <- glm(y~1+ta.adv+ta.sep+aggcirc,data=df,family=binomial(link="logit"))
+summary(Mf)
+logLik(Mf)
+
+# reduced model
+
+Mr <- glm(y~1,data=df,family=binomial(link="logit"))
+summary(Mr)
+logLik(Mr)
+
+# calculate likelihood ratio test
+
+ts <- 2*abs(logLik(Mf)-logLik(Mr))
+attributes(ts) <- NULL
+ts
+cv <- qchisq(p=0.82,df=4-1)
+cv
+ifelse(ts>cv,"reject","fail to reject")
+```
+
+* With these results in hand, we can now calculate the estimated confidence intervals for our same difference statistics.
+* The difference between these results and our previous results is that these confidence intervals will take into consideration that we've held aggravating circumstances constant (for this example, we will hold aggcirc constant at the zero level).
+  
+#### Script #7
+
+```R
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+# simulate coefficients based on the model
+
+library(MASS)
+sb <- mvrnorm(n=1e4,mu=B,Sigma=V)
+
+# estimated failure rate distribution for arrest group
+
+logit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0+B[4]*0)
+logit.arr
+exp(logit.arr)/(1+exp(logit.arr))
+sim.logit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0+sb[,4]*0
+p.sim.arr <- exp(sim.logit.arr)/(1+exp(sim.logit.arr))
+
+# estimated failure rate distribution for advice group
+
+logit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0)+B[4]*0)
+logit.adv
+exp(logit.adv)/(1+exp(logit.adv))
+sim.logit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0+sb[,4]*0
+p.sim.adv <- exp(sim.logit.adv)/(1+exp(sim.logit.adv))
+
+# estimated failure rate distribution for separate group
+
+logit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1+B[4]*0)
+logit.sep
+exp(logit.sep)/(1+exp(logit.sep))
+sim.logit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1+sb[,4]*0
+p.sim.sep <- exp(sim.logit.sep)/(1+exp(sim.logit.sep))
+
+# now lets look at the confidence intervals for each of
+# the estimated difference statistics
+
+quantile(p.sim.adv-p.sim.arr,c(0.09,0.91))
+quantile(p.sim.sep-p.sim.arr,c(0.09,0.91))
+quantile(p.sim.sep-p.sim.adv,c(0.09,0.91))
+```
+
+* Then, we could do the same set of calculations setting aggcirc equal to 1.
+
+```R
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+# simulate coefficients based on the model
+
+library(MASS)
+sb <- mvrnorm(n=1e4,mu=B,Sigma=V)
+
+# estimated failure rate distribution for arrest group
+
+logit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0+B[4]*1)
+logit.arr
+exp(logit.arr)/(1+exp(logit.arr))
+sim.logit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0+sb[,4]*1
+p.sim.arr <- exp(sim.logit.arr)/(1+exp(sim.logit.arr))
+
+# estimated failure rate distribution for advice group
+
+logit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0)+B[4]*1)
+logit.adv
+exp(logit.adv)/(1+exp(logit.adv))
+sim.logit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0+sb[,4]*1
+p.sim.adv <- exp(sim.logit.adv)/(1+exp(sim.logit.adv))
+
+# estimated failure rate distribution for separate group
+
+logit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1+B[4]*1)
+logit.sep
+exp(logit.sep)/(1+exp(logit.sep))
+sim.logit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1+sb[,4]*1
+p.sim.sep <- exp(sim.logit.sep)/(1+exp(sim.logit.sep))
+
+# now lets look at the confidence intervals for each of
+# the estimated difference statistics
+
+quantile(p.sim.adv-p.sim.arr,c(0.09,0.91))
+quantile(p.sim.sep-p.sim.arr,c(0.09,0.91))
+quantile(p.sim.sep-p.sim.adv,c(0.09,0.91))
 ```
