@@ -1801,7 +1801,7 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * for each confidence interval address whether the true population parameter value was trapped
 * for either the mean or the median, design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
 * what do you conclude about the coverage rate of your two confidence interval procedures (the mean and the median)
-* design and implement a procedure for using your sample data to test the hypothesis that the mean and median are equal to each other in the population (conduct your test at the 85% confidence level).
+* design and implement a procedure for using your sample data to test the hypothesis that the mean and median are equal to each other in the population (conduct your test at the 85% confidence level); what do you conclude?
 
 2. The data below come from the FBI's Uniform Crime Reports for 2018.
 
