@@ -1482,7 +1482,7 @@ logLik(Mr)
 ts <- 2*abs(logLik(Mf)-logLik(Mr))
 attributes(ts) <- NULL
 ts
-cv <- qchisq(p=0.82,df=3-1)
+cv <- qchisq(p=0.88,df=3-1)
 cv
 ifelse(ts>cv,"reject","fail to reject")
 ```
