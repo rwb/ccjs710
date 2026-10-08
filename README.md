@@ -1760,3 +1760,46 @@ quantile(p.sim.adv-p.sim.arr,c(0.09,0.91))
 quantile(p.sim.sep-p.sim.arr,c(0.09,0.91))
 quantile(p.sim.sep-p.sim.adv,c(0.09,0.91))
 ```
+
+---
+
+#### Practice Questions For Mid-Term Exam
+
+1. The dataset below reports the time served in prison (in months) at the time of release among people who left prison in NC in 1980. This dataset is a population.
+
+```R
+set.seed(your student id number)
+
+ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
+  rep(6,637),rep(7,402),rep(8,357),rep(9,293),rep(10,259),rep(11,218),rep(12,297),
+  rep(13,187),rep(14,191),rep(15,175),rep(16,142),rep(17,150),rep(18,130),
+  rep(19,116),rep(20,133),rep(21,112),rep(22,99),rep(23,103),rep(24,102),
+  rep(25,97),rep(26,78),rep(27,81),rep(28,76),rep(29,93),rep(30,88),rep(31,82),
+  rep(32,74),rep(33,71),rep(34,59),rep(35,67),rep(36,79),rep(37,58),rep(38,50),
+  rep(39,40),rep(40,50),rep(41,42),rep(42,37),rep(43,37),rep(44,43),rep(45,33),
+  rep(46,40),rep(47,40),rep(48,38),rep(49,26),rep(50,25),rep(51,36),rep(52,24),
+  rep(53,31),rep(54,31),rep(55,26),rep(56,23),rep(57,30),rep(58,28),rep(59,17),
+  rep(60,19),rep(61,33),rep(62,18),rep(63,15),rep(64,16),rep(65,15),rep(66,12),
+  rep(67,10),rep(68,22),rep(69,11),rep(70,10),rep(71,24),rep(72,17),rep(73,13),
+  rep(74,14),rep(75,12),rep(76,6),rep(77,11),rep(78,10),rep(79,12),rep(80,10),
+  rep(81,15),rep(82,10),rep(83,10),rep(84,7),rep(85,4),rep(86,3),rep(87,6),
+  rep(88,7),rep(89,5),rep(90,10),rep(91,7),rep(92,5),rep(93,4),rep(94,2),rep(95,3),
+  rep(96,9),rep(97,4),rep(98,7),99,100,rep(101,4),102,rep(103,4),
+  rep(104,4),105,rep(107,5),rep(108,8),rep(109,3),rep(110,3),
+  rep(111,2),rep(112,7),113,rep(114,3),115,rep(116,8),rep(118,3),119,
+  rep(120,2),rep(121,4),122,rep(123,2),rep(124,4),125,126,127,127,
+  rep(128,2),129,130,130,rep(132,3),133,134,136,140,rep(141,3),143,144,145,
+  146,147,148,rep(149,2),150,152,153,153,156,156,157,158,158,159,166,167,168,
+  170,170,172,175,176,rep(177,4),180,182,182,183,183,191,194,197,207,216,225,
+  226,241,253,256,264,266,267,268,271,273,287,324,354)
+```
+
+* calculate the population size and the population mean and median time served
+* draw a simple random sample of size N = 300 from this population
+* calculate the sample mean and the sample median
+* estimate a 85% confidence interval for each sample statistic
+* for each confidence interval address whether the true population parameter value was trapped
+* design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
+* what do you conclude about the coverage rate of your two confidence interval procedures (the mean and the median)
+
+2. 
