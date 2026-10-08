@@ -1831,10 +1831,26 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 #### Addendum
 
 ```R
-set.seed(403)
+set.seed(404)
 
 ss <- sample(1:9549,size=300,replace=T)
 yss <- ts80[ss]
+
+# bootstrap - percentile method
+
+delta <- vector()
+mnvec <- vector()
+mdvec <- vector()
+
+for(i in 1:1e4){
+  b <- sample(1:300,size=300,replace=T)
+  yb <- yss[b]
+  mnvec[i] <- mean(yb)
+  mdvec[i] <- median(yb)
+  delta[i] <- mnvec[i]-mdvec[i]
+  }
+
+quantile(delta,c(0.075,0.925))
 
 # using the boot library
 
