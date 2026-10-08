@@ -1413,3 +1413,184 @@ summary(Mf.ver2)
 ```
 
 ### Lesson 6 - Thursday 10/8/26
+
+* Let's begin by reading in the Minneapolis dataset again:
+
+#### Script #1
+
+```R
+id <- 1:313
+
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(id,ta,td,aggcirc,y)
+head(df)
+tail(df)
+table(y,ta)
+```
+
+* Next, let's create 2 dummy variables to represent the 3 treatment-as-assigned groups.
+* Then, we estimate our logistic regression model:
+
+#### Script #2
+
+```R
+df$ta.arr <- rep(NA,313)
+df$ta.adv <- rep(NA,313)
+df$ta.sep <- rep(NA,313)
+
+df$ta.arr[df$ta==1] <- 1
+df$ta.arr[df$ta==2] <- 0
+df$ta.arr[df$ta==3] <- 0
+
+df$ta.adv[df$ta==1] <- 0
+df$ta.adv[df$ta==2] <- 1
+df$ta.adv[df$ta==3] <- 0
+
+df$ta.sep[df$ta==1] <- 0
+df$ta.sep[df$ta==2] <- 0
+df$ta.sep[df$ta==3] <- 1
+
+# using dummy coding
+
+Mf <- glm(y~1+ta.adv+ta.sep,data=df,family=binomial(link="logit"))
+summary(Mf)
+logLik(Mf)
+
+Mr <- glm(y~1,data=df,family=binomial(link="logit"))
+summary(Mr)
+logLik(Mr)
+
+ts <- 2*abs(logLik(Mf)-logLik(Mr))
+attributes(ts) <- NULL
+ts
+cv <- qchisq(p=0.88,df=2)
+cv
+ifelse(ts>cv,"reject","fail to reject")
+```
+
+* Next, we calculate our point estimates of p(fail|treatment as assigned)
+
+#### Script #3
+
+```R
+# use logistic regression coefficients to calculate logits
+
+logit.arrest <- unname(coef(Mf)[1])
+logit.arrest
+logit.advice <- unname(coef(Mf)[1])+unname(coef(Mf)[2])
+logit.advice
+logit.separate <- unname(coef(Mf)[1])+unname(coef(Mf)[3])
+logit.separate
+
+# use logits to calculate conditional failure rates
+
+pfail.arrest <- exp(logit.arrest)/(1+exp(logit.arrest))
+pfail.arrest
+pfail.advice <- exp(logit.advice)/(1+exp(logit.advice))
+pfail.advice
+pfail.separate <- exp(logit.separate)/(1+exp(logit.separate))
+pfail.separate
+
+# point estimates of the difference statistics
+
+pfail.advice-pfail.arrest
+pfail.separate-pfail.arrest
+pfail.separate-pfail.advice
+```
+
+* We calculate the likelihood ratio test using the 88% confidence level.
+* And, we use the bootstrap to calculate the 88% confidence intervals around each of the 3 difference statistics.
+
+#### Script #4
+
+```R
+set.seed(403)
+library(boot)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  Mb <- glm(y~1+ta.adv+ta.sep,data=b,family=binomial(link="logit"))
+  int.b <- unname(coef(Mb)[1])
+  adv.b <- unname(coef(Mb)[2])
+  sep.b <- unname(coef(Mb)[3])
+  logit.arr.b <- int.b
+  logit.adv.b <- int.b+adv.b
+  logit.sep.b <- int.b+sep.b
+  yhat.arr.b <- exp(logit.arr.b)/(1+exp(logit.arr.b))
+  yhat.adv.b <- exp(logit.adv.b)/(1+exp(logit.adv.b))
+  yhat.sep.b <- exp(logit.sep.b)/(1+exp(logit.sep.b))
+  delta.adv.arr.b <- yhat.adv.b-yhat.arr.b
+  delta.sep.arr.b <- yhat.sep.b-yhat.arr.b
+  delta.sep.adv.b <- yhat.sep.b-yhat.adv.b
+  return(c(delta.adv.arr.b,delta.sep.arr.b,delta.sep.adv.b))
+}
+
+pdist <- boot(data=df,statistic=tboot,R=1e4)
+boot.ci(pdist,conf=0.88,type="bca",index=1)
+boot.ci(pdist,conf=0.88,type="bca",index=2)
+boot.ci(pdist,conf=0.88,type="bca",index=3)
+```
+
+* Now, we consider another approach discussed in detail in [Gary King's paper](https://www.jstor.org/stable/2669316).
+  
+#### Script #5
+
+```R
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+# simulate coefficients based on the model
+
+library(MASS)
+sb <- mvrnorm(n=1e4,mu=B,Sigma=V)
+
+# estimated failure rate distribution for arrest group
+
+logit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0)
+logit.arr
+exp(logit.arr)/(1+exp(logit.arr))
+sim.logit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0
+p.sim.arr <- exp(sim.logit.arr)/(1+exp(sim.logit.arr))
+
+# estimated failure rate distribution for advice group
+
+logit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0)
+logit.adv
+exp(logit.adv)/(1+exp(logit.adv))
+sim.logit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0
+p.sim.adv <- exp(sim.logit.adv)/(1+exp(sim.logit.adv))
+
+# estimated failure rate distribution for separate group
+
+logit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1)
+logit.sep
+exp(logit.sep)/(1+exp(logit.sep))
+sim.logit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1
+p.sim.sep <- exp(sim.logit.sep)/(1+exp(sim.logit.sep))
+
+# now lets look at the confidence intervals for each of
+# the estimated difference statistics
+
+quantile(p.sim.adv-p.sim.arr,c(0.06,0.94))
+quantile(p.sim.sep-p.sim.arr,c(0.06,0.94))
+quantile(p.sim.sep-p.sim.adv,c(0.06,0.94))
+```
