@@ -1827,3 +1827,28 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * estimate a new probit model controlling for aggravating circumstances
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
 * based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
+
+#### Addendum
+
+```R
+set.seed(403)
+
+ss <- sample(1:9549,size=300,replace=T)
+yss <- ts80[ss]
+
+# using the boot library
+
+library(boot)
+
+id <- seq(from=1,to=300,by=1)
+df <- data.frame(id,yss)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  deltab <- mean(b$y)-median(b$y)
+  return(deltab)
+}
+
+pdist <- boot(data=df,statistic=tboot,R=1e4)
+boot.ci(pdist,conf=0.85,type="bca",index=1)
+```
