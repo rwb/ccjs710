@@ -1739,7 +1739,7 @@ p.sim.arr <- exp(sim.logit.arr)/(1+exp(sim.logit.arr))
 
 # estimated failure rate distribution for advice group
 
-logit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0)+B[4]*1)
+logit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0+B[4]*1)
 logit.adv
 exp(logit.adv)/(1+exp(logit.adv))
 sim.logit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0+sb[,4]*1
