@@ -1802,4 +1802,11 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
 * what do you conclude about the coverage rate of your two confidence interval procedures (the mean and the median)
 
-2. 
+2. Using data from the FBI's Uniform Crime Reports in 2018, test the hypothesis that the murder rates in Philadelphia and Pittsburgh are equal to each other. Use a 87% confidence interval for your test.
+
+| City    | # of Murders | Population |
+| :---------- |---:|---:|
+| Philadelphia  | 351  |  1,586,916  |
+| Pittsburgh  | 57  |  302,544  |
+
+3. 
