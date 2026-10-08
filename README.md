@@ -1768,7 +1768,7 @@ quantile(p.sim.sep-p.sim.adv,c(0.09,0.91))
 1. The dataset below reports the time served in prison (in months) at the time of release among people who left prison in NC in 1980. This dataset is a population.
 
 ```R
-set.seed(your student id number)
+set.seed(821)
 
 ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
   rep(6,637),rep(7,402),rep(8,357),rep(9,293),rep(10,259),rep(11,218),rep(12,297),
@@ -1809,6 +1809,7 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 | Philadelphia  | 351  |  1,586,916  |
 | Pittsburgh  | 57  |  302,544  |
 
+* use 821 as a random number seed
 * calculate a 87% confidence interval for the murder rate in Philadelphia
 * calculate a 87% confidence interval for the murder rate in Pittsburgh
 * test the hypothesis that the 2 murder rates are equal to each other (use a 87% confidence level for your test)
@@ -1816,6 +1817,7 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
  
 3. Using the Minneapolis dataset with treatment as delivered.
 
+* use 821 as a random number seed
 * estimate a probit regression model examining the failure rates for each of the 3 treatment groups.
 * estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
