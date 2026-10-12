@@ -2016,7 +2016,7 @@ solution: the answer is "yes" in both cases; the population mean is 18.714 month
 
 * what do you conclude about the coverage rate of your confidence interval procedure (the mean or the median)?
 
-solution: I conclude that my procedure's repeated sampling coverage rate (93.5%) exceeded the *nominal* or "as-advertised" coverage rate of 85%.
+solution: based on my procedure that calculates the so-called *exact* confidence interval for the median, I conclude that my procedure's repeated sampling coverage rate (93.5%) exceeded the *nominal* or "as-advertised" coverage rate of 85%.
   
 * design and implement a procedure for using your sample data to test the hypothesis that the mean and median are equal to each other in the population (conduct your test at the 85% confidence level); what do you conclude?
 
