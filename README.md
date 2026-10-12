@@ -2178,54 +2178,54 @@ trap
 311 311  3  3       0 0
 312 312  3  3       0 0
 313 313  3  3       0 0
->
-> df$ta.arr <- rep(NA,313)
-> df$ta.adv <- rep(NA,313)
-> df$ta.sep <- rep(NA,313)
 > 
-> df$ta.arr[df$ta==1] <- 1
-> df$ta.arr[df$ta==2] <- 0
-> df$ta.arr[df$ta==3] <- 0
+> df$td.arr <- rep(NA,313)
+> df$td.adv <- rep(NA,313)
+> df$td.sep <- rep(NA,313)
 > 
-> df$ta.adv[df$ta==1] <- 0
-> df$ta.adv[df$ta==2] <- 1
-> df$ta.adv[df$ta==3] <- 0
+> df$td.arr[df$td==1] <- 1
+> df$td.arr[df$td==2] <- 0
+> df$td.arr[df$td==3] <- 0
 > 
-> df$ta.sep[df$ta==1] <- 0
-> df$ta.sep[df$ta==2] <- 0
-> df$ta.sep[df$ta==3] <- 1
+> df$td.adv[df$td==1] <- 0
+> df$td.adv[df$td==2] <- 1
+> df$td.adv[df$td==3] <- 0
+> 
+> df$td.sep[df$td==1] <- 0
+> df$td.sep[df$td==2] <- 0
+> df$td.sep[df$td==3] <- 1
 > 
 ```
 
 * estimate a probit regression model examining the failure rates for each of the 3 treatment groups.
 
 ```Rout
-> Mf <- glm(y~1+ta.adv+ta.sep,data=df,family=binomial(link="probit"))
+> Mf <- glm(y~1+td.adv+td.sep,data=df,family=binomial(link="probit"))
 > summary(Mf)
 
 Call:
-glm(formula = y ~ 1 + ta.adv + ta.sep, family = binomial(link = "probit"), 
+glm(formula = y ~ 1 + td.adv + td.sep, family = binomial(link = "probit"), 
     data = df)
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  -1.2335     0.1741  -7.087 1.38e-12 ***
-ta.adv        0.3719     0.2224   1.672   0.0945 .  
-ta.sep        0.4949     0.2175   2.276   0.0229 *  
+(Intercept)  -1.1108     0.1359  -8.173 3.01e-16 ***
+td.adv        0.1945     0.2063   0.943   0.3457    
+td.sep        0.4626     0.1976   2.340   0.0193 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
     Null deviance: 297.08  on 312  degrees of freedom
-Residual deviance: 291.56  on 310  degrees of freedom
-AIC: 297.56
+Residual deviance: 291.58  on 310  degrees of freedom
+AIC: 297.58
 
 Number of Fisher Scoring iterations: 4
 
 > logLik(Mf)
-'log Lik.' -145.7792 (df=3)
->
+'log Lik.' -145.7898 (df=3)
+> 
 ```
 
 * estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
@@ -2253,10 +2253,12 @@ Number of Fisher Scoring iterations: 4
 
 > logLik(Mr)
 'log Lik.' -148.5423 (df=1)
->
+> 
 ```
 
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
+
+```
 * with the probit model you estimated, calculate the difference statistics for each of the 3 groups.
 * calculate individual tests of whether each difference is equal to zero for each pair of group comparisons (75% confidence level)
 * estimate a new probit model controlling for aggravating circumstances
