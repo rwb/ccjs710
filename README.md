@@ -1800,7 +1800,7 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 * estimate a 85% confidence interval for each sample statistic
 * for each confidence interval address whether the true population parameter value was trapped
 * for either the mean or the median, design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value. 
-* what do you conclude about the coverage rate of your two confidence interval procedures (the mean or the median)
+* what do you conclude about the coverage rate of your confidence interval procedure (the mean or the median)
 * design and implement a procedure for using your sample data to test the hypothesis that the mean and median are equal to each other in the population (conduct your test at the 85% confidence level); what do you conclude?
 
 2. The data below come from the FBI's Uniform Crime Reports for 2018.
@@ -1868,3 +1868,207 @@ tboot <- function(data,i){
 pdist <- boot(data=df,statistic=tboot,R=1e4)
 boot.ci(pdist,conf=0.85,type="bca",index=1)
 ```
+
+#### Practice Problem Solutions
+
+1. The dataset below reports the time served in prison (in months) at the time of release among people who left prison in NC in 1980. This dataset is a population.
+
+```R
+set.seed(821)
+
+ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
+  rep(6,637),rep(7,402),rep(8,357),rep(9,293),rep(10,259),rep(11,218),rep(12,297),
+  rep(13,187),rep(14,191),rep(15,175),rep(16,142),rep(17,150),rep(18,130),
+  rep(19,116),rep(20,133),rep(21,112),rep(22,99),rep(23,103),rep(24,102),
+  rep(25,97),rep(26,78),rep(27,81),rep(28,76),rep(29,93),rep(30,88),rep(31,82),
+  rep(32,74),rep(33,71),rep(34,59),rep(35,67),rep(36,79),rep(37,58),rep(38,50),
+  rep(39,40),rep(40,50),rep(41,42),rep(42,37),rep(43,37),rep(44,43),rep(45,33),
+  rep(46,40),rep(47,40),rep(48,38),rep(49,26),rep(50,25),rep(51,36),rep(52,24),
+  rep(53,31),rep(54,31),rep(55,26),rep(56,23),rep(57,30),rep(58,28),rep(59,17),
+  rep(60,19),rep(61,33),rep(62,18),rep(63,15),rep(64,16),rep(65,15),rep(66,12),
+  rep(67,10),rep(68,22),rep(69,11),rep(70,10),rep(71,24),rep(72,17),rep(73,13),
+  rep(74,14),rep(75,12),rep(76,6),rep(77,11),rep(78,10),rep(79,12),rep(80,10),
+  rep(81,15),rep(82,10),rep(83,10),rep(84,7),rep(85,4),rep(86,3),rep(87,6),
+  rep(88,7),rep(89,5),rep(90,10),rep(91,7),rep(92,5),rep(93,4),rep(94,2),rep(95,3),
+  rep(96,9),rep(97,4),rep(98,7),99,100,rep(101,4),102,rep(103,4),
+  rep(104,4),105,rep(107,5),rep(108,8),rep(109,3),rep(110,3),
+  rep(111,2),rep(112,7),113,rep(114,3),115,rep(116,8),rep(118,3),119,
+  rep(120,2),rep(121,4),122,rep(123,2),rep(124,4),125,126,127,127,
+  rep(128,2),129,130,130,rep(132,3),133,134,136,140,rep(141,3),143,144,145,
+  146,147,148,rep(149,2),150,152,153,153,156,156,157,158,158,159,166,167,168,
+  170,170,172,175,176,rep(177,4),180,182,182,183,183,191,194,197,207,216,225,
+  226,241,253,256,264,266,267,268,271,273,287,324,354)
+```
+
+* calculate the population size and the population mean and median time served
+
+```Rout
+> length(ts80)
+[1] 9549
+>
+> mean(ts80)
+[1] 18.71442
+> median(ts80)
+[1] 9
+>
+
+answer: there are 9,549 cases in the population; the mean time served was 18.714 months and the median was 9 months.
+
+* draw a simple random sample of size N = 300 from this population
+
+```Rout
+> s <- sample(1:9549,size=300,replace=T)
+> ts80.s <- ts80[s]
+> ts80.s
+  [1]   4  28   7  46   3   8   6  14  70  27  43   7   5   3   4
+ [16]  20  46  11  58  35   2  44   9   8   4   1  29   5  20   4
+ [31]   6  49   3   4  10   4  15  13  15   9   4   5   1   5   6
+ [46]  16   0  22  38   6   3   4  16   9  50   8   6   6   2  20
+ [61]   5   2 101  23  79   1   6   8  63   6   2   5   5  30  37
+ [76]  14  31   5  14  31  14   0   4  48  21   1   5  12  40  10
+ [91]  17  52  12   5  44  32  26   3   3  20  30  31  29   5   1
+[106]  19   8  38  14   7  42  14  15   3   4  15   4   9   7  15
+[121]  27  39  76  14   5   2   5  12  49  54   7  17  32   3   2
+[136]   4  10  48   4  59   4   2 136   4  59   5   1   3   2   2
+[151]  11  40  28   5  97  17   2  13  81   4   5  41  19  24   6
+[166]  11   3  10  17   4  23  17  10   9   5  68  15   6  16   1
+[181]   9  28   4   4   5  20  37   4  33  25   2   9  32   7  29
+[196]   8  14   6   5   6  14   2   1  17  10  24   7   3  10   4
+[211]  53   6  19   3   4  12  12   8   6   4   2  32  16  22 225
+[226]  57  41   5  46   2   4  40  45   3  16  65   7  29   6   6
+[241]   2   8  40   5  13   4   4   5  40   2  10  40  11  12  12
+[256]   5   2   2  39   3   2  28  24   4   9  93   7  38  11  36
+[271]  11   8  37  17   9   1   8   7  20   4  24  11  22   7  51
+[286]  70  19  25   7  21  16  12   4  26   4   3  16  24   9  21
+> 
+
+```
+* calculate the sample mean and the sample median
+
+```Rout
+> mean(ts80.s)
+[1] 18.56
+> median(ts80.s)
+[1] 10
+>
+```
+
+solution: the sample mean is 18.56 months and the sample median is 10 months.
+
+* estimate a 85% confidence interval for each sample statistic
+
+solution part 1: first we calculate the confidence interval for the sample mean
+
+```Rout
+> ct <- qt(p=0.935,df=300-1)
+> ct
+[1] 1.518282
+> 
+> lcl <- mean(ts80.s)-ct*sd(ts80.s)/sqrt(300)
+> lcl
+[1] 16.53427
+> ucl <- mean(ts80.s)+ct*sd(ts80.s)/sqrt(300)
+> ucl
+[1] 20.58573
+> 
+```
+so, the 85% confidence interval is [16.534,20.586] (in months).
+
+solution part 2: now, the sample median
+
+```Rout
+> library(DescTools)
+> ci <- MedianCI(ts80.s,conf.level=0.85,method="boot")
+> ci
+median lwr.ci upr.ci 
+    10      9     12 
+> 
+```
+
+and, the 85% confidence interval for the sample median is [9,12] (in months).
+
+
+* for each confidence interval address whether the true population parameter value was trapped
+
+solution: the answer is "yes" in both cases; the sample mean is 18.56 months which is inside the [16.534,20.586] interval and the sample median is 10 months which is inside the [9,12] interval. *note*: remember that if the sample estimate is equal to either the lower or upper bound of the confidence interval, the sample estimate is trapped by the confidence interval.
+
+* for either the mean or the median, design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value.
+
+```Rout
+> library(DescTools)
+> 
+> trap <- vector()
+> 
+> for(i in 1:3e3){
++   rs <- sample(1:9549,size=300,replace=T)
++   ts80.rs <- ts80[rs]
++   ci <- MedianCI(ts80.rs,conf.level=0.85,method="exact")
++   lcl <- ci[2]
++   ucl <- ci[3]
++   trap[i] <- ifelse(lcl<=median(ts80) & ucl>=median(ts80),1,0)
++   }
+> 
+> mean(trap)
+[1] 0.9346667
+> 
+```
+
+* what do you conclude about the coverage rate of your confidence interval procedure (the mean or the median)?
+
+solution: I conclude that my procedure's repeated sampling coverage rate (93.5%) exceeded the *nominal* or "as-advertised" coverage rate of 85%.
+  
+* design and implement a procedure for using your sample data to test the hypothesis that the mean and median are equal to each other in the population (conduct your test at the 85% confidence level); what do you conclude?
+
+```Rout
+> library(boot)
+> 
+> id <- seq(from=1,to=300,by=1)
+> df <- data.frame(id,ts80.s)
+> 
+> tboot <- function(data,i){
++   b <- data[i,]
++   deltab <- mean(b$ts80.s)-median(b$ts80.s)
++   return(deltab)
++ }
+> 
+> pdist <- boot(data=df,statistic=tboot,R=1e4)
+> boot.ci(pdist,conf=0.85,type="bca",index=1)
+BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+Based on 10000 bootstrap replicates
+
+CALL : 
+boot.ci(boot.out = pdist, conf = 0.85, type = "bca", index = 1)
+
+Intervals : 
+Level       BCa          
+85%   ( 7.147, 10.494 )  
+Calculations and Intervals on Original Scale
+>
+```
+
+solution: my 85% confidence interval for the difference between the sample mean and the sample median is [7.147,10.494] (expressed in months). Since my 85% confidence interval does not include the number zero, I reject Ho that the population mean and population median are equal to each other (at the 85% confidence level).
+
+2. The data below come from the FBI's Uniform Crime Reports for 2018.
+
+| City    | # of Murders | Population |
+| :---------- |---:|---:|
+| Philadelphia  | 351  |  1,586,916  |
+| Pittsburgh  | 57  |  302,544  |
+
+* use 821 as a random number seed
+* calculate a 87% confidence interval for the murder rate in Philadelphia
+* calculate a 87% confidence interval for the murder rate in Pittsburgh
+* test the hypothesis that the 2 murder rates are equal to each other (use a 87% confidence level for your test)
+* develop and implement a simulation study to measure the coverage rate for the confidence interval you used for your test
+ 
+3. Using the Minneapolis dataset with treatment as delivered.
+
+* use 821 as a random number seed
+* estimate a probit regression model examining the failure rates for each of the 3 treatment groups.
+* estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
+* conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
+* with the probit model you estimated, calculate the difference statistics for each of the 3 groups.
+* calculate individual tests of whether each difference is equal to zero for each pair of group comparisons (75% confidence level)
+* estimate a new probit model controlling for aggravating circumstances
+* conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
+* based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
