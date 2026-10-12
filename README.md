@@ -2059,9 +2059,81 @@ solution: my 85% confidence interval for the difference between the sample mean 
 * use 821 as a random number seed
 * calculate a 87% confidence interval for the murder rate in Philadelphia
 * calculate a 87% confidence interval for the murder rate in Pittsburgh
+
+```Rout
+> set.seed(821)
+> 
+> # philadelphia
+> 
+> h.phl <- 351
+> p.phl <- 1586916
+> hr.phl <- (h.phl/p.phl)*100000
+> hr.phl
+[1] 22.11837
+> qbeta(p=0.065,shape1=1/2+h.phl,shape2=1/2+p.phl-h.phl)*100000
+[1] 20.38906
+> qbeta(p=0.935,shape1=1/2+h.phl,shape2=1/2+p.phl-h.phl)*100000
+[1] 23.96494
+> 
+> # pittsburgh
+> 
+> h.pit <- 57
+> p.pit <- 302544
+> hr.pit <- (h.pit/p.pit)*100000
+> hr.pit
+[1] 18.84023
+> qbeta(p=0.065,shape1=1/2+h.pit,shape2=1/2+p.pit-h.pit)*100000
+[1] 15.36177
+> qbeta(p=0.935,shape1=1/2+h.pit,shape2=1/2+p.pit-h.pit)*100000
+[1] 22.93358
+>
+```
+
+solution: the 87% confidence interval for the Philadelphia homicide rate is [20.389,23.965]; the same interval for Pittsburgh is [15.362,22.934]; all numbers are expressed in terms of the homicide rate per 100,000 population. 
+
 * test the hypothesis that the 2 murder rates are equal to each other (use a 87% confidence level for your test)
+
+```Rout
+> r.phl <- 100000*rbeta(n=1e5,shape1=1/2+h.phl,shape2=1/2+p.phl-h.phl)
+> r.pit <- 100000*rbeta(n=1e5,shape1=1/2+h.pit,shape2=1/2+p.pit-h.pit)
+> quantile(r.pit-r.phl,c(0.065,0.935))
+     6.5%     93.5% 
+-7.217789  1.119571 
+>
+```
+
+solution: the evidence from my test is not strong enough to reject the hypothesis that the 2 homicide rates are equal to each other; the 87% confidence interval for the difference between the 2 rates includes zero.
+
 * develop and implement a simulation study to measure the coverage rate for the confidence interval you used for your test
- 
+
+```Rout
+> pop.parameter <- hr.pit-hr.phl
+> pop.parameter
+[1] -3.278138
+> 
+> trap <- vector()
+> 
+> for(i in 1:1e4){
++   x1 <- rbinom(n=1,size=p.phl,p=h.phl/p.phl)
++   x2 <- rbinom(n=1,size=p.pit,p=h.pit/p.pit)
++   r1 <- rbeta(n=3e3,shape1=1/2+x1,shape2=1/2+p.phl-x1)
++   r2 <- rbeta(n=3e3,shape1=1/2+x2,shape2=1/2+p.pit-x2)
++   d <- 100000*r2-100000*r1
++   lcl.d <- quantile(d,0.065)
++   ucl.d <- quantile(d,0.935)
++   trap[i] <- ifelse(lcl.d<=pop.parameter & ucl.d>=pop.parameter,1,0)
++   }
+> 
+> table(trap)
+trap
+   0    1 
+1307 8693 
+>
+```
+
+* Assuming the rates observed in the 2 cities are the population rates, then the trap rate for my procedure is estimated to be 86.9%.
+
+---
 3. Using the Minneapolis dataset with treatment as delivered.
 
 * use 821 as a random number seed
