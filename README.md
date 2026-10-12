@@ -1991,7 +1991,7 @@ and, the 85% confidence interval for the sample median is [9,12] (in months).
 
 * for each confidence interval address whether the true population parameter value was trapped
 
-solution: the answer is "yes" in both cases; the sample mean is 18.56 months which is inside the [16.534,20.586] interval and the sample median is 10 months which is inside the [9,12] interval. *note*: remember that if the sample estimate is equal to either the lower or upper bound of the confidence interval, the sample estimate is trapped by the confidence interval.
+solution: the answer is "yes" in both cases; the population mean is 18.714 months which is inside the [16.534,20.586] interval and the population median is 9 months which is inside the [9,12] interval. *note*: remember that if the sample estimate is equal to either the lower or upper bound of the confidence interval, the sample estimate is trapped by the confidence interval.
 
 * for either the mean or the median, design and implement a simulation study to evaluate the rate at which your confidence interval procedure traps the true population parameter value.
 
