@@ -2225,8 +2225,29 @@ Number of Fisher Scoring iterations: 4
 
 > logLik(Mf)
 'log Lik.' -145.7898 (df=3)
+>
+> a <- coef(Mf)[1]
+> badv <- coef(Mf)[2]
+> bsep <- coef(Mf)[3]
+> 
+> est.fail.rate.arr <- pnorm(a+badv*0+bsep*0)
+> attributes(est.fail.rate.arr) <- NULL
+> est.fail.rate.arr
+[1] 0.1333333
+> 
+> est.fail.rate.adv <- pnorm(a+badv*1+bsep*0)
+> attributes(est.fail.rate.adv) <- NULL
+> est.fail.rate.adv
+[1] 0.1797753
+> 
+> est.fail.rate.sep <- pnorm(a+badv*0+bsep*1)
+> attributes(est.fail.rate.sep) <- NULL
+> est.fail.rate.sep
+[1] 0.258427
 > 
 ```
+
+solution: the sample estimate of the failure rate for the arrest group was 13.3%; for the advice group, the rate was 18.0%; and for the separate group, it was 25.8%.
 
 * estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
 
@@ -2258,8 +2279,32 @@ Number of Fisher Scoring iterations: 4
 
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
 
+```Rout
+> ts <- 2*abs(logLik(Mf)-logLik(Mr))
+> attributes(ts) <- NULL
+> ts
+[1] 5.504925
+> cv <- qchisq(p=0.75,df=3-1)
+> cv
+[1] 2.772589
+> ifelse(ts>cv,"reject","fail to reject")
+[1] "reject"
 ```
+
+solution: I reject the hypothesis that all 3 groups have the same failure rate at the 75% confidence level.
+
 * with the probit model you estimated, calculate the difference statistics for each of the 3 groups.
+
+```Rout
+> est.fail.rate.adv-est.fail.rate.arr
+[1] 0.04644195
+> est.fail.rate.sep-est.fail.rate.arr
+[1] 0.1250936
+> est.fail.rate.sep-est.fail.rate.adv
+[1] 0.07865169
+>
+```
+
 * calculate individual tests of whether each difference is equal to zero for each pair of group comparisons (75% confidence level)
 * estimate a new probit model controlling for aggravating circumstances
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
