@@ -2104,7 +2104,7 @@ solution: the 87% confidence interval for the Philadelphia homicide rate is [20.
 
 solution: the evidence from my test is not strong enough to reject the hypothesis that the 2 homicide rates are equal to each other; the 87% confidence interval for the difference between the 2 rates includes zero.
 
-* develop and implement a simulation study to measure the coverage rate for the confidence interval you used for your test
+* develop and implement a simulation study to measure the coverage rate for the confidence interval you used for your test (note, this is not the only valid answer you could have come up with to address this question).
 
 ```Rout
 > pop.parameter <- hr.pit-hr.phl
@@ -2137,6 +2137,10 @@ trap
 3. Using the Minneapolis dataset with treatment as delivered.
 
 * use 821 as a random number seed
+
+```Rout
+set.seed(821)
+
 * estimate a probit regression model examining the failure rates for each of the 3 treatment groups.
 * estimate an intercept-only probit model on the Minneapolis treatment-as-delivered data
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate (75% confidence level)
