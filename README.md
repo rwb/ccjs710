@@ -2371,8 +2371,53 @@ td.sep      -0.01847035  0.01847035  0.03906515
 
 solution: we fail to reject the Ho of equal rates comparing the advice and arrest groups; for the other 2 comparisons, we reject the Ho of equal failure rates.
 
-* estimate a new probit model controlling for aggravating circumstances
+* estimate a new probit model controlling for aggravating circumstances:
 
 ```Rout
+> Mf2 <- glm(y~1+td.adv+td.sep+aggcirc,data=df,family=binomial(link="probit"))
+> summary(Mf2)
+
+Call:
+glm(formula = y ~ 1 + td.adv + td.sep + aggcirc, family = binomial(link = "probit"), 
+    data = df)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -1.07853    0.18999  -5.677 1.37e-08 ***
+td.adv       0.18434    0.21045   0.876   0.3811    
+td.sep       0.45147    0.20270   2.227   0.0259 *  
+aggcirc     -0.04225    0.17551  -0.241   0.8097    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 297.08  on 312  degrees of freedom
+Residual deviance: 291.52  on 309  degrees of freedom
+AIC: 299.52
+
+Number of Fisher Scoring iterations: 4
+
+> logLik(Mf2)
+'log Lik.' -145.761 (df=4)
+>
+```
+
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
+
+```Rout
+> ts <- 2*abs(logLik(Mf2)-logLik(Mr))
+> attributes(ts) <- NULL
+> ts
+[1] 5.562601
+> cv <- qchisq(p=0.75,df=4-1)
+> cv
+[1] 4.108345
+> ifelse(ts>cv,"reject","fail to reject")
+[1] "reject"
+>
+```
+
+solution: we reject Ho that the failure rates are equal *and* there is no effect of aggravating circumstances at the 75% confidence level.
+
 * based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
