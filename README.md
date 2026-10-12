@@ -1911,8 +1911,9 @@ ts80 <- c(rep(0,102),rep(1,298),rep(2,596),rep(3,641),rep(4,784),rep(5,700),
 > median(ts80)
 [1] 9
 >
+```
 
-answer: there are 9,549 cases in the population; the mean time served was 18.714 months and the median was 9 months.
+answer: there are 9,549 cases in the population; the population mean time served was 18.714 months and the population median was 9 months.
 
 * draw a simple random sample of size N = 300 from this population
 
