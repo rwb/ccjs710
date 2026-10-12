@@ -2421,3 +2421,124 @@ Number of Fisher Scoring iterations: 4
 solution: we reject Ho that the failure rates are equal *and* there is no effect of aggravating circumstances at the 75% confidence level.
 
 * based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
+
+```Rout
+> # extract coefficients and variance-covariance matrix from model Mf2
+> 
+> B <- coef(Mf2)
+> B
+(Intercept)      td.adv      td.sep     aggcirc 
+-1.07853155  0.18433829  0.45146936 -0.04225482 
+> V <- vcov(Mf2)
+> V
+            (Intercept)      td.adv      td.sep     aggcirc
+(Intercept)  0.03609660 -0.02396162 -0.02443353 -0.02330124
+td.adv      -0.02396162  0.04428837  0.02032827  0.00725895
+td.sep      -0.02443353  0.02032827  0.04108744  0.00788281
+aggcirc     -0.02330124  0.00725895  0.00788281  0.03080394
+> 
+> # simulate coefficients based on the model
+> 
+> library(MASS)
+> sb <- mvrnorm(n=1e4,mu=B,Sigma=V)
+>
+```
+
+next, we set aggcirc to zero:
+
+```
+> 
+> # estimated failure rate distribution for arrest group
+> 
+> probit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0+B[4]*0)
+> probit.arr
+[1] -1.078532
+> pnorm(probit.arr)
+[1] 0.1403983
+> sim.probit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0+sb[,4]*0
+> p.sim.arr <- pnorm(sim.probit.arr)
+> 
+> # estimated failure rate distribution for advice group
+> 
+> probit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0+B[4]*0)
+> probit.adv
+[1] -0.8941933
+> pnorm(probit.adv)
+[1] 0.1856092
+> sim.probit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0+sb[,4]*0
+> p.sim.adv <- pnorm(sim.probit.adv)
+> 
+> # estimated failure rate distribution for separate group
+> 
+> probit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1+B[4]*0)
+> probit.sep
+[1] -0.6270622
+> pnorm(probit.sep)
+[1] 0.2653092
+> sim.probit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1+sb[,4]*0
+> p.sim.sep <- pnorm(sim.probit.sep)
+> 
+> # now lets look at the confidence intervals for each of
+> # the estimated difference statistics
+> 
+> quantile(p.sim.adv-p.sim.arr,c(0.125,0.875))
+      12.5%       87.5% 
+-0.01469973  0.10511993 
+> quantile(p.sim.sep-p.sim.arr,c(0.125,0.875))
+     12.5%      87.5% 
+0.05887434 0.18677782 
+> quantile(p.sim.sep-p.sim.adv,c(0.125,0.875))
+      12.5%       87.5% 
+0.006765678 0.151561027 
+>
+```
+
+and then we set aggcirc = 1
+
+```Rout
+> # estimated failure rate distribution for arrest group
+> 
+> probit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0+B[4]*1)
+> probit.arr
+[1] -1.120786
+> pnorm(probit.arr)
+[1] 0.1311894
+> sim.probit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0+sb[,4]*1
+> p.sim.arr <- pnorm(sim.probit.arr)
+> 
+> # estimated failure rate distribution for advice group
+> 
+> probit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0+B[4]*1)
+> probit.adv
+[1] -0.9364481
+> pnorm(probit.adv)
+[1] 0.1745213
+> sim.probit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0+sb[,4]*1
+> p.sim.adv <- pnorm(sim.probit.adv)
+> 
+> # estimated failure rate distribution for separate group
+> 
+> probit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1+B[4]*1)
+> probit.sep
+[1] -0.669317
+> pnorm(probit.sep)
+[1] 0.2516466
+> sim.probit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1+sb[,4]*1
+> p.sim.sep <- pnorm(sim.probit.sep)
+> 
+> # now lets look at the confidence intervals for each of
+> # the estimated difference statistics
+> 
+> quantile(p.sim.adv-p.sim.arr,c(0.125,0.875))
+      12.5%       87.5% 
+-0.01341187  0.10494374 
+> quantile(p.sim.sep-p.sim.arr,c(0.125,0.875))
+     12.5%      87.5% 
+0.05445075 0.18682891 
+> quantile(p.sim.sep-p.sim.adv,c(0.125,0.875))
+      12.5%       87.5% 
+0.006306098 0.146920529 
+>
+```
+
+solution: regardless of the presence or absence of aggravating circumstances, our hypothesis tests remain the same: we cannot reject the Ho of equal failure rates between the advice and arrest groups; on the other hand, we do reject the hypothesis of equal failure rates for the other 2 comparisons.
