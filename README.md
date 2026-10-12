@@ -2306,6 +2306,73 @@ solution: I reject the hypothesis that all 3 groups have the same failure rate a
 ```
 
 * calculate individual tests of whether each difference is equal to zero for each pair of group comparisons (75% confidence level)
+
+```Rout
+> B <- coef(Mf)
+> B
+(Intercept)      td.adv      td.sep 
+ -1.1107716   0.1945498   0.4625690 
+> V <- vcov(Mf)
+> V
+            (Intercept)      td.adv      td.sep
+(Intercept)  0.01847035 -0.01847035 -0.01847035
+td.adv      -0.01847035  0.04257088  0.01847035
+td.sep      -0.01847035  0.01847035  0.03906515
+> 
+> # simulate coefficients based on the model
+> 
+> library(MASS)
+> sb <- mvrnorm(n=1e4,mu=B,Sigma=V)
+> 
+> # estimated failure rate distribution for arrest group
+> 
+> probit.arr <- as.numeric(B[1]+B[2]*0+B[3]*0)
+> probit.arr
+[1] -1.110772
+> pnorm(probit.arr)
+[1] 0.1333333
+> sim.probit.arr <- sb[,1]+sb[,2]*0+sb[,3]*0
+> p.sim.arr <- pnorm(sim.probit.arr)
+> 
+> # estimated failure rate distribution for advice group
+> 
+> probit.adv <- as.numeric(B[1]+B[2]*1+B[3]*0)
+> probit.adv
+[1] -0.9162218
+> pnorm(probit.adv)
+[1] 0.1797753
+> sim.probit.adv <- sb[,1]+sb[,2]*1+sb[,3]*0
+> p.sim.adv <- pnorm(sim.probit.adv)
+> 
+> # estimated failure rate distribution for separate group
+> 
+> probit.sep <- as.numeric(B[1]+B[2]*0+B[3]*1)
+> probit.sep
+[1] -0.6482026
+> pnorm(probit.sep)
+[1] 0.258427
+> sim.probit.sep <- sb[,1]+sb[,2]*0+sb[,3]*1
+> p.sim.sep <- pnorm(sim.probit.sep)
+> 
+> # now lets look at the confidence intervals for each of
+> # the estimated difference statistics
+> 
+> quantile(p.sim.adv-p.sim.arr,c(0.125,0.875))
+      12.5%       87.5% 
+-0.01081096  0.10434692 
+> quantile(p.sim.sep-p.sim.arr,c(0.125,0.875))
+     12.5%      87.5% 
+0.06287278 0.18812269 
+> quantile(p.sim.sep-p.sim.adv,c(0.125,0.875))
+      12.5%       87.5% 
+0.009738684 0.150325842 
+> 
+```
+
+solution: we fail to reject the Ho of equal rates comparing the advice and arrest groups; for the other 2 comparisons, we reject the Ho of equal failure rates.
+
 * estimate a new probit model controlling for aggravating circumstances
+
+```Rout
 * conduct a likelihood ratio test of the hypothesis that all 3 groups have the same failure rate *and* that there is no effect of aggravating circumstances; conduct your test at the 75% confidence level.
 * based on your new model, calculate individual tests of whether each difference is equal to zero at each level of the aggravating circumstances variable; conduct your tests at the 75% confidence level.
