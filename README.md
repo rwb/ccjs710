@@ -1958,22 +1958,23 @@ solution: the sample mean is 18.56 months and the sample median is 10 months.
 
 * estimate a 85% confidence interval for each sample statistic
 
-solution part 1: first we calculate the confidence interval for the sample mean
+solution part 1: first we calculate the confidence interval for the sample mean (please note: I corrected this on the evening of 10/12/26; the error was setting p = 0.935 instead of the correct value of 0.925; I'm sorry about this mistake!).
 
 ```Rout
-> ct <- qt(p=0.935,df=300-1)
+> ct <- qt(p=0.925,df=300-1)
 > ct
-[1] 1.518282
+[1] 1.443239
 > 
 > lcl <- mean(ts80.s)-ct*sd(ts80.s)/sqrt(300)
 > lcl
-[1] 16.53427
+[1] 16.6344
+>
 > ucl <- mean(ts80.s)+ct*sd(ts80.s)/sqrt(300)
 > ucl
-[1] 20.58573
+[1] 20.4856
 > 
 ```
-so, the 85% confidence interval is [16.534,20.586] (in months).
+so, the 85% confidence interval is [16.634,20.486] (in months).
 
 solution part 2: now, the sample median
 
