@@ -2543,3 +2543,5 @@ and then we set aggcirc = 1
 ```
 
 solution: regardless of the presence or absence of aggravating circumstances, our hypothesis tests remain the same: we cannot reject the Ho of equal failure rates between the advice and arrest groups; on the other hand, we do reject the hypothesis of equal failure rates for the other 2 comparisons.
+
+*Note*: please check your email for additional updates: #1 at 12:24pm on 10/13/26; #2 at 2:35pm on 10/13/26.
