@@ -2550,8 +2550,6 @@ solution: regardless of the presence or absence of aggravating circumstances, ou
 * Final exam material begins with today's lesson.
 * Here is the Minneapolis dataset:
 
-#### Script #1
-
 ```R
 id <- 1:313
 
@@ -2576,7 +2574,82 @@ y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
 df <- data.frame(id,ta,td,aggcirc,y)
 head(df)
 tail(df)
-table(y,ta)
+table(df$y,df$ta,df$aggcirc,exclude=NULL)
 ```
 
+* Now, let's use the information in the table to calculate some conditional probabilities.
 
+```R
+# p(fail | arrest, no aggravating circumstances)
+
+3/(25+3)
+
+# p(fail | advice, no aggravating circumstances)
+
+9/(32+9)
+
+# p(fail | separate, no aggravating circumstances)
+
+12/(37+12)
+
+# p(fail | arrest, aggravating circumstances)
+
+7/(57+7)
+
+# p(fail | advice, aggravating circumstances)
+
+12/(55+12)
+
+# p(fail | separate, aggravating circumstances)
+
+14/(50+14)
+```
+
+* Can we recover these same numbers from a logistic regression analysis?
+
+```R
+df$arr <- rep(NA,nrow(df))
+df$arr[df$ta==2 | df$ta==3] <- 0
+df$arr[df$ta==1] <- 1
+
+df$adv <- rep(NA,nrow(df))
+df$adv[df$ta==1 | df$ta==3] <- 0
+df$adv[df$ta==2] <- 1
+
+df$sep <- rep(NA,nrow(df))
+df$sep[df$ta==1 | df$ta==2] <- 0
+df$sep[df$ta==3] <- 1
+
+M <- glm(y~1+adv+sep+aggcirc,data=df,family=binomial(link="logit"))
+summary(M)
+
+# p(fail | arrest, no aggravating circumstances)
+
+logit <- -1.9970+0.6712*0+0.8765*0-0.1569*0
+exp(logit)/(1+exp(logit))
+
+# p(fail | advice, no aggravating circumstances)
+
+logit <- -1.9970+0.6712*1+0.8765*0-0.1569*0
+exp(logit)/(1+exp(logit))
+
+# p(fail | separate, no aggravating circumstances)
+
+logit <- -1.9970+0.6712*0+0.8765*1-0.1569*0
+exp(logit)/(1+exp(logit))
+
+# p(fail | arrest, aggravating circumstances)
+
+logit <- -1.9970+0.6712*0+0.8765*0-0.1569*1
+exp(logit)/(1+exp(logit))
+
+# p(fail | advice, aggravating circumstances)
+
+logit <- -1.9970+0.6712*1+0.8765*0-0.1569*1
+exp(logit)/(1+exp(logit))
+
+# p(fail | separate, aggravating circumstances)
+
+logit <- -1.9970+0.6712*0+0.8765*1-0.1569*1
+exp(logit)/(1+exp(logit))
+```
