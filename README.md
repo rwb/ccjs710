@@ -2662,3 +2662,122 @@ exp(logit)/(1+exp(logit))
 | arrest, aggravating circumstances  | 0.109 | 0.104 |
 | advice, aggravating circumstances  | 0.179 | 0.185 |
 | separate, aggravating circumstances  | 0.219 | 0.218 |
+
+* Let's consider a different model specification, a specification we will call the *saturated* model, Ms.
+
+```R
+Ms <- glm(y~1+adv+sep+aggcirc+aggcirc*adv+aggcirc*sep,data=df,family=binomial(link="logit"))
+summary(Ms)
+
+bint <- -2.12026
+badv <-  0.85175
+bsep <-  0.99425
+bagg <-  0.02312
+badvagg <- -0.27704
+bsepagg <- -0.17008
+
+# p(fail | arrest, no aggravating circumstances)
+
+xadv <- 0
+xsep <- 0
+xagg <- 0
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+
+# p(fail | advice, no aggravating circumstances)
+
+xadv <- 1
+xsep <- 0
+xagg <- 0
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+
+# p(fail | separate, no aggravating circumstances)
+
+xadv <- 0
+xsep <- 1
+xagg <- 0
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+
+# p(fail | arrest, aggravating circumstances)
+
+xadv <- 0
+xsep <- 0
+xagg <- 1
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+
+# p(fail | advice, aggravating circumstances)
+
+xadv <- 1
+xsep <- 0
+xagg <- 1
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+
+# p(fail | separate, aggravating circumstances)
+
+xadv <- 0
+xsep <- 1
+xagg <- 1
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+exp(logit)/(1+exp(logit))
+```
+
+| Group    | p(fail) table | p(fail) model | p(fail) int model |
+| -------- | -------: | ------:|---:|
+| arrest, no aggravating circumstances  | 0.107 | 0.120 | 0.107 |
+| advice, no aggravating circumstances  | 0.220 | 0.210 | 0.220 |
+| separate, no aggravating circumstances  | 0.245 | 0.246 | 0.245 |
+| arrest, aggravating circumstances  | 0.109 | 0.104 | 0.109 |
+| advice, aggravating circumstances  | 0.179 | 0.185 | 0.179 |
+| separate, aggravating circumstances  | 0.219 | 0.218 | 0.219 |
