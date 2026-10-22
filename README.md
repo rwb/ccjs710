@@ -2653,3 +2653,7 @@ exp(logit)/(1+exp(logit))
 logit <- -1.9970+0.6712*0+0.8765*1-0.1569*1
 exp(logit)/(1+exp(logit))
 ```
+
+| Group    | p(fail) table | p(fail) model |
+| -------- | -------: | ------:|
+| arrest, no aggravating circumstances  | 0.107 | 0.120 |
