@@ -2543,5 +2543,40 @@ and then we set aggcirc = 1
 ```
 
 solution: regardless of the presence or absence of aggravating circumstances, our hypothesis tests remain the same: we cannot reject the Ho of equal failure rates between the advice and arrest groups; on the other hand, we do reject the hypothesis of equal failure rates for the other 2 comparisons.
-
 *Note*: please check your email for additional updates: #1 at 12:24pm on 10/13/26; #2 at 2:35pm on 10/13/26.
+
+### Lesson 7 - Thursday 10/22/26
+
+* Final exam material begins with today's lesson.
+* Here is the Minneapolis dataset:
+
+#### Script #1
+
+```R
+id <- 1:313
+
+ta <- c(rep(1,63),rep(1,1),rep(1,28),rep(2,18),rep(2,45),
+        rep(2,4),rep(2,39),rep(2,2),rep(3,22),rep(3,2),
+        rep(3,40),rep(3,4),rep(3,3),rep(3,42))
+ 
+td <- c(rep(1,63),rep(3,1),rep(1,28),rep(1,18),rep(2,45),
+        rep(3,4),rep(2,39),rep(3,2),rep(1,22),rep(2,2),
+        rep(3,40),rep(1,4),rep(2,3),rep(3,42))
+ 
+aggcirc <- c(rep(1,63),rep(1,1),rep(0,28),rep(1,18),rep(1,45),
+             rep(1,4),rep(0,39),rep(0,2),rep(1,22),rep(1,2),
+             rep(1,40),rep(0,4),rep(0,3),rep(0,42))
+ 
+y <- c(rep(1,7),rep(0,56),rep(0,1),rep(1,3),rep(0,25),rep(1,3),
+       rep(0,15),rep(1,7),rep(0,38),rep(1,2),rep(0,2),rep(1,8),
+       rep(0,31),rep(1,1),rep(0,1),rep(1,4),rep(0,18),rep(1,1),
+       rep(0,1),rep(1,9),rep(0,31),rep(1,1),rep(0,3),rep(0,3),
+       rep(1,11),rep(0,31))
+ 
+df <- data.frame(id,ta,td,aggcirc,y)
+head(df)
+tail(df)
+table(y,ta)
+```
+
+
