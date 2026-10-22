@@ -2781,3 +2781,132 @@ exp(logit)/(1+exp(logit))
 | arrest, aggravating circumstances  | 0.109 | 0.104 | 0.109 |
 | advice, aggravating circumstances  | 0.179 | 0.185 | 0.179 |
 | separate, aggravating circumstances  | 0.219 | 0.218 | 0.219 |
+
+* We can conduct a likelihood ratio test of the hypothesis that badvagg = bsepagg = 0
+* Let's conduct our test at the 93% confidence level:
+
+```R
+LM <- logLik(M)
+LS <- logLik(Ms)
+
+# critical value
+
+qchisq(p=0.93,df=2)
+
+# test statistic
+
+ts <- 2*abs(LM-LS)
+attributes(ts) <- NULL
+ts
+```
+
+* This is a case where there is *not* a statistically significant interaction effect.
+* How do we interpret the parameter estimates in this logistic regression model?
+* The intercept represents the natural log of the odds (log odds) of failure for arrest cases with no aggravating circumstances.
+* Each coefficient represents the amount of change in the log odds of failure conditional on a 1-unit change in the independent variable.
+* Suppose we specify the interaction model (which is also a saturated model in this case), Ms.
+* Based on this model, we can calculate a 93% confidence interval for the relative risk statistic comparing the separate group to the arrest group among those cases that don't have aggravating circumstances.
+
+```R
+set.seed(387)
+
+Ms <- glm(y~1+adv+sep+aggcirc+aggcirc*adv+aggcirc*sep,data=df,family=binomial(link="logit"))
+summary(Ms)
+
+B <- coef(Ms)
+B
+V <- vcov(Ms)
+V
+
+bint <- sb[,1]
+badv <- sb[,2]
+bsep <- sb[,3]
+bagg <- sb[,4]
+badvagg <- sb[,5]
+bsepagg <- sb[,6]
+
+# simulate coefficients based on the model
+
+library(MASS)
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+# p(fail | arrest, aggravating circumstances)
+
+xadv <- 0
+xsep <- 0
+xagg <- 1
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+pfail.arr.agg <- exp(logit)/(1+exp(logit))
+
+# p(fail | separate, aggravating circumstances)
+
+xadv <- 0
+xsep <- 1
+xagg <- 1
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+pfail.sep.agg <- exp(logit)/(1+exp(logit))
+
+rr.ratio.agg <- pfail.sep.agg/pfail.arr.agg
+quantile(rr.ratio.agg,c(0.035,0.965))
+```
+
+* Now, suppose we want to check on the relative risk ratio for the separate group compared to the arrest group among those without aggravating circumstances?
+
+```R
+# p(fail | arrest, no aggravating circumstances)
+
+xadv <- 0
+xsep <- 0
+xagg <- 0
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+pfail.arr.noagg <- exp(logit)/(1+exp(logit))
+
+# p(fail | separate, no aggravating circumstances)
+
+xadv <- 0
+xsep <- 1
+xagg <- 0
+xadvagg <- xagg*xadv
+xsepagg <- xagg*xsep
+
+logit <- bint+badv*xadv+
+              bsep*xsep+
+              bagg*xagg+
+              badvagg*xadvagg+
+              bsepagg*xsepagg
+
+pfail.sep.noagg <- exp(logit)/(1+exp(logit))
+
+rr.ratio.noagg <- pfail.sep.noagg/pfail.arr.noagg
+quantile(rr.ratio.noagg,c(0.035,0.965))
+```
+
+* And, we can then check on the difference between the relative risk ratios between the groups with and without aggravating circumstances.
+
+```R
+quantile(rr.ratio.agg-rr.ratio.noagg,c(0.035,0.965))
+```
