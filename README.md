@@ -2818,17 +2818,17 @@ B
 V <- vcov(Ms)
 V
 
+# simulate coefficients based on the model
+
+library(MASS)
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
 bint <- sb[,1]
 badv <- sb[,2]
 bsep <- sb[,3]
 bagg <- sb[,4]
 badvagg <- sb[,5]
 bsepagg <- sb[,6]
-
-# simulate coefficients based on the model
-
-library(MASS)
-sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
 
 # p(fail | arrest, aggravating circumstances)
 
