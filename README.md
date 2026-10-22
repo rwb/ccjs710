@@ -2805,7 +2805,7 @@ ts
 * The intercept represents the natural log of the odds (log odds) of failure for arrest cases with no aggravating circumstances.
 * Each coefficient represents the amount of change in the log odds of failure conditional on a 1-unit change in the independent variable.
 * Suppose we specify the interaction model (which is also a saturated model in this case), Ms.
-* Based on this model, we can calculate a 93% confidence interval for the relative risk statistic comparing the separate group to the arrest group among those cases that don't have aggravating circumstances.
+* Based on this model, we can calculate a 93% confidence interval for the relative risk statistic comparing the separate group to the arrest group among those cases that have aggravating circumstances.
 
 ```R
 set.seed(387)
