@@ -2773,7 +2773,7 @@ logit <- bint+badv*xadv+
 exp(logit)/(1+exp(logit))
 ```
 
-| Group    | p(fail) table | p(fail) model | p(fail) int model |
+| Group    | p(fail) table | p(fail) model M | p(fail) model Ms |
 | -------- | -------: | ------:|---:|
 | arrest, no aggravating circumstances  | 0.107 | 0.120 | 0.107 |
 | advice, no aggravating circumstances  | 0.220 | 0.210 | 0.220 |
