@@ -2657,3 +2657,8 @@ exp(logit)/(1+exp(logit))
 | Group    | p(fail) table | p(fail) model |
 | -------- | -------: | ------:|
 | arrest, no aggravating circumstances  | 0.107 | 0.120 |
+| advice, no aggravating circumstances  | 0.220 | 0.210 |
+| separate, no aggravating circumstances  | 0.245 | 0.246 |
+| arrest, aggravating circumstances  | 0.109 | 0.104 |
+| advice, aggravating circumstances  | 0.179 | 0.185 |
+| separate, aggravating circumstances  | 0.219 | 0.218 |
