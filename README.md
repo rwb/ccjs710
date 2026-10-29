@@ -3289,7 +3289,7 @@ diff
 # sampling distribution/confidence interval of the difference
 
 boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
-quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
+quantile(est.sim.dp7-est.sim.dp3,c(0.04,0.96))
 ```
 
 ### Partial Identification
