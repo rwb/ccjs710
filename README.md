@@ -2865,3 +2865,7 @@ pfail.sep.agg <- exp(logit)/(1+exp(logit))
 rr.ratio.agg <- pfail.sep.agg/pfail.arr.agg
 quantile(rr.ratio.agg,c(0.035,0.965))
 ```
+
+### Lesson 8 - Thursday 10/29/26
+
+* 
