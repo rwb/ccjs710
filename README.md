@@ -3292,11 +3292,9 @@ boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
 quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
 ```
 
-* Next, we introduce the concept of partial identification as applied to the study of criminal victimization.
 ### Partial Identification
 
-* Final exam material begins here
-* Analytical foundation is based on Manski (1993; [link](https://www.jstor.org/stable/pdf/271005.pdf))
+* Analytical foundation is based on Manski (2005; [link](https://www.sciencedirect.com/science/article/pii/S0888613X04001124))
 * Case study: examining victimization in a survey
 * Motivating empirical work: Stasny (1991; [link](https://www.jstor.org/stable/pdf/2290561.pdf)).
 
