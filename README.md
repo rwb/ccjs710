@@ -3290,3 +3290,44 @@ diff
 
 boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
 quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
+```
+
+* Next, we introduce the concept of partial identification as applied to the study of criminal victimization.
+### Partial Identification
+
+* Final exam material begins here
+* Analytical foundation is based on Manski (1993; [link](https://www.jstor.org/stable/pdf/271005.pdf))
+* Case study: examining victimization in a survey
+* Motivating empirical work: Stasny (1991; [link](https://www.jstor.org/stable/pdf/2290561.pdf)).
+
+<p align="center">
+<img src="/gfiles/stasny.png" width="750px">
+</p>
+
+* Research question: "Data from large-scale sample surveys are often used to estimate the probability that an individual falls into a particular survey classification or has a certain characteristic. For example, data from the National Crime Survey (NCS) are used to estimate the probability of being victimized, and
+data from the Current Population Survey are used to estimate the probability of being unemployed" (Stasny, 1991:296).
+* The unit of analysis in these data is individual households and the estimator if the fraction of households that report at least one victimization in the NCS.
+* Let's begin our work by looking at domain U/C/L where U = urban, C = central city, and L = low poverty.
+* Within this domain, we have 156 hh's that reported at least one victimization in the NCS, 555 hh's that reported no victimizations, and 104 hh's contributed no information to the survey (i.e., they are missing).
+* Key question here is what we should do about the missing cases.
+* This problem arises in almost all surveys and sometimes arises in administrative data (sometimes in quite surprising ways).
+
+##### Approach #1
+
+* Discard the missing observations.
+* R code:
+
+```R
+y <- c(rep(0,555),rep(1,156),rep(NA,104))
+t <- table(y,exclude=NULL)
+t
+theta <- t[2]/(t[1]+t[2])
+theta
+
+# calculate a 90% confidence interval using Clopper-Pearson method
+
+theta.lcl <- qbeta(p=0.05,shape1=156,shape2=1+555)
+theta.lcl
+theta.ucl <- qbeta(p=0.95,shape1=1+156,shape2=555)
+theta.ucl
+```
