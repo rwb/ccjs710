@@ -2868,4 +2868,425 @@ quantile(rr.ratio.agg,c(0.035,0.965))
 
 ### Lesson 8 - Thursday 10/29/26
 
-* 
+* We continue our consideration of the problem of statistical interaction in logistic regression models:
+  
+```R
+library(MASS)
+
+# create dataset
+
+set.seed(492)
+
+ses <- c(rep(0,191),rep(1,191))
+dp  <- runif(n=382,min=0,max=10)
+estar <- runif(n=382,min=0,max=1)
+e <- log(estar/(1-estar))
+
+y <- rep(NA,382)
+y[ses==0] <- ifelse((-3+dp[ses==0]+e[ses==0])>0,1,0)
+y[ses==1] <- ifelse((-3.5+1/4*dp[ses==1]+e[ses==1])>0,1,0)
+d <- data.frame(ses,dp,y)
+
+# estimate a main-effects "reduced" model
+
+Mr <- glm(y~1+ses+dp,data=d,family=binomial(link="logit"))
+summary(Mr)
+logLik(Mr)
+
+# estimate an interaction or "full" model
+
+Mf <- glm(y~1+ses+dp+ses*dp,data=d,family=binomial(link="logit"))
+summary(Mf)
+logLik(Mf)
+
+dses0 <- subset(d,ses==0)
+dses1 <- subset(d,ses==1)
+
+# alternative parameterization of the full model
+
+Mses0 <- glm(y~1+dp,data=dses0,family=binomial(link="logit"))
+Mses1 <- glm(y~1+dp,data=dses1,family=binomial(link="logit"))
+summary(Mses0)
+summary(Mses1)
+
+logLik(Mses0)
+logLik(Mses1)
+logLik(Mses0)+logLik(Mses1)
+
+# likelihood ratio test for interaction
+
+ts <- 2*abs(logLik(Mf)-logLik(Mr))
+attributes(ts) <- NULL
+ts
+
+# critical value at 92% confidence level
+
+qchisq(p=0.92,df=4-3)
+
+# let's look at the relationship between ses and dp
+
+boxplot(dp~ses)
+
+##########################################
+# based on the reduced model, what is estimated p(offend|ses=0,dp=3)?
+# extract coefficients from reduced model
+
+a <- coef(Mr)[1]
+bses <- coef(Mr)[2]
+bdp <- coef(Mr)[3]
+
+# calculate logit and estimated probability
+
+logit <- a+bses*0+bdp*3
+logit
+est.dp3 <- exp(logit)/(1+exp(logit))
+est.dp3
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mr)
+B
+V <- vcov(Mr)
+V
+
+# simulate logit coefficients
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+
+xses <- 0
+xdp <- 3
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
+est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp3,c(0.035,0.965))
+
+# based on the reduced model, what is estimated p(offend|ses=0,dp=7)?
+
+# calculate logit and estimated probability
+
+logit <- a+bses*0+bdp*7
+logit
+est.dp7 <- exp(logit)/(1+exp(logit))
+est.dp7
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mr)
+B
+V <- vcov(Mr)
+V
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+
+xses <- 0
+xdp <- 7
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
+est.sim.dp7 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp7,c(0.035,0.965))
+
+# let's compare the 2 sampling distributions
+
+# point estimate of the difference
+
+diff <- est.dp7-est.dp3
+attributes(diff) <- NULL
+diff
+
+# sampling distribution/confidence interval of the difference
+
+boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
+quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
+
+
+##########################################
+# based on the interaction model, what is estimated p(offend|ses=0,dp=3)?
+# extract coefficients from full model
+
+a <- coef(Mf)[1]
+bses <- coef(Mf)[2]
+bdp <- coef(Mf)[3]
+bsesdp <- coef(Mf)[4]
+
+xses <- 0
+xdp <- 3
+
+# calculate logit and estimated probability
+
+logit <- a+bses*xses+bdp*xdp+bsesdp*xses*xdp
+logit
+est.dp3 <- exp(logit)/(1+exp(logit))
+est.dp3
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+# simulate logit coefficients
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+bsesdp.sim <- sb[,4]
+
+xses <- 0
+xdp <- 3
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp+bsepdp*xses*xdp
+est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp3,c(0.035,0.965))
+
+# based on the full model, what is estimated p(offend|ses=0,dp=7)?
+
+# calculate logit and estimated probability
+
+xses <- 0
+xdp <- 7
+
+logit <- a+bses*xses+bdp*xdp+bsepdp*xses*xdp
+logit
+est.dp7 <- exp(logit)/(1+exp(logit))
+est.dp7
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+library(MASS)
+
+# create dataset
+
+set.seed(492)
+
+ses <- c(rep(0,191),rep(1,191))
+dp  <- runif(n=382,min=0,max=10)
+estar <- runif(n=382,min=0,max=1)
+e <- log(estar/(1-estar))
+
+y <- rep(NA,382)
+y[ses==0] <- ifelse((-3+dp[ses==0]+e[ses==0])>0,1,0)
+y[ses==1] <- ifelse((-3.5+1/4*dp[ses==1]+e[ses==1])>0,1,0)
+d <- data.frame(ses,dp,y)
+
+# estimate a main-effects "reduced" model
+
+Mr <- glm(y~1+ses+dp,data=d,family=binomial(link="logit"))
+summary(Mr)
+logLik(Mr)
+
+# estimate an interaction or "full" model
+
+Mf <- glm(y~1+ses+dp+ses*dp,data=d,family=binomial(link="logit"))
+summary(Mf)
+logLik(Mf)
+
+dses0 <- subset(d,ses==0)
+dses1 <- subset(d,ses==1)
+
+# alternative parameterization of the full model
+
+Mses0 <- glm(y~1+dp,data=dses0,family=binomial(link="logit"))
+Mses1 <- glm(y~1+dp,data=dses1,family=binomial(link="logit"))
+summary(Mses0)
+summary(Mses1)
+
+logLik(Mses0)
+logLik(Mses1)
+logLik(Mses0)+logLik(Mses1)
+
+# likelihood ratio test for interaction
+
+ts <- 2*abs(logLik(Mf)-logLik(Mr))
+attributes(ts) <- NULL
+ts
+
+# critical value at 92% confidence level
+
+qchisq(p=0.92,df=4-3)
+
+# let's look at the relationship between ses and dp
+
+boxplot(dp~ses)
+
+##########################################
+# based on the reduced model, what is estimated p(offend|ses=0,dp=3)?
+# extract coefficients from reduced model
+
+a <- coef(Mr)[1]
+bses <- coef(Mr)[2]
+bdp <- coef(Mr)[3]
+
+# calculate logit and estimated probability
+
+logit <- a+bses*0+bdp*3
+logit
+est.dp3 <- exp(logit)/(1+exp(logit))
+est.dp3
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mr)
+B
+V <- vcov(Mr)
+V
+
+# simulate logit coefficients
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+
+xses <- 0
+xdp <- 3
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
+est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp3,c(0.035,0.965))
+
+# based on the reduced model, what is estimated p(offend|ses=0,dp=7)?
+
+# calculate logit and estimated probability
+
+logit <- a+bses*0+bdp*7
+logit
+est.dp7 <- exp(logit)/(1+exp(logit))
+est.dp7
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mr)
+B
+V <- vcov(Mr)
+V
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+
+xses <- 0
+xdp <- 7
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
+est.sim.dp7 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp7,c(0.035,0.965))
+
+# let's compare the 2 sampling distributions
+
+# point estimate of the difference
+
+est.dp7-est.dp3
+
+# sampling distribution/confidence interval of the difference
+
+boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
+quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
+
+
+##########################################
+# based on the interaction model, what is estimated p(offend|ses=0,dp=3)?
+# extract coefficients from full model
+
+a <- coef(Mf)[1]
+bses <- coef(Mf)[2]
+bdp <- coef(Mf)[3]
+bsesdp <- coef(Mf)[4]
+
+xses <- 0
+xdp <- 3
+
+# calculate logit and estimated probability
+
+logit <- a+bses*xses+bdp*xdp+bsesdp*xses*xdp
+logit
+est.dp3 <- exp(logit)/(1+exp(logit))
+est.dp3
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+# simulate logit coefficients
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+bsesdp.sim <- sb[,4]
+
+xses <- 0
+xdp <- 3
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp+bsesdp*xses*xdp
+est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp3,c(0.035,0.965))
+
+# based on the full model, what is estimated p(offend|ses=0,dp=7)?
+
+# calculate logit and estimated probability
+
+xses <- 0
+xdp <- 7
+
+logit <- a+bses*xses+bdp*xdp+bsesdp*xses*xdp
+logit
+est.dp7 <- exp(logit)/(1+exp(logit))
+est.dp7
+
+# what is the 92% confidence interval around this estimate?
+
+B <- coef(Mf)
+B
+V <- vcov(Mf)
+V
+
+sb <- mvrnorm(n=1e5,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bses.sim <- sb[,2]
+bdp.sim <- sb[,3]
+bsesdp.sim <- sb[,4]
+
+xses <- 0
+xdp <- 7
+
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
+est.sim.dp7 <- exp(logit.sim)/(1+exp(logit.sim))
+quantile(est.sim.dp7,c(0.035,0.965))
+
+# let's compare the 2 sampling distributions
+
+# point estimate of the difference
+
+diff <- est.dp7-est.dp3
+attributes(diff) <- NULL
+diff
+
+# sampling distribution/confidence interval of the difference
+
+boxplot(est.sim.dp3,est.sim.dp7,ylim=c(0,1),names=c("dp=3","dp=7"))
+quantile(est.sim.dp7-est.sim.dp3,c(0.035,0.965))
