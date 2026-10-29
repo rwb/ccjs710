@@ -3160,7 +3160,7 @@ xdp <- 3
 
 logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
 est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
-quantile(est.sim.dp3,c(0.035,0.965))
+quantile(est.sim.dp3,c(0.04,0.96))
 
 # based on the reduced model, what is estimated p(offend|ses=0,dp=7)?
 
@@ -3189,7 +3189,7 @@ xdp <- 7
 
 logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
 est.sim.dp7 <- exp(logit.sim)/(1+exp(logit.sim))
-quantile(est.sim.dp7,c(0.035,0.965))
+quantile(est.sim.dp7,c(0.04,0.96))
 
 # let's compare the 2 sampling distributions
 
@@ -3243,7 +3243,7 @@ xdp <- 3
 
 logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp+bsesdp*xses*xdp
 est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
-quantile(est.sim.dp3,c(0.035,0.965))
+quantile(est.sim.dp3,c(0.04,0.96))
 
 # based on the full model, what is estimated p(offend|ses=0,dp=7)?
 
@@ -3276,7 +3276,7 @@ xdp <- 7
 
 logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp
 est.sim.dp7 <- exp(logit.sim)/(1+exp(logit.sim))
-quantile(est.sim.dp7,c(0.035,0.965))
+quantile(est.sim.dp7,c(0.04,0.96))
 
 # let's compare the 2 sampling distributions
 
