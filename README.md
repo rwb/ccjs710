@@ -3331,3 +3331,54 @@ theta.lcl
 theta.ucl <- qbeta(p=0.95,shape1=1+156,shape2=555)
 theta.ucl
 ```
+
+* So, our point estimate of the fraction of households victimized within this domain is 0.219 with a 90% confidence interval of [0.194,0.246].
+* This inference is based on the assumption that the missing cases are missing-at-random (MAR).
+
+##### Approach #1a
+
+* Let's view the MAR analysis through another lens.
+* For this approach, we need to use the law of total probability (LTP)
+
+```R
+library(boot)
+set.seed(382)
+y <- c(rep(0,555),rep(1,156),rep(NA,104))
+N <- length(y)
+N
+t <- table(y,exclude=NULL)
+t
+
+theta.r1 <- as.numeric(t[2]/(t[1]+t[2]))
+theta.r1
+pi.r1 <- as.numeric((t[1]+t[2])/(t[1]+t[2]+t[3]))
+pi.r1
+pi.r0 <- 1-pi.r1
+pi.r0
+
+# here is the critical assumption
+
+theta.r0 <- theta.r1
+
+# and here is LTP applied to this problem
+
+theta <- theta.r1*pi.r1+theta.r0*pi.r0
+theta
+
+id <- seq(from=1,to=N,by=1)
+id.y <- data.frame(id,y)
+
+tboot <- function(data,i){
+  b <- data[i,]
+  tb <- table(b$y,exclude=NULL)
+  theta.r1b <- as.numeric(tb[2]/(tb[1]+tb[2]))
+  pi.r1b <- as.numeric((tb[1]+tb[2])/(tb[1]+tb[2]+tb[3]))
+  pi.r0b <- 1-pi.r1b
+  theta.r0b <- theta.r1b
+  thetab <- theta.r1b*pi.r1b+theta.r0b*pi.r0b
+  return(thetab)
+}
+
+thetadist <- boot(data=id.y,statistic=tboot,R=1e4)
+boot.ci(thetadist,conf=0.9,type="bca")
+```
