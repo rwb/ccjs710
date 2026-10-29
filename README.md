@@ -3045,7 +3045,7 @@ bsesdp.sim <- sb[,4]
 xses <- 0
 xdp <- 3
 
-logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp+bsepdp*xses*xdp
+logit.sim <- int.sim+bses.sim*xses+bdp.sim*xdp+bsesdp*xses*xdp
 est.sim.dp3 <- exp(logit.sim)/(1+exp(logit.sim))
 quantile(est.sim.dp3,c(0.035,0.965))
 
@@ -3056,7 +3056,7 @@ quantile(est.sim.dp3,c(0.035,0.965))
 xses <- 0
 xdp <- 7
 
-logit <- a+bses*xses+bdp*xdp+bsepdp*xses*xdp
+logit <- a+bses*xses+bdp*xdp+bsesdp*xses*xdp
 logit
 est.dp7 <- exp(logit)/(1+exp(logit))
 est.dp7
