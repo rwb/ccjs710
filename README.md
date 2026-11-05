@@ -3481,3 +3481,46 @@ theta.ucl
 | UB(θ)  | 0.319 | [0.283,0.357] |
 
 
+##### Confidence Interval Coverage Analysis
+
+* Let's return to our hypothetical victimization survey example.
+* Assume we have a large population and if we surveyed every member of the population and asked them whether they had been victimized in the preceding year that we would get the following distribution: p(yes) = 0.3, p(no) = 0.6, and p(missing) = 0.1.
+* We will use the Jeffreys prior confidence interval for a proportion (we could also use clopper-pearson).
+* From this population, we will repeatedly draw samples of size 100.
+* Here is a simulation to demonstrate the calculation of a 95% confidence interval on a set of lower and upper bounds for the proportion.
+
+```R
+set.seed(131)
+
+plb <- vector()
+pub <- vector()
+beta.lb.lcl <- vector()
+beta.lb.ucl <- vector()
+beta.ub.lcl <- vector()
+beta.ub.ucl <- vector()
+
+for(i in 1:1e6){
+  S <- rmultinom(n=1,size=100,prob=c(30/100,60/100,10/100))
+
+  r <- S[1]
+  plb[i] <- r/100
+  pub[i] <- (r+S[3])/100
+
+  beta.lb.lcl[i] <- qbeta(p=0.0125,shape1=1/2+r,shape2=1/2+100-r)
+  beta.lb.ucl[i] <- qbeta(p=0.9875,shape1=1/2+r,shape2=1/2+100-r)
+  beta.ub.lcl[i] <- qbeta(p=0.0125,shape1=1/2+r+S[3],shape2=1/2+100-(r+S[3]))
+  beta.ub.ucl[i] <- qbeta(p=0.9875,shape1=1/2+r+S[3],shape2=1/2+100-(r+S[3]))
+
+  }
+
+pop.lb <- 30/100
+pop.lb
+pop.ub <- (30+10)/100
+pop.ub
+
+trap <- ifelse(beta.lb.lcl<pop.lb & 
+               beta.lb.ucl>pop.lb &
+               beta.ub.lcl<pop.ub & 
+               beta.ub.ucl>pop.ub,1,0)
+mean(trap)
+```
