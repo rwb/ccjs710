@@ -3352,10 +3352,10 @@ theta.ucl
 * And, if one were to study each bound separately, the coverage or trap rate for each bound would be at least 95%.
 * However, as Manski shows, we can use the 97.5% confidence limits for each bound to construct *Bonferroni-corrected* confidence limits that jointly trap the population bounds at least at the 95% rate so that $p(\mbox{LB}(\theta) \in C_{\mbox{LB}(\hat{\theta})} \cap  \mbox{UB}(\theta) \in C_{\mbox{UB}(\hat{\theta})}) \ge 0.95$
 
-##### Approach #1a
+##### MAR Analysis Using Law of Total Probability (LTP)
 
 * Let's view the MAR analysis from last week through another lens.
-* For this approach, we need to use the law of total probability (LTP)
+* For this approach, we need to use the LTP
 
 ```R
 library(boot)
@@ -3479,3 +3479,5 @@ theta.ucl
 | θ(r=1)  | 0.219 | [0.190,0.252] |
 | LB(θ)  | 0.194 | [0.162,0.223] |
 | UB(θ)  | 0.319 | [0.283,0.357] |
+
+
