@@ -3397,7 +3397,7 @@ boot.ci(thetadist,conf=0.9,type="bca")
 * Assume that inferential interest is focused on a 1 − α confidence interval where α = 0.05 (i.e., a 90% confidence interval).
 * If we calculate the 95% confidence limits, *C*, for a single bound, those limits should correspond to the 0.025 and 0.975 percentiles of the sampling distribution for the bound.
 * And, if one were to study each bound separately, the coverage or trap rate for each bound would be at least 95%.
-* However, as Manski shows, we can use the 97.5% confidence limits for each bound to construct *Bonferroni-corrected* confidence limits that jointly trap the population bounds at least at the 95% rate so that $p(\mbox{LB}(\theta) \in C_{\mbox{LB}(\hat{\theta})} \cap  \mbox{UB}(\theta) \in C_{\mbox{UB}(\hat{\theta})}) \ge 0.95.$
+* However, as Manski shows, we can use the 97.5% confidence limits for each bound to construct *Bonferroni-corrected* confidence limits that jointly trap the population bounds at least at the 95% rate so that $p(\mbox{LB}(\theta) \in C_{\mbox{LB}(\hat{\theta})} \cap  \mbox{UB}(\theta) \in C_{\mbox{UB}(\hat{\theta})}) \ge 0.95$
 
 ##### Partial Identification + Statistical Inference
 
