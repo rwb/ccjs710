@@ -3333,9 +3333,28 @@ theta.ucl
 * So, our point estimate of the fraction of households victimized within this domain is 0.219 with a 90% confidence interval of [0.194,0.246].
 * This inference is based on the assumption that the missing cases are missing-at-random (MAR).
 
+
+### Lesson 9 - Thursday 11/5/26
+
+* Today, we continue our discussion of partial identification
+* Last week, we considered the problem of making invariance assumptions
+* For example, the missing-at-random estimate of the fraction of households victimized is based on an invariance assumption.
+* Invariance assumptions lead to point (identified) estimates.
+* Bounded variation assumptions lead to interval or partially identified estimates.
+* Sometimes people also refer to partial identification as *set identification* or they will say that a parameter is *set identified*.
+* Identification is different from the problem of *statistical inference*.
+* In classical statistics, inference is based on models pertaining to *sampling error*.
+* Identification arises from *non-sampling error*.
+* For MAR point estimates, the confidence intervals have the usual 1 - α coverage interpretation.
+* For lower and upper bound parameter estimates, some additional explanation is required.
+* Assume that inferential interest is focused on a 1 − α confidence interval where α = 0.05 (i.e., a 95% confidence interval).
+* If we calculate the 95% confidence limits, *C*, for a single bound, those limits should correspond to the 0.025 and 0.975 percentiles of the sampling distribution for the bound.
+* And, if one were to study each bound separately, the coverage or trap rate for each bound would be at least 95%.
+* However, as Manski shows, we can use the 97.5% confidence limits for each bound to construct *Bonferroni-corrected* confidence limits that jointly trap the population bounds at least at the 95% rate so that $p(\mbox{LB}(\theta) \in C_{\mbox{LB}(\hat{\theta})} \cap  \mbox{UB}(\theta) \in C_{\mbox{UB}(\hat{\theta})}) \ge 0.95$
+
 ##### Approach #1a
 
-* Let's view the MAR analysis through another lens.
+* Let's view the MAR analysis from last week through another lens.
 * For this approach, we need to use the law of total probability (LTP)
 
 ```R
@@ -3363,6 +3382,8 @@ theta.r0 <- theta.r1
 theta <- theta.r1*pi.r1+theta.r0*pi.r0
 theta
 
+# BCA-bootstrap confidence interval
+
 id <- seq(from=1,to=N,by=1)
 id.y <- data.frame(id,y)
 
@@ -3378,28 +3399,17 @@ tboot <- function(data,i){
 }
 
 thetadist <- boot(data=id.y,statistic=tboot,R=1e4)
-boot.ci(thetadist,conf=0.9,type="bca")
+boot.ci(thetadist,conf=0.95,type="bca")
+
+# clopper-pearson confidence interval
+
+theta.lcl <- qbeta(p=0.025,shape1=156,shape2=1+555)
+theta.lcl
+theta.ucl <- qbeta(p=0.975,shape1=1+156,shape2=555)
+theta.ucl
 ```
 
-### Lesson 9 - Thursday 11/5/26
-
-* Today, we continue our discussion of partial identification
-* Last week, we considered the problem of making invariance assumptions
-* For example, the missing-at-random estimate of the fraction of households victimized is based on an invariance assumption.
-* Invariance assumptions lead to point (identified) estimates.
-* Bounded variation assumptions lead to interval or partially identified estimates.
-* Sometimes people also refer to partial identification as *set identification* or they will say that a parameter is *set identified*.
-* Identification is different from the problem of *statistical inference*.
-* In classical statistics, inference is based on models pertaining to *sampling error*.
-* Identification arises from *non-sampling error*.
-* For MAR point estimates, the confidence intervals have the usual 1 - α coverage interpretation.
-* For lower and upper bound parameter estimates, some additional explanation is required.
-* Assume that inferential interest is focused on a 1 − α confidence interval where α = 0.05 (i.e., a 95% confidence interval).
-* If we calculate the 95% confidence limits, *C*, for a single bound, those limits should correspond to the 0.025 and 0.975 percentiles of the sampling distribution for the bound.
-* And, if one were to study each bound separately, the coverage or trap rate for each bound would be at least 95%.
-* However, as Manski shows, we can use the 97.5% confidence limits for each bound to construct *Bonferroni-corrected* confidence limits that jointly trap the population bounds at least at the 95% rate so that $p(\mbox{LB}(\theta) \in C_{\mbox{LB}(\hat{\theta})} \cap  \mbox{UB}(\theta) \in C_{\mbox{UB}(\hat{\theta})}) \ge 0.95$
-
-##### Partial Identification + Statistical Inference
+##### Partial Identification
 
 ```R
 library(boot)
@@ -3410,25 +3420,23 @@ N
 t <- table(y,exclude=NULL)
 t
 
-theta.r1 <- as.numeric(t[2]/(t[1]+t[2]))
-theta.r1
-pi.r1 <- as.numeric((t[1]+t[2])/(t[1]+t[2]+t[3]))
-pi.r1
-pi.r0 <- 1-pi.r1
-pi.r0
-
-# lower bound
+# partial identification, lower bound
 
 theta.r0 <- 0
 theta.lb <- theta.r1*pi.r1+theta.r0*pi.r0
 theta.lb
 
-# upper bound
+# partial identification, upper bound
 
 theta.r0 <- 1
 theta.ub <- theta.r1*pi.r1+theta.r0*pi.r0
 theta.ub
+```
 
+
+##### Partial Identification + Statistical Inference
+
+```R
 id <- seq(from=1,to=N,by=1)
 id.y <- data.frame(id,y)
 
@@ -3466,3 +3474,8 @@ theta.ucl <- qbeta(p=0.9875,shape1=1+156+104,shape2=555)
 theta.ucl
 ```
 
+| Parameter  | Estimate | 95%CI  |
+| -------- | -------: | ------:|
+| θ|r=1  | 0.219 | [0.190,0.252] |
+| LB(θ)  | 0.194 | [0.162,0.223] |
+| UB(θ)  | 0.319 | [0.283,0.357] |
