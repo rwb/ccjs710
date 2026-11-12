@@ -3524,3 +3524,182 @@ trap <- ifelse(beta.lb.lcl<pop.lb &
                beta.ub.ucl>pop.ub,1,0)
 mean(trap)
 ```
+
+### Lesson 10 - Thursday 11/12/26
+
+* Today, we turn to the topic of measuring criminal recidivism using survival time approaches.
+* We will use the NC FY1978 prison release cohort from Schmidt and Witte (1988).
+* In this dataset, we have 9,327 releasees who were followed for 70 months (just short of 6 years).
+* A little over $\frac{1}{3}$ of these people (N = 3,512) returned to prison within the 70 month follow-up period.
+* We will also read in the following covariates: age in years divided by 10, male (=1 means male, =0 means female), and super (=1 means released on parole supervion, =0 means released free and clear).
+* You will also need to refer to the dataset and excel spreadsheet that I'm sending out by email.
+
+##### Code Block #1
+
+```R
+# load the dataset
+
+load("df.rdata")
+attach(df)
+
+# descriptive results
+
+mean(r,na.rm=T)
+table(t,r,exclude=NULL)
+
+# plot the number of failures and cumulative number of 
+# failures over the course of the follow-up period.
+
+par(mfrow=c(1,2))
+plot(table(t),type="l",lty=1,lwd=3,xaxt="n",
+  main="1978 Analysis (3,512 Failures out of N = 9,327)",
+  xlab="# of Months Since Release From Prison",
+  ylab="# of Offenders Returned to Prison")
+axis(side=1,at=seq(from=0,to=75,by=10))
+
+plot(cumsum(table(t)),type="l",lty=1,lwd=3,xaxt="n",
+  main="1978 Analysis (3,512 Failures out of N = 9,327)",
+  xlab="# of Months Since Release From Prison",
+  ylab="Cumulative # of Offenders Returned to Prison")
+axis(side=1,at=seq(from=0,to=75,by=10))
+
+# life table (finish in excel)
+
+t[is.na(t)] <- 70
+table(t,r,exclude=NULL)
+```
+
+##### Code Block #2
+
+* Let's suppose we want to compare the recidivism rates of males and females based on the 70-month recidivism rate.
+* This reduces to a standard difference between proportions problem.
+
+```R
+set.seed(387)
+table(r,male,exclude=NULL)
+3410/(5448+3410)
+102/(367+102)
+m <- rbeta(n=1e6,shape1=1/2+3410,shape2=1/2+5448)
+f <- rbeta(n=1e6,shape1=1/2+102,shape2=1/2+367)
+quantile(m-f,c(0.025,0.975))
+
+M <- glm(r~1+male,family=binomial(link="logit"))
+summary(M)
+logLik(M)
+
+library(maxLik)
+
+loglike <- function(parms) {
+  a <- parms[1]
+  b <- parms[2]
+  pmf <- exp(a+b*male)/(1+exp(a+b*male))
+  return(r*log(pmf)+(1-r)*log(1-pmf))
+  }
+
+logit <- maxLik(loglike,start=c(-1.3,0.5))
+summary(logit)
+
+exp(-1.2804+0.8119)/(1+exp(-1.2804+0.8119))
+exp(-1.2804)/(1+exp(-1.2804))
+
+library(MASS)
+
+B <- coef(M)
+B
+V <- vcov(M)
+V
+
+# simulate logit coefficients
+
+sb <- mvrnorm(n=1e6,mu=B,Sigma=V)
+
+int.sim <- sb[,1]
+bmale.sim <- sb[,2]
+
+logit.male <- int.sim+bmale.sim
+logit.female <- int.sim
+
+male.sim <- exp(logit.male)/(1+exp(logit.male))
+female.sim <- exp(logit.female)/(1+exp(logit.female))
+quantile(male.sim-female.sim,c(0.025,0.975))
+```
+
+##### Code Block #3
+
+* In code block #2, we are not using all of the information in the data because we know how quickly each person failed.
+* One way to proceed is to estimate a parametric survival time model.
+* Let's estimate a model with no covariates first.
+* The simplest model we can estimate is a model that assumes a constant hazard rate (an exponential model)
+
+```R
+library(maxLik)
+
+loglike <- function(parms) {
+  theta <- parms[1]
+  cdf <- 1-exp(-theta*t)
+  sdf <- 1-cdf
+  pdf <- theta*exp(-theta*t)
+  return(r*log(pdf)+(1-r)*log(sdf))
+  }
+
+expon <- maxLik(loglike,start=1/mean(t[r==1]),method="BHHH")
+summary(expon)
+theta <- expon[2]$estimate
+
+pdfp <- vector()
+cdfp <- vector()
+hazp <- vector()
+cdfu <- vector()
+cdfl <- vector()
+
+for(i in 1:70){
+  cdfl[i] <- 1-exp(-theta*(i-0.5))
+  cdfu[i] <- 1-exp(-theta*(i+0.5))
+  pdfp[i] <- cdfu[i]-cdfl[i]
+  cdfp[i] <- 1-exp(-theta*(i))
+  hazp[i] <- (cdfu[i]-cdfl[i])/(1-cdfl[i])
+  }
+
+data.frame(pdfp,cdfp,hazp)
+```
+
+##### Code Block #4
+
+* The exponential model can be viewed as a special case of the Weibull model with a shape parameter k set equal to 1.
+* We can relax that constraint and allow k to be estimated.
+
+```R
+library(maxLik)
+
+loglike <- function(parms) {
+  theta <- parms[1]
+  k <- parms[2]
+  pdf <- (k*theta^k)*(t^(k-1))*exp(-(theta*t)^k)
+  cdf <- 1-exp(-(theta*t)^k)
+  sdf <- 1-cdf
+  r*log(pdf)+(1-r)*log(sdf)
+  }
+
+weibull=maxLik(loglike,start=c(0.0088,1))
+summary(weibull)
+
+parvec <- weibull[2]$estimate
+theta <- parvec[1]
+k <- parvec[2]
+
+pdfp <- vector()
+cdfp <- vector()
+hazp <- vector()
+cdfu <- vector()
+cdfl <- vector()
+
+for(i in 1:70){
+  cdfl[i]=1-exp(-(theta*(i-0.5))^k)
+  cdfu[i]=1-exp(-(theta*(i+0.5))^k)
+  pdfp[i]=cdfu[i]-cdfl[i]
+  cdfp[i]=cdfu[i]
+  hazp[i]=(cdfu[i]-cdfl[i])/(1-cdfl[i])
+  }
+
+data.frame(pdfp,cdfp,hazp)
+```
